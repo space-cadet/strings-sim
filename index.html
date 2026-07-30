@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>String Motion Simulator</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>String Motion Simulator</h1>
+      <p class="subtitle">Classical & Relativistic Dynamics</p>
+    </header>
+    
+    <main>
+      <div id="canvas-container">
+        <canvas id="string-canvas"></canvas>
+        <div id="canvas-controls">
+          <button id="btn-play" class="primary">▶</button>
+          <button id="btn-pause">⏸</button>
+          <button id="btn-reset">↺</button>
+        </div>
+      </div>
+      
+      <aside id="controls-panel">
+        <div class="control-section">
+          <h3>Initial Condition</h3>
+          <select id="preset-select">
+            <option value="pluck">Pluck (Center)</option>
+            <option value="sine">Sine Wave</option>
+            <option value="gaussian">Gaussian Pulse</option>
+            <option value="random">Random Modes</option>
+          </select>
+        </div>
+        
+        <div class="control-section">
+          <h3>Physics Mode</h3>
+          <div class="mode-toggle">
+            <button id="mode-classical" class="active">Classical</button>
+            <button id="mode-relativistic">Relativistic</button>
+          </div>
+        </div>
+        
+        <div class="control-section">
+          <h3>Boundary Conditions</h3>
+          <select id="boundary-select">
+            <option value="fixed">Fixed Ends</option>
+            <option value="free">Free Ends</option>
+            <option value="mixed">Mixed</option>
+          </select>
+        </div>
+        
+        <div class="control-section">
+          <h3>Parameters</h3>
+          <label>
+            String Length (L)
+            <input type="range" id="param-length" min="1" max="10" step="0.1" value="2" />
+            <span id="val-length">2.0</span>
+          </label>
+          <label>
+            Tension (τ)
+            <input type="range" id="param-tension" min="0.1" max="5" step="0.1" value="1" />
+            <span id="val-tension">1.0</span>
+          </label>
+          <label>
+            Mass Density (μ)
+            <input type="range" id="param-density" min="0.1" max="5" step="0.1" value="1" />
+            <span id="val-density">1.0</span>
+          </label>
+          <label>
+            Damping (γ)
+            <input type="range" id="param-damping" min="0" max="1" step="0.01" value="0" />
+            <span id="val-damping">0.00</span>
+          </label>
+        </div>
+        
+        <div class="control-section">
+          <h3>Playback Speed</h3>
+          <label>
+            Time Scale
+            <input type="range" id="param-timescale" min="0.1" max="2" step="0.1" value="1" />
+            <span id="val-timescale">1.0×</span>
+          </label>
+        </div>
+        
+        <div class="control-section metrics">
+          <h3>Metrics</h3>
+          <div class="metric">
+            <span class="metric-label">Total Energy:</span>
+            <span id="metric-energy" class="metric-value">0.000</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Wave Speed:</span>
+            <span id="metric-wavespeed" class="metric-value">0.000</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Fundamental:</span>
+            <span id="metric-fundamental" class="metric-value">0.000</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+    
+    <footer>
+      <p>quantumofgravity.com — String Motion Simulator v0.1</p>
+    </footer>
+  </div>
+  
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
