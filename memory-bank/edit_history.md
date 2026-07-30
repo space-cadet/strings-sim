@@ -7,7 +7,7 @@
 
 ## 2026-07-31
 
-#### 03:04:05 IST - T9: Correct finite-difference spatial update
+#### 03:04:05 IST - T9: Correct finite-difference spatial update (GPT-5.6 Terra)
 - Modified `src/physics/classical.ts` - Evaluated Laplacians from an immutable current time slice
 - Modified `src/physics/relativistic.ts` - Evaluated Laplacians from an immutable current time slice
 - Modified `memory-bank/tasks/T9.md` - Recorded live reproduction and long-run stability evidence
@@ -15,7 +15,7 @@
 - Modified `memory-bank/activeContext.md` - Recorded immutable-slice solver contract
 - Modified `memory-bank/changelog.md` - Recorded numerical stability correction
 
-#### 02:50:47 IST - T9: Simulation integrity and responsive UX
+#### 02:50:47 IST - T9: Simulation integrity and responsive UX (GPT-5.6 Terra)
 - Modified `src/physics/core.ts` - Added conservative stable time-step calculation
 - Modified `src/physics/classical.ts` - Corrected central-difference state handling and parameter grid updates
 - Modified `src/physics/relativistic.ts` - Corrected central-difference state handling, causal check, and parameter grid updates
@@ -34,6 +34,12 @@
 - Modified `memory-bank/session_cache.md` - Synchronized session metadata and task registry
 - Modified `memory-bank/progress.md` - Recorded completed milestone
 - Modified `memory-bank/changelog.md` - Recorded release changes
+
+#### 02:00–02:30 IST - T5/T7: Relativistic string mode + deployment (Sage)
+- Implemented relativistic string solver (linearized Nambu-Goto transverse model)
+- Added worldsheet visualization for relativistic history
+- Deployed to quantumofgravity.com/projects/strings-sim/
+- Git commit `f8ef9fb`
 
 ## 2026-07-30
 

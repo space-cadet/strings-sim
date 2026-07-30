@@ -16,7 +16,10 @@
 - T5: Relativistic String Mode — ✅ COMPLETED (2026-07-30, linearized transverse model)
 - T7: Deployment — ✅ COMPLETED (2026-07-30)
 - T8: Git Repository — ✅ COMPLETED (2026-07-30)
-- T9: Simulation Integrity & Responsive UX — ✅ COMPLETED (2026-07-31)
+- T9: Simulation Integrity & Responsive UX — ✅ COMPLETED (2026-07-31, **GPT-5.6 Terra**)
+  - Fixed finite-difference solver stability (immutable-slice updates)
+  - Added curated presets, responsive layout, accessibility improvements
+  - Verified desktop and mobile behavior, local storage persistence
 
 ## Next Steps
 1. Integrate FFT for a frequency-spectrum display.
