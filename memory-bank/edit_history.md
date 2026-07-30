@@ -7,6 +7,14 @@
 
 ## 2026-07-31
 
+#### 03:04:05 IST - T9: Correct finite-difference spatial update
+- Modified `src/physics/classical.ts` - Evaluated Laplacians from an immutable current time slice
+- Modified `src/physics/relativistic.ts` - Evaluated Laplacians from an immutable current time slice
+- Modified `memory-bank/tasks/T9.md` - Recorded live reproduction and long-run stability evidence
+- Modified `memory-bank/sessions/2026-07-31-early.md` - Recorded follow-up stability validation
+- Modified `memory-bank/activeContext.md` - Recorded immutable-slice solver contract
+- Modified `memory-bank/changelog.md` - Recorded numerical stability correction
+
 #### 02:50:47 IST - T9: Simulation integrity and responsive UX
 - Modified `src/physics/core.ts` - Added conservative stable time-step calculation
 - Modified `src/physics/classical.ts` - Corrected central-difference state handling and parameter grid updates

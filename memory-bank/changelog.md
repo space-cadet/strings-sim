@@ -6,6 +6,7 @@
 
 - Corrected the previous-state update used by both finite-difference solvers.
 - Prevented parameter changes from retaining an invalid time step.
+- Corrected an in-place Laplacian update that caused unstable energy growth in both solvers.
 
 ### Added
 

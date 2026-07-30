@@ -149,11 +149,14 @@ export class RelativisticStringSolver {
 
     // Interior points: finite difference wave equation with c = 1
     for (let i = 1; i < N - 1; i++) {
-      const laplacian = y[i - 1] - 2 * y[i] + y[i + 1];
+      // Evaluate every stencil from one immutable time slice. Updating in
+      // place couples the new left neighbour into this point and produces an
+      // unstable directional scheme even when the Courant condition is met.
+      const laplacian = currentY[i - 1] - 2 * currentY[i] + currentY[i + 1];
 
       // Verlet-like integration for undamped wave equation
-      const newY = 2 * y[i] - this.prevY[i] + courantSq * laplacian;
-      v[i] = (newY - y[i]) / dt;
+      const newY = 2 * currentY[i] - this.prevY[i] + courantSq * laplacian;
+      v[i] = (newY - currentY[i]) / dt;
       y[i] = newY;
     }
 

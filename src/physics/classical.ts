@@ -104,16 +104,19 @@ export class ClassicalStringSolver {
 
     // Interior points: finite difference wave equation
     for (let i = 1; i < N - 1; i++) {
-      const laplacian = y[i - 1] - 2 * y[i] + y[i + 1];
+      // All spatial differences must come from the same time slice. Reading
+      // y[i - 1] here after it has been updated makes the method directional
+      // and destroys the stability guarantee of the explicit scheme.
+      const laplacian = currentY[i - 1] - 2 * currentY[i] + currentY[i + 1];
       
       if (damping > 0) {
         // Damped wave equation
         v[i] = (1 - damping) * v[i] + (courantSq / dt) * laplacian;
-        y[i] = y[i] + dt * v[i];
+        y[i] = currentY[i] + dt * v[i];
       } else {
         // Standard wave equation (Verlet-like)
-        const newY = 2 * y[i] - this.prevY[i] + courantSq * laplacian;
-        v[i] = (newY - y[i]) / dt;
+        const newY = 2 * currentY[i] - this.prevY[i] + courantSq * laplacian;
+        v[i] = (newY - currentY[i]) / dt;
         y[i] = newY;
       }
     }

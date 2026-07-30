@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-07-31 02:50:47 IST*
+*Last Updated: 2026-07-31 03:04:05 IST*
 
 ## Current Tasks
 - T6: Energy Metrics & FFT — 🔄 IN PROGRESS
@@ -25,7 +25,7 @@
 
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
-- Physics: ✅ Classical and linearized relativistic solvers with stable stepping, boundary conditions, and damping where applicable
+- Physics: ✅ Classical and linearized relativistic solvers with immutable-slice finite differences, stable stepping, boundary conditions, and damping where applicable
 - Rendering: ✅ Canvas renderer with smooth curves, visible energy density, and optional relativistic history
 - UI: ✅ Full responsive control panel with persisted settings
 - Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/
