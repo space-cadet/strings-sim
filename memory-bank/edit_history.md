@@ -17,6 +17,7 @@
 - Modified `src/visualization/worldsheet.ts` - Corrected transverse-history axis label
 - Modified `src/style.css` - Added responsive layout, focus, touch, and reduced-motion styles
 - Modified `index.html` - Restructured visualization layout and improved accessible controls
+- Modified `vite.config.ts` - Disabled production source maps for the public deployment bundle
 - Modified `README.md` - Clarified presets and relativistic-model scope
 - Created `memory-bank/tasks/T9.md` - Recorded T9 scope, work, and verification
 - Created `memory-bank/sessions/2026-07-31-early.md` - Recorded session outcome and deployment handoff
