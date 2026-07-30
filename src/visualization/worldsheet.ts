@@ -1,8 +1,10 @@
 /**
- * Worldsheet renderer for relativistic string visualization
+ * Worldsheet renderer — shows string as a 2D spacetime surface
  *
- * Shows the string's trajectory through spacetime, making the
- * worldsheet geometry visible.
+ * Standard string theory worldsheet coordinates:
+ *   σ (sigma) = position along string [0, L]  → horizontal axis
+ *   τ (tau)   = time                          → vertical axis
+ *   Color     = transverse displacement y(σ,τ)
  */
 
 import { WorldsheetPoint } from '../physics/relativistic';
@@ -10,11 +12,6 @@ import { WorldsheetPoint } from '../physics/relativistic';
 export interface WorldsheetRendererConfig {
   canvas: HTMLCanvasElement;
   padding?: { top: number; right: number; bottom: number; left: number };
-  stringColor?: string;
-  trailColor?: string;
-  lightConeColor?: string;
-  showLightCones?: boolean;
-  showTrails?: boolean;
 }
 
 export class WorldsheetRenderer {
@@ -25,22 +22,19 @@ export class WorldsheetRenderer {
   private height: number = 0;
   private dpr: number = 1;
 
-  // Coordinate mapping
-  private tMin: number = 0;
-  private tMax: number = 1;
-  private xMin: number = 0;
-  private xMax: number = 1;
+  // Data bounds
+  private sigmaMin: number = 0;
+  private sigmaMax: number = 1;
+  private tauMin: number = 0;
+  private tauMax: number = 1;
+  private yMin: number = -1;
+  private yMax: number = 1;
 
   constructor(config: WorldsheetRendererConfig) {
     this.canvas = config.canvas;
     this.ctx = config.canvas.getContext('2d')!;
     this.config = {
-      padding: { top: 40, right: 40, bottom: 60, left: 60 },
-      stringColor: '#00d4ff',
-      trailColor: 'rgba(0, 212, 255, 0.3)',
-      lightConeColor: 'rgba(255, 200, 100, 0.4)',
-      showLightCones: true,
-      showTrails: true,
+      padding: { top: 40, right: 40, bottom: 60, left: 70 },
       ...config,
     };
     this.dpr = window.devicePixelRatio || 1;
@@ -63,68 +57,99 @@ export class WorldsheetRenderer {
     this.ctx.scale(this.dpr, this.dpr);
   }
 
-  setBounds(tMin: number, tMax: number, xMin: number, xMax: number): void {
-    this.tMin = tMin;
-    this.tMax = tMax;
-    this.xMin = xMin;
-    this.xMax = xMax;
+  setBounds(
+    tauMin: number, tauMax: number,
+    yMin: number, yMax: number,
+    sigmaMin: number = 0, sigmaMax: number = 1
+  ): void {
+    this.tauMin = tauMin;
+    this.tauMax = tauMax;
+    this.yMin = yMin;
+    this.yMax = yMax;
+    this.sigmaMin = sigmaMin;
+    this.sigmaMax = sigmaMax;
   }
 
-  private mapT(t: number): number {
+  // Map sigma (position along string) → canvas x
+  private mapSigma(s: number): number {
     const { left, right } = this.config.padding;
     const plotWidth = this.width - left - right;
-    return left + ((t - this.tMin) / (this.tMax - this.tMin)) * plotWidth;
+    return left + ((s - this.sigmaMin) / (this.sigmaMax - this.sigmaMin)) * plotWidth;
   }
 
-  private mapX(x: number): number {
+  // Map tau (time) → canvas y (inverted: tau increases upward)
+  private mapTau(t: number): number {
     const { top, bottom } = this.config.padding;
     const plotHeight = this.height - top - bottom;
-    return top + (1 - (x - this.xMin) / (this.xMax - this.xMin)) * plotHeight;
+    return this.height - bottom - ((t - this.tauMin) / (this.tauMax - this.tauMin)) * plotHeight;
+  }
+
+  // Map displacement y → color intensity
+  private displacementColor(y: number): string {
+    // Normalize to [-1, 1]
+    const maxDisp = Math.max(Math.abs(this.yMin), Math.abs(this.yMax)) || 1;
+    const norm = y / maxDisp;
+
+    // Color scheme: negative = purple, zero = dark, positive = cyan
+    if (norm < 0) {
+      const intensity = Math.abs(norm);
+      const r = Math.floor(100 + 155 * intensity);
+      const g = Math.floor(50 * intensity);
+      const b = Math.floor(200 + 55 * intensity);
+      return `rgba(${r}, ${g}, ${b}, ${0.3 + 0.7 * intensity})`;
+    } else {
+      const intensity = norm;
+      const r = Math.floor(50 * intensity);
+      const g = Math.floor(100 + 155 * intensity);
+      const b = Math.floor(200 + 55 * intensity);
+      return `rgba(${r}, ${g}, ${b}, ${0.3 + 0.7 * intensity})`;
+    }
+  }
+
+  render(worldsheet: WorldsheetPoint[][]): void {
+    this.clear();
+    this.drawGrid();
+    this.drawAxes();
+
+    if (worldsheet.length < 2 || worldsheet[0].length < 2) return;
+
+    // Draw worldsheet as colored surface
+    this.drawWorldsheetSurface(worldsheet);
+
+    // Draw current string snapshot on top
+    this.drawCurrentString(worldsheet);
+
+    // Draw light cone boundaries
+    this.drawLightConeBoundaries();
   }
 
   private clear(): void {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
-  render(worldsheet: WorldsheetPoint[][], currentTime: number, stringLength: number): void {
-    this.clear();
-    this.drawGrid(stringLength);
-    this.drawAxes();
-
-    if (this.config.showLightCones) {
-      this.drawLightCones(currentTime, stringLength);
-    }
-
-    if (this.config.showTrails) {
-      this.drawTrails(worldsheet);
-    }
-
-    this.drawCurrentString(worldsheet, currentTime);
-  }
-
-  private drawGrid(stringLength: number): void {
+  private drawGrid(): void {
     const { ctx } = this;
     const { left, right, top, bottom } = this.config.padding;
 
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
 
-    // Vertical grid (time)
-    const tTicks = 8;
-    for (let i = 0; i <= tTicks; i++) {
-      const t = this.tMin + (i / tTicks) * (this.tMax - this.tMin);
-      const x = this.mapT(t);
+    // Vertical grid (sigma)
+    const sigmaTicks = 8;
+    for (let i = 0; i <= sigmaTicks; i++) {
+      const s = this.sigmaMin + (i / sigmaTicks) * (this.sigmaMax - this.sigmaMin);
+      const x = this.mapSigma(s);
       ctx.beginPath();
       ctx.moveTo(x, top);
       ctx.lineTo(x, this.height - bottom);
       ctx.stroke();
     }
 
-    // Horizontal grid (space)
-    const xTicks = 6;
-    for (let i = 0; i <= xTicks; i++) {
-      const x = this.xMin + (i / xTicks) * (this.xMax - this.xMin);
-      const y = this.mapX(x);
+    // Horizontal grid (tau)
+    const tauTicks = 6;
+    for (let i = 0; i <= tauTicks; i++) {
+      const t = this.tauMin + (i / tauTicks) * (this.tauMax - this.tauMin);
+      const y = this.mapTau(t);
       ctx.beginPath();
       ctx.moveTo(left, y);
       ctx.lineTo(this.width - right, y);
@@ -141,43 +166,41 @@ export class WorldsheetRenderer {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.font = '12px "Segoe UI", sans-serif';
 
-    // T axis (horizontal)
-    const y0 = this.mapX(0);
+    // Sigma axis (horizontal, at bottom)
+    const y0 = this.mapTau(this.tauMin);
     ctx.beginPath();
     ctx.moveTo(left, y0);
     ctx.lineTo(this.width - right, y0);
     ctx.stroke();
 
-    // T labels
     ctx.textAlign = 'center';
-    const tTicks = 5;
-    for (let i = 0; i <= tTicks; i++) {
-      const tVal = this.tMin + (i / tTicks) * (this.tMax - this.tMin);
-      const x = this.mapT(tVal);
-      ctx.fillText(tVal.toFixed(1), x, y0 + 20);
+    const sigmaTicks = 5;
+    for (let i = 0; i <= sigmaTicks; i++) {
+      const s = this.sigmaMin + (i / sigmaTicks) * (this.sigmaMax - this.sigmaMin);
+      const x = this.mapSigma(s);
+      ctx.fillText(s.toFixed(1), x, y0 + 20);
 
       ctx.beginPath();
       ctx.moveTo(x, y0 - 4);
       ctx.lineTo(x, y0 + 4);
       ctx.stroke();
     }
-    ctx.fillText('t (time)', (left + this.width - right) / 2, this.height - 15);
+    ctx.fillText('σ (position along string)', (left + this.width - right) / 2, this.height - 10);
 
-    // X axis (vertical)
-    ctx.textAlign = 'right';
-    const x0 = this.mapT(0);
+    // Tau axis (vertical, at left)
+    const x0 = this.mapSigma(this.sigmaMin);
     ctx.beginPath();
     ctx.moveTo(x0, top);
     ctx.lineTo(x0, this.height - bottom);
     ctx.stroke();
 
-    // X labels
-    const xTicks = 4;
-    for (let i = 0; i <= xTicks; i++) {
-      const xVal = this.xMin + (i / xTicks) * (this.xMax - this.xMin);
-      if (Math.abs(xVal) < 0.01) continue;
-      const y = this.mapX(xVal);
-      ctx.fillText(xVal.toFixed(1), x0 - 10, y + 4);
+    ctx.textAlign = 'right';
+    const tauTicks = 4;
+    for (let i = 0; i <= tauTicks; i++) {
+      const t = this.tauMin + (i / tauTicks) * (this.tauMax - this.tauMin);
+      if (Math.abs(t) < 0.01) continue;
+      const y = this.mapTau(t);
+      ctx.fillText(t.toFixed(1), x0 - 10, y + 4);
 
       ctx.beginPath();
       ctx.moveTo(x0 - 4, y);
@@ -189,104 +212,102 @@ export class WorldsheetRenderer {
     ctx.translate(20, (top + this.height - bottom) / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = 'center';
-    ctx.fillText('y (transverse displacement)', 0, 0);
+    ctx.fillText('τ (time)', 0, 0);
     ctx.restore();
   }
 
-  private drawLightCones(currentTime: number, stringLength: number): void {
+  private drawWorldsheetSurface(worldsheet: WorldsheetPoint[][]): void {
     const { ctx } = this;
 
-    ctx.strokeStyle = this.config.lightConeColor;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
+    // Each worldsheet[i] is a time-history of one spatial point
+    // worldsheet[i][j] = {t, x, y} where x = position along string, t = time, y = displacement
 
-    // Light cones from endpoints (slope = ±1 in natural units)
-    const endpoints = [0, stringLength];
+    const numSpatial = worldsheet.length;
+    const numTemporal = worldsheet[0].length;
 
-    for (const x0 of endpoints) {
-      const x = this.mapX(x0);
-      const t = this.mapT(currentTime);
+    // Draw small rectangles for each (sigma, tau) point, colored by displacement
+    const rectWidth = (this.mapSigma(this.sigmaMax) - this.mapSigma(this.sigmaMin)) / (numSpatial - 1);
+    const rectHeight = (this.mapTau(this.tauMin) - this.mapTau(this.tauMax)) / (numTemporal - 1);
 
-      // Past light cone (extending backward in time)
-      const tPast = this.mapT(Math.max(this.tMin, currentTime - stringLength));
+    for (let i = 0; i < numSpatial - 1; i++) {
+      for (let j = 0; j < numTemporal - 1; j++) {
+        const point = worldsheet[i][j];
+        const x = this.mapSigma(point.x);
+        const y = this.mapTau(point.t);
 
-      ctx.beginPath();
-      ctx.moveTo(this.mapT(currentTime), x);
-      ctx.lineTo(tPast, this.mapX(Math.max(0, x0 - (currentTime - this.tMin))));
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(this.mapT(currentTime), x);
-      ctx.lineTo(tPast, this.mapX(Math.min(stringLength, x0 + (currentTime - this.tMin))));
-      ctx.stroke();
-    }
-
-    ctx.setLineDash([]);
-  }
-
-  private drawTrails(worldsheet: WorldsheetPoint[][]): void {
-    const { ctx } = this;
-
-    ctx.strokeStyle = this.config.trailColor;
-    ctx.lineWidth = 1;
-
-    for (const line of worldsheet) {
-      if (line.length < 2) continue;
-
-      ctx.beginPath();
-      ctx.moveTo(this.mapT(line[0].t), this.mapX(line[0].y));
-
-      for (let i = 1; i < line.length; i++) {
-        ctx.lineTo(this.mapT(line[i].t), this.mapX(line[i].y));
+        ctx.fillStyle = this.displacementColor(point.y);
+        ctx.fillRect(x - rectWidth / 2, y - rectHeight / 2, rectWidth + 1, rectHeight + 1);
       }
-
-      ctx.stroke();
     }
   }
 
-  private drawCurrentString(worldsheet: WorldsheetPoint[][], currentTime: number): void {
+  private drawCurrentString(worldsheet: WorldsheetPoint[][]): void {
     const { ctx } = this;
 
-    if (worldsheet.length === 0) return;
+    // Draw the most recent time slice as a bright line
+    const numSpatial = worldsheet.length;
 
-    // Find the current string configuration (last point in each line)
-    ctx.shadowColor = this.config.stringColor;
-    ctx.shadowBlur = 15;
-    ctx.strokeStyle = this.config.stringColor;
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-
-    ctx.beginPath();
-
-    // Get last point from each line (most recent time)
-    const firstPoint = worldsheet[0][worldsheet[0].length - 1];
-    ctx.moveTo(this.mapT(firstPoint.t), this.mapX(firstPoint.y));
-
-    for (let i = 1; i < worldsheet.length; i++) {
-      const line = worldsheet[i];
-      const point = line[line.length - 1];
-      ctx.lineTo(this.mapT(point.t), this.mapX(point.y));
-    }
-
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Draw endpoints with glow
-    const firstEndpoint = worldsheet[0][worldsheet[0].length - 1];
-    const lastEndpoint = worldsheet[worldsheet.length - 1][worldsheet[worldsheet.length - 1].length - 1];
-
-    ctx.fillStyle = this.config.stringColor;
-    ctx.shadowColor = this.config.stringColor;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00d4ff';
     ctx.shadowBlur = 10;
 
     ctx.beginPath();
-    ctx.arc(this.mapT(firstEndpoint.t), this.mapX(firstEndpoint.y), 4, 0, Math.PI * 2);
+    for (let i = 0; i < numSpatial; i++) {
+      const line = worldsheet[i];
+      const point = line[line.length - 1]; // Most recent time
+      const x = this.mapSigma(point.x);
+      const y = this.mapTau(point.t);
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Mark endpoints
+    const firstPoint = worldsheet[0][worldsheet[0].length - 1];
+    const lastPoint = worldsheet[numSpatial - 1][worldsheet[numSpatial - 1].length - 1];
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(this.mapSigma(firstPoint.x), this.mapTau(firstPoint.t), 4, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(this.mapT(lastEndpoint.t), this.mapX(lastEndpoint.y), 4, 0, Math.PI * 2);
+    ctx.arc(this.mapSigma(lastPoint.x), this.mapTau(lastPoint.t), 4, 0, Math.PI * 2);
     ctx.fill();
+  }
 
-    ctx.shadowBlur = 0;
+  private drawLightConeBoundaries(): void {
+    const { ctx } = this;
+
+    // In the (σ, τ) plane, light travels at 45°
+    // Draw dashed lines showing the speed-of-light limit
+    ctx.strokeStyle = 'rgba(255, 200, 100, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+
+    const x0 = this.mapSigma(this.sigmaMin);
+    const xL = this.mapSigma(this.sigmaMax);
+    const yBottom = this.mapTau(this.tauMin);
+    const yTop = this.mapTau(this.tauMax);
+
+    // Light cone from left endpoint (slope = ±1)
+    ctx.beginPath();
+    ctx.moveTo(x0, yBottom);
+    ctx.lineTo(x0 + (yBottom - yTop), yTop); // 45° line
+    ctx.stroke();
+
+    // Light cone from right endpoint
+    ctx.beginPath();
+    ctx.moveTo(xL, yBottom);
+    ctx.lineTo(xL - (yBottom - yTop), yTop); // -45° line
+    ctx.stroke();
+
+    ctx.setLineDash([]);
   }
 }

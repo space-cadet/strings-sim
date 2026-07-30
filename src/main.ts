@@ -407,12 +407,12 @@ class StringSimulator {
       const relState = state as import('./physics/relativistic').RelativisticStringState;
       if (relState.worldsheet && relState.worldsheet.length > 0) {
         const bounds = (this.solver as RelativisticStringSolver).getWorldsheetBounds();
-        this.worldsheetRenderer.setBounds(bounds.tMin, bounds.tMax, bounds.yMin, bounds.yMax);
-        this.worldsheetRenderer.render(
-          relState.worldsheet,
-          relState.t,
-          this.config.params.L
+        this.worldsheetRenderer.setBounds(
+          bounds.tMin, bounds.tMax,
+          bounds.yMin, bounds.yMax,
+          0, this.config.params.L
         );
+        this.worldsheetRenderer.render(relState.worldsheet);
       }
     }
   }

@@ -16,22 +16,24 @@
     
     <main>
       <section class="visualization-column" aria-label="String simulation views">
-      <div id="canvas-container">
-        <canvas id="string-canvas" aria-label="Animated string displacement plot"></canvas>
-        <div id="canvas-controls" aria-label="Playback controls">
-          <button id="btn-play" class="primary" aria-label="Play simulation" title="Play">▶</button>
-          <button id="btn-pause" aria-label="Pause simulation" title="Pause">⏸</button>
-          <button id="btn-reset" aria-label="Reset simulation" title="Reset">↺</button>
+        <div id="left-column">
+          <div id="canvas-container">
+            <canvas id="string-canvas" aria-label="Animated string displacement plot"></canvas>
+            <div id="canvas-controls" aria-label="Playback controls">
+              <button id="btn-play" class="primary" aria-label="Play simulation" title="Play">▶</button>
+              <button id="btn-pause" aria-label="Pause simulation" title="Pause">⏸</button>
+              <button id="btn-reset" aria-label="Reset simulation" title="Reset">↺</button>
+            </div>
+          </div>
+          
+          <div id="worldsheet-container" style="display: none;">
+            <h3>Worldsheet View</h3>
+            <canvas id="worldsheet-canvas" aria-label="Relativistic worldsheet spacetime plot"></canvas>
+            <p class="worldsheet-legend">
+              String trajectory through spacetime (σ, τ). Color = transverse displacement.
+            </p>
+          </div>
         </div>
-      </div>
-      
-      <div id="worldsheet-container" style="display: none;">
-        <h3>Relativistic History</h3>
-        <canvas id="worldsheet-canvas" aria-label="Relativistic transverse history plot"></canvas>
-        <p class="worldsheet-legend">
-          Transverse histories y(t) sampled along the string. Dashed guides have |dy/dt| = 1.
-        </p>
-      </div>
       </section>
       
       <aside id="controls-panel">
