@@ -5,7 +5,7 @@
  * using the finite difference method with Verlet-like time stepping.
  */
 
-import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, waveSpeed } from './core';
+import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep, waveSpeed } from './core';
 
 export class ClassicalStringSolver {
   private config: SimulationConfig;
@@ -27,17 +27,20 @@ export class ClassicalStringSolver {
   }
 
   /** Initialize with a given displacement profile */
-  initialize(profile: (x: number, L: number) => number): void {
+  initialize(profile: (x: number, L: number) => number, velocity?: (x: number, L: number) => number): void {
     const { N, dx } = this.config;
     const { L } = this.config.params;
     
     for (let i = 0; i < N; i++) {
       const x = (i / (N - 1)) * L;
       this.state.y[i] = profile(x, L);
-      this.prevY[i] = this.state.y[i];
+      this.state.v[i] = velocity?.(x, L) ?? 0;
     }
     
     this.applyBoundaryConditions();
+    for (let i = 0; i < N; i++) {
+      this.prevY[i] = this.state.y[i] - this.config.dt * this.state.v[i];
+    }
     this.state.t = 0;
   }
 
@@ -49,7 +52,7 @@ export class ClassicalStringSolver {
 
   /** Apply boundary conditions to current state */
   private applyBoundaryConditions(): void {
-    const { y } = this.state;
+    const { y, v } = this.state;
     const N = y.length;
     const bc = this.config.boundary;
 
@@ -57,15 +60,21 @@ export class ClassicalStringSolver {
       case 'fixed':
         y[0] = 0;
         y[N - 1] = 0;
+        v[0] = 0;
+        v[N - 1] = 0;
         break;
       case 'free':
         // ∂y/∂x = 0 at boundaries → ghost points equal
         y[0] = y[1];
         y[N - 1] = y[N - 2];
+        v[0] = v[1];
+        v[N - 1] = v[N - 2];
         break;
       case 'mixed':
         y[0] = 0; // fixed left
         y[N - 1] = y[N - 2]; // free right
+        v[0] = 0;
+        v[N - 1] = v[N - 2];
         break;
     }
   }
@@ -73,6 +82,8 @@ export class ClassicalStringSolver {
   /** Update parameters (recalculates wave speed) */
   setParameters(params: StringParameters): void {
     this.config.params = { ...params };
+    this.config.dx = params.L / (this.config.N - 1);
+    this.config.dt = stableTimeStep(this.config.dx, params, 'classical');
     this.c = waveSpeed(params);
   }
 
@@ -86,8 +97,10 @@ export class ClassicalStringSolver {
     const courantSq = (c * dt / dx) ** 2;
     const damping = gamma * dt;
 
-    // Store current as previous
-    this.prevY.set(y);
+    // Keep the last completed state for the central-difference update.  Copying
+    // it before calculating new positions would make prevY equal to y and turn
+    // the Verlet update into a first-order step.
+    const currentY = new Float64Array(y);
 
     // Interior points: finite difference wave equation
     for (let i = 1; i < N - 1; i++) {
@@ -106,6 +119,7 @@ export class ClassicalStringSolver {
     }
 
     this.applyBoundaryConditions();
+    this.prevY.set(currentY);
     this.state.t += dt;
   }
 
@@ -145,7 +159,7 @@ export class ClassicalStringSolver {
       kineticEnergy: ke,
       potentialEnergy: pe,
       waveSpeed: this.c,
-      fundamentalFreq: this.c / (2 * L),
+      fundamentalFreq: this.config.boundary === 'mixed' ? this.c / (4 * L) : this.c / (2 * L),
     };
   }
 

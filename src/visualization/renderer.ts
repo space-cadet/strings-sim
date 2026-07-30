@@ -35,7 +35,7 @@ export class StringRenderer {
       stringColor: '#6c5ce7',
       stringWidth: 2.5,
       showGrid: true,
-      showEnergy: false,
+      showEnergy: true,
       ...config,
     };
     this.dpr = window.devicePixelRatio || 1;

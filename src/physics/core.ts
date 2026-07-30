@@ -62,6 +62,15 @@ export function waveSpeed(params: StringParameters): number {
   return Math.sqrt(params.tau / params.mu);
 }
 
+/**
+ * Choose a conservative explicit time step for the current spatial grid.
+ * A Courant number of 0.5 leaves headroom when a user changes parameters.
+ */
+export function stableTimeStep(dx: number, params: StringParameters, mode: PhysicsMode): number {
+  const c = mode === 'relativistic' ? 1 : waveSpeed(params);
+  return dx / (2 * c);
+}
+
 /** Compute fundamental frequency: f1 = c / (2L) for fixed ends */
 export function fundamentalFrequency(params: StringParameters): number {
   return waveSpeed(params) / (2 * params.L);

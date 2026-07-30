@@ -3,7 +3,7 @@
  * Orchestrates physics simulation, rendering, and UI
  */
 
-import { SimulationConfig, StringParameters, BoundaryCondition, PhysicsMode } from './physics/core';
+import { SimulationConfig, StringParameters, BoundaryCondition, PhysicsMode, stableTimeStep } from './physics/core';
 import { ClassicalStringSolver } from './physics/classical';
 import { RelativisticStringSolver } from './physics/relativistic';
 import { StringRenderer } from './visualization/renderer';
@@ -15,7 +15,9 @@ interface SavedSettings {
   preset: string;
   boundary: BoundaryCondition;
   params: StringParameters;
+  classicalParams?: StringParameters;
   timeScale: number;
+  showWorldsheet?: boolean;
 }
 
 const SETTINGS_KEY = 'strings-sim-settings';
@@ -48,7 +50,9 @@ class StringSimulator {
   private lastTime: number = 0;
   private timeScale: number = 1.0;
   private stepsPerFrame: number = 4;
+  private stepAccumulator: number = 0;
   private showWorldsheet: boolean = false;
+  private classicalParams: StringParameters;
 
   // UI elements
   private btnPlay: HTMLButtonElement;
@@ -72,7 +76,7 @@ class StringSimulator {
 
     const N = 256;
     const dx = params.L / (N - 1);
-    const dt = dx / (2 * Math.sqrt(params.tau / params.mu));
+    const dt = stableTimeStep(dx, params, saved?.mode ?? 'classical');
 
     this.config = {
       N,
@@ -84,12 +88,14 @@ class StringSimulator {
     };
 
     this.timeScale = saved?.timeScale ?? 1.0;
+    this.showWorldsheet = saved?.showWorldsheet ?? false;
+    this.classicalParams = { ...(saved?.classicalParams ?? params) };
 
     // Initialize solver based on mode
     this.solver = this.createSolver();
     const presetName = saved?.preset ?? 'pluck';
     const preset = presets[presetName] || presets.pluck;
-    this.solver.initialize((x, L) => preset(x, L));
+    this.initializePreset(preset);
 
     // Initialize renderer
     const canvas = document.getElementById('string-canvas') as HTMLCanvasElement;
@@ -129,6 +135,7 @@ class StringSimulator {
 
     this.bindEvents();
     this.updateModeUI();
+    this.updateWorldsheetVisibility();
     this.updateMetrics();
     this.render();
   }
@@ -138,6 +145,26 @@ class StringSimulator {
       return new RelativisticStringSolver(this.config);
     }
     return new ClassicalStringSolver(this.config);
+  }
+
+  private initializePreset(preset: (typeof presets)[string]): void {
+    const speed = this.solver.getMetrics().waveSpeed;
+    this.solver.initialize(
+      (x, L) => preset.displacement(x, L),
+      preset.velocity ? (x, L) => speed * preset.velocity!(x, L) : undefined,
+    );
+  }
+
+  private updateDiscretization(): void {
+    this.config.dx = this.config.params.L / (this.config.N - 1);
+    this.config.dt = stableTimeStep(this.config.dx, this.config.params, this.config.mode);
+  }
+
+  private updateWorldsheetVisibility(): void {
+    const canShow = this.config.mode === 'relativistic' && this.showWorldsheet;
+    this.worldsheetToggle?.classList.toggle('active', canShow);
+    const container = document.getElementById('worldsheet-container');
+    if (container) container.style.display = canShow ? 'block' : 'none';
   }
 
   private setSliderValue(id: string, value: number, formatter?: (v: number) => string): void {
@@ -183,17 +210,16 @@ class StringSimulator {
     if (this.worldsheetToggle) {
       this.worldsheetToggle.addEventListener('click', () => {
         this.showWorldsheet = !this.showWorldsheet;
-        this.worldsheetToggle!.classList.toggle('active', this.showWorldsheet);
-        const container = document.getElementById('worldsheet-container');
-        if (container) {
-          container.style.display = this.showWorldsheet ? 'block' : 'none';
-        }
+        this.updateWorldsheetVisibility();
+        this.persist();
       });
     }
 
     // Parameter sliders
     this.bindSlider('param-length', 'val-length', (val) => {
       this.config.params.L = val;
+      if (this.config.mode === 'classical') this.classicalParams.L = val;
+      this.updateDiscretization();
       this.solver.setParameters(this.config.params);
       this.renderer.setBounds(0, val, -0.5, 0.5);
       this.reset();
@@ -202,18 +228,23 @@ class StringSimulator {
 
     this.bindSlider('param-tension', 'val-tension', (val) => {
       this.config.params.tau = val;
+      this.classicalParams.tau = val;
+      this.updateDiscretization();
       this.solver.setParameters(this.config.params);
       this.persist();
     }, (v) => v.toFixed(1));
 
     this.bindSlider('param-density', 'val-density', (val) => {
       this.config.params.mu = val;
+      this.classicalParams.mu = val;
+      this.updateDiscretization();
       this.solver.setParameters(this.config.params);
       this.persist();
     }, (v) => v.toFixed(1));
 
     this.bindSlider('param-damping', 'val-damping', (val) => {
       this.config.params.gamma = val;
+      this.classicalParams.gamma = val;
       this.solver.setParameters(this.config.params);
       this.persist();
     }, (v) => v.toFixed(2));
@@ -242,24 +273,31 @@ class StringSimulator {
 
   private switchMode(newMode: PhysicsMode): void {
     this.pause();
+    if (this.config.mode === 'classical') {
+      this.classicalParams = { ...this.config.params };
+    }
     this.config.mode = newMode;
 
-    // In relativistic mode, fix parameters
+    // Relativistic strings use natural units: c = 1 and no damping. Restore
+    // the user's classical parameters when they return to that mode.
     if (newMode === 'relativistic') {
-      this.config.params.tau = 1.0;
-      this.config.params.mu = 1.0;
-      this.config.params.gamma = 0.0;
-      this.updateModeUI();
+      this.config.params = { ...this.config.params, tau: 1.0, mu: 1.0, gamma: 0.0 };
+    } else {
+      this.config.params = { ...this.classicalParams };
     }
+    this.updateDiscretization();
 
     // Recreate solver
     this.solver = this.createSolver();
     this.reset();
+    this.updateModeUI();
+    this.updateWorldsheetVisibility();
     this.persist();
   }
 
   private updateModeUI(): void {
     const isRelativistic = this.config.mode === 'relativistic';
+    document.body.classList.toggle('relativistic-mode', isRelativistic);
 
     // Disable tension and density sliders in relativistic mode
     const tensionInput = document.getElementById('param-tension') as HTMLInputElement;
@@ -270,17 +308,19 @@ class StringSimulator {
     if (densityInput) densityInput.disabled = isRelativistic;
     if (dampingInput) dampingInput.disabled = isRelativistic;
 
-    // Update displayed values
-    if (isRelativistic) {
-      this.setSliderValue('param-tension', 1.0, (v) => v.toFixed(1));
-      this.setSliderValue('param-density', 1.0, (v) => v.toFixed(1));
-      this.setSliderValue('param-damping', 0.0, (v) => v.toFixed(2));
-    }
+    // Keep control values in sync when returning to classical mode.
+    this.setSliderValue('param-length', this.config.params.L, (v) => v.toFixed(1));
+    this.setSliderValue('param-tension', this.config.params.tau, (v) => v.toFixed(1));
+    this.setSliderValue('param-density', this.config.params.mu, (v) => v.toFixed(1));
+    this.setSliderValue('param-damping', this.config.params.gamma, (v) => v.toFixed(2));
 
     // Show/hide worldsheet toggle
     if (this.worldsheetToggle) {
       this.worldsheetToggle.style.display = isRelativistic ? 'inline-block' : 'none';
     }
+
+    const causalityMetric = document.getElementById('causality-metric');
+    if (causalityMetric) causalityMetric.style.display = isRelativistic ? 'flex' : 'none';
   }
 
   private persist(): void {
@@ -289,7 +329,9 @@ class StringSimulator {
       preset: this.presetSelect.value,
       boundary: this.config.boundary,
       params: this.config.params,
+      classicalParams: this.classicalParams,
       timeScale: this.timeScale,
+      showWorldsheet: this.showWorldsheet,
     });
   }
 
@@ -310,9 +352,10 @@ class StringSimulator {
 
   private reset(): void {
     this.pause();
+    this.stepAccumulator = 0;
     const presetName = this.presetSelect.value;
     const preset = presets[presetName] || presets.pluck;
-    this.solver.initialize((x, L) => preset(x, L));
+    this.initializePreset(preset);
     this.updateMetrics();
     this.render();
   }
@@ -321,15 +364,19 @@ class StringSimulator {
     if (!this.isRunning) return;
 
     const now = performance.now();
-    const dt = (now - this.lastTime) / 1000;
     this.lastTime = now;
 
-    // Step physics
-    const steps = Math.floor(this.stepsPerFrame * this.timeScale);
-    this.solver.stepN(steps);
+    // Carry fractional steps between frames so the slowest playback setting
+    // still advances, instead of rounding to zero indefinitely.
+    this.stepAccumulator += this.stepsPerFrame * this.timeScale;
+    const steps = Math.floor(this.stepAccumulator);
+    if (steps > 0) {
+      this.solver.stepN(steps);
+      this.stepAccumulator -= steps;
+    }
 
     // Update metrics every few frames
-    if (Math.random() < 0.1) {
+    if (steps > 0 && Math.floor(this.solver.getState().t / this.config.dt) % 8 === 0) {
       this.updateMetrics();
     }
 

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>String Motion Simulator</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%236c5ce7' d='M8 32c12-28 36 28 48 0v10C44 70 20 14 8 42z'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
@@ -14,31 +15,37 @@
     </header>
     
     <main>
+      <section class="visualization-column" aria-label="String simulation views">
       <div id="canvas-container">
-        <canvas id="string-canvas"></canvas>
-        <div id="canvas-controls">
-          <button id="btn-play" class="primary">▶</button>
-          <button id="btn-pause">⏸</button>
-          <button id="btn-reset">↺</button>
+        <canvas id="string-canvas" aria-label="Animated string displacement plot"></canvas>
+        <div id="canvas-controls" aria-label="Playback controls">
+          <button id="btn-play" class="primary" aria-label="Play simulation" title="Play">▶</button>
+          <button id="btn-pause" aria-label="Pause simulation" title="Pause">⏸</button>
+          <button id="btn-reset" aria-label="Reset simulation" title="Reset">↺</button>
         </div>
       </div>
       
       <div id="worldsheet-container" style="display: none;">
-        <h3>Worldsheet View</h3>
-        <canvas id="worldsheet-canvas"></canvas>
+        <h3>Relativistic History</h3>
+        <canvas id="worldsheet-canvas" aria-label="Relativistic transverse history plot"></canvas>
         <p class="worldsheet-legend">
-          String trajectory through spacetime. Light cones shown as dashed lines.
+          Transverse histories y(t) sampled along the string. Dashed guides have |dy/dt| = 1.
         </p>
       </div>
+      </section>
       
       <aside id="controls-panel">
         <div class="control-section">
           <h3>Initial Condition</h3>
           <select id="preset-select">
-            <option value="pluck">Pluck (Center)</option>
-            <option value="sine">Sine Wave</option>
-            <option value="gaussian">Gaussian Pulse</option>
-            <option value="random">Random Modes</option>
+            <option value="pluck">Off-centre pluck</option>
+            <option value="sine">Fundamental standing wave</option>
+            <option value="thirdHarmonic">Third normal mode</option>
+            <option value="twoMode">Two-mode standing wave</option>
+            <option value="gaussian">Centred Gaussian pulse</option>
+            <option value="travelingPulse">Right-moving Gaussian packet</option>
+            <option value="doublePulse">Two pulses in collision</option>
+            <option value="random">Deterministic five-mode mixture</option>
           </select>
         </div>
         
@@ -111,7 +118,7 @@
             <span class="metric-label">Fundamental:</span>
             <span id="metric-fundamental" class="metric-value">0.000</span>
           </div>
-          <div class="metric relativistic-only" style="display: none;">
+          <div id="causality-metric" class="metric relativistic-only" style="display: none;">
             <span class="metric-label">Causality:</span>
             <span id="metric-causality" class="metric-value">—</span>
           </div>

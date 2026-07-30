@@ -189,7 +189,7 @@ export class WorldsheetRenderer {
     ctx.translate(20, (top + this.height - bottom) / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = 'center';
-    ctx.fillText('x (position)', 0, 0);
+    ctx.fillText('y (transverse displacement)', 0, 0);
     ctx.restore();
   }
 

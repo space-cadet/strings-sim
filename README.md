@@ -10,7 +10,7 @@ Interactive web application for simulating and visualizing string motion — bot
 - **Interactive Canvas**: Smooth string visualization with energy density heatmap
 - **Physics Controls**: String length, tension, mass density, damping
 - **Boundary Conditions**: Fixed, free, and mixed endpoints
-- **Initial Presets**: Pluck, sine wave, Gaussian pulse, random mode superposition
+- **Initial Presets**: Off-centre pluck, normal modes, standing-wave mixtures, localized and traveling Gaussian packets, pulse collisions, and a deterministic mode mixture
 - **Playback Controls**: Play, pause, reset with adjustable time scale
 - **Real-time Metrics**: Total energy, wave speed, fundamental frequency
 - **Settings Persistence**: All parameters saved to localStorage
@@ -24,8 +24,13 @@ Solves the 1D wave equation:
 ```
 where `c = √(τ/μ)` is the wave speed, `τ` is tension, `μ` is mass density, and `γ` is damping.
 
-### Relativistic String (Coming Soon)
-Nambu-Goto action based dynamics.
+### Relativistic Transverse Oscillations
+
+The relativistic view solves the same transverse wave equation in natural units
+with $c = 1$, no damping, and a conservative Courant time step. It is a
+linearized small-oscillation illustration of a relativistic string, not a full
+nonlinear Nambu-Goto solver. The history view plots sampled transverse
+trajectories $y(t)$ and marks the $|dy/dt| = 1$ guide.
 
 ## Tech Stack
 

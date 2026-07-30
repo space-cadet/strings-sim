@@ -1,9 +1,30 @@
 # Edit History
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-07-30 18:30 IST*
+*Last Updated: 2026-07-31 02:50:47 IST*
 
 ---
+
+## 2026-07-31
+
+#### 02:50:47 IST - T9: Simulation integrity and responsive UX
+- Modified `src/physics/core.ts` - Added conservative stable time-step calculation
+- Modified `src/physics/classical.ts` - Corrected central-difference state handling and parameter grid updates
+- Modified `src/physics/relativistic.ts` - Corrected central-difference state handling, causal check, and parameter grid updates
+- Modified `src/ui/presets.ts` - Added curated displacement and velocity initial conditions
+- Modified `src/main.ts` - Added state restoration, fractional stepping, and responsive view state handling
+- Modified `src/visualization/renderer.ts` - Enabled energy-density rendering
+- Modified `src/visualization/worldsheet.ts` - Corrected transverse-history axis label
+- Modified `src/style.css` - Added responsive layout, focus, touch, and reduced-motion styles
+- Modified `index.html` - Restructured visualization layout and improved accessible controls
+- Modified `README.md` - Clarified presets and relativistic-model scope
+- Created `memory-bank/tasks/T9.md` - Recorded T9 scope, work, and verification
+- Created `memory-bank/sessions/2026-07-31-early.md` - Recorded session outcome and deployment handoff
+- Modified `memory-bank/tasks.md` - Synchronized task registry
+- Modified `memory-bank/activeContext.md` - Synchronized current state and next steps
+- Modified `memory-bank/session_cache.md` - Synchronized session metadata and task registry
+- Modified `memory-bank/progress.md` - Recorded completed milestone
+- Modified `memory-bank/changelog.md` - Recorded release changes
 
 ## 2026-07-30
 

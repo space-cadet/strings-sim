@@ -13,7 +13,7 @@
  * τ = μ c², so the wave speed is always c = √(τ/μ) = 1.
  */
 
-import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics } from './core';
+import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep } from './core';
 
 export interface WorldsheetPoint {
   t: number;
@@ -57,17 +57,20 @@ export class RelativisticStringSolver {
   }
 
   /** Initialize with a given displacement profile */
-  initialize(profile: (x: number, L: number) => number): void {
+  initialize(profile: (x: number, L: number) => number, velocity?: (x: number, L: number) => number): void {
     const { N } = this.config;
     const { L } = this.config.params;
 
     for (let i = 0; i < N; i++) {
       const x = (i / (N - 1)) * L;
       this.state.y[i] = profile(x, L);
-      this.prevY[i] = this.state.y[i];
+      this.state.v[i] = velocity?.(x, L) ?? 0;
     }
 
     this.applyBoundaryConditions();
+    for (let i = 0; i < N; i++) {
+      this.prevY[i] = this.state.y[i] - this.config.dt * this.state.v[i];
+    }
     this.state.t = 0;
     this.history = [];
     this.state.worldsheet = [];
@@ -87,11 +90,13 @@ export class RelativisticStringSolver {
       mu: 1.0,
       gamma: 0.0,
     };
+    this.config.dx = params.L / (this.config.N - 1);
+    this.config.dt = stableTimeStep(this.config.dx, this.config.params, 'relativistic');
   }
 
   /** Apply boundary conditions to current state */
   private applyBoundaryConditions(): void {
-    const { y } = this.state;
+    const { y, v } = this.state;
     const N = y.length;
     const bc = this.config.boundary;
 
@@ -100,16 +105,22 @@ export class RelativisticStringSolver {
         // Dirichlet: endpoints fixed (attached to D-branes)
         y[0] = 0;
         y[N - 1] = 0;
+        v[0] = 0;
+        v[N - 1] = 0;
         break;
       case 'free':
         // Neumann: endpoints free to move at speed of light
         // ∂y/∂x = 0 at boundaries → ghost points equal
         y[0] = y[1];
         y[N - 1] = y[N - 2];
+        v[0] = v[1];
+        v[N - 1] = v[N - 2];
         break;
       case 'mixed':
         y[0] = 0; // fixed left (Dirichlet)
         y[N - 1] = y[N - 2]; // free right (Neumann)
+        v[0] = 0;
+        v[N - 1] = v[N - 2];
         break;
     }
   }
@@ -127,8 +138,8 @@ export class RelativisticStringSolver {
       console.warn(`Relativistic string: Courant condition violated (${courantSq.toFixed(2)} > 1)`);
     }
 
-    // Store current as previous
-    this.prevY.set(y);
+    // Preserve the preceding state for the central-difference update.
+    const currentY = new Float64Array(y);
 
     // Store history for worldsheet
     this.history.push(new Float64Array(y));
@@ -147,6 +158,7 @@ export class RelativisticStringSolver {
     }
 
     this.applyBoundaryConditions();
+    this.prevY.set(currentY);
     this.state.t += dt;
 
     // Compute endpoint velocities
@@ -229,7 +241,7 @@ export class RelativisticStringSolver {
       kineticEnergy,
       potentialEnergy,
       waveSpeed: 1.0, // Always 1 in natural units
-      fundamentalFreq: 0.5 / L, // f = c/(2L) = 1/(2L) for fixed ends
+      fundamentalFreq: this.config.boundary === 'mixed' ? 0.25 / L : 0.5 / L,
     };
   }
 
@@ -264,13 +276,12 @@ export class RelativisticStringSolver {
     const tMax = this.state.t;
     const tMin = Math.max(0, tMax - this.maxHistory * this.config.dt);
 
-    return { tMin, tMax, yMin: yMin * 1.1, yMax: yMax * 1.1 };
+    const padding = Math.max((yMax - yMin) * 0.1, 0.05);
+    return { tMin, tMax, yMin: yMin - padding, yMax: yMax + padding };
   }
 
-  /** Check if endpoint velocities exceed speed of light (shouldn't happen for valid initial conditions) */
+  /** Check that no sampled transverse velocity exceeds c = 1. */
   checkCausality(): boolean {
-    const { left, right } = this.state.endpointVelocities;
-    const c = 1.0;
-    return Math.abs(left) <= c && Math.abs(right) <= c;
+    return this.state.v.every((velocity) => Math.abs(velocity) <= 1.0);
   }
 }
