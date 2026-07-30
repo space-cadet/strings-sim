@@ -296,30 +296,117 @@ footer {
   border-radius: 3px;
 }
 
-/* Responsive */
+/* Worldsheet View */
+#worldsheet-container {
+  width: 100%;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+#worldsheet-container h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+#worldsheet-canvas {
+  width: 100%;
+  height: 300px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.worldsheet-legend {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Worldsheet Toggle Button */
+.worldsheet-toggle {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.worldsheet-toggle.active,
+.worldsheet-toggle:hover {
+  background: #00d4ff;
+  color: var(--bg-primary);
+  border-color: #00d4ff;
+}
+
+/* Relativistic Mode Styles */
+.mode-toggle button#mode-relativistic.active {
+  background: #00d4ff;
+  border-color: #00d4ff;
+  color: var(--bg-primary);
+}
+
+.metric-value.ok {
+  color: var(--success);
+}
+
+.metric-value.warning {
+  color: var(--warning);
+}
+
+/* Disabled slider styling */
+input[type="range"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+input[type="range"]:disabled::-webkit-slider-thumb {
+  background: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* Relativistic-only elements */
+.relativistic-only {
+  display: none;
+}
+
+body.relativistic-mode .relativistic-only {
+  display: flex;
+}
+
+/* Animation for mode transition */
+#worldsheet-container {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#worldsheet-container[style*="display: block"] {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive worldsheet */
 @media (max-width: 900px) {
-  main {
-    flex-direction: column;
-  }
-
-  #canvas-container {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    min-height: 250px;
-    flex: none;
-    height: 40vh;
-  }
-
-  #controls-panel {
-    width: 100%;
-    max-height: none;
-    border-radius: 12px;
-  }
-
-  #canvas-controls button {
-    width: 44px;
-    height: 44px;
-    font-size: 1.1rem;
+  #worldsheet-canvas {
+    height: 200px;
   }
 }

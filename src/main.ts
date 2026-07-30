@@ -5,7 +5,9 @@
 
 import { SimulationConfig, StringParameters, BoundaryCondition, PhysicsMode } from './physics/core';
 import { ClassicalStringSolver } from './physics/classical';
+import { RelativisticStringSolver } from './physics/relativistic';
 import { StringRenderer } from './visualization/renderer';
+import { WorldsheetRenderer } from './visualization/worldsheet';
 import { presets } from './ui/presets';
 
 interface SavedSettings {
@@ -37,14 +39,16 @@ function saveSettings(settings: SavedSettings): void {
 }
 
 class StringSimulator {
-  private solver: ClassicalStringSolver;
+  private solver: ClassicalStringSolver | RelativisticStringSolver;
   private renderer: StringRenderer;
+  private worldsheetRenderer: WorldsheetRenderer | null = null;
   private config: SimulationConfig;
   private isRunning: boolean = false;
   private animationId: number | null = null;
   private lastTime: number = 0;
   private timeScale: number = 1.0;
   private stepsPerFrame: number = 4;
+  private showWorldsheet: boolean = false;
 
   // UI elements
   private btnPlay: HTMLButtonElement;
@@ -53,6 +57,7 @@ class StringSimulator {
   private presetSelect: HTMLSelectElement;
   private boundarySelect: HTMLSelectElement;
   private modeButtons: NodeListOf<HTMLButtonElement>;
+  private worldsheetToggle: HTMLButtonElement | null = null;
 
   constructor() {
     // Try to load saved settings
@@ -80,8 +85,8 @@ class StringSimulator {
 
     this.timeScale = saved?.timeScale ?? 1.0;
 
-    // Initialize solver
-    this.solver = new ClassicalStringSolver(this.config);
+    // Initialize solver based on mode
+    this.solver = this.createSolver();
     const presetName = saved?.preset ?? 'pluck';
     const preset = presets[presetName] || presets.pluck;
     this.solver.initialize((x, L) => preset(x, L));
@@ -91,6 +96,12 @@ class StringSimulator {
     this.renderer = new StringRenderer({ canvas });
     this.renderer.setBounds(0, params.L, -0.5, 0.5);
 
+    // Initialize worldsheet renderer if canvas exists
+    const worldsheetCanvas = document.getElementById('worldsheet-canvas') as HTMLCanvasElement;
+    if (worldsheetCanvas) {
+      this.worldsheetRenderer = new WorldsheetRenderer({ canvas: worldsheetCanvas });
+    }
+
     // Cache UI elements
     this.btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
     this.btnPause = document.getElementById('btn-pause') as HTMLButtonElement;
@@ -98,6 +109,7 @@ class StringSimulator {
     this.presetSelect = document.getElementById('preset-select') as HTMLSelectElement;
     this.boundarySelect = document.getElementById('boundary-select') as HTMLSelectElement;
     this.modeButtons = document.querySelectorAll('.mode-toggle button');
+    this.worldsheetToggle = document.getElementById('btn-worldsheet') as HTMLButtonElement;
 
     // Restore UI state
     this.presetSelect.value = presetName;
@@ -116,8 +128,16 @@ class StringSimulator {
     this.setSliderValue('param-timescale', this.timeScale, (v) => `${v.toFixed(1)}×`);
 
     this.bindEvents();
+    this.updateModeUI();
     this.updateMetrics();
     this.render();
+  }
+
+  private createSolver(): ClassicalStringSolver | RelativisticStringSolver {
+    if (this.config.mode === 'relativistic') {
+      return new RelativisticStringSolver(this.config);
+    }
+    return new ClassicalStringSolver(this.config);
   }
 
   private setSliderValue(id: string, value: number, formatter?: (v: number) => string): void {
@@ -152,10 +172,24 @@ class StringSimulator {
       btn.addEventListener('click', () => {
         this.modeButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        this.config.mode = btn.id === 'mode-relativistic' ? 'relativistic' : 'classical';
-        this.persist();
+        const newMode = btn.id === 'mode-relativistic' ? 'relativistic' : 'classical';
+        if (newMode !== this.config.mode) {
+          this.switchMode(newMode);
+        }
       });
     });
+
+    // Worldsheet toggle
+    if (this.worldsheetToggle) {
+      this.worldsheetToggle.addEventListener('click', () => {
+        this.showWorldsheet = !this.showWorldsheet;
+        this.worldsheetToggle!.classList.toggle('active', this.showWorldsheet);
+        const container = document.getElementById('worldsheet-container');
+        if (container) {
+          container.style.display = this.showWorldsheet ? 'block' : 'none';
+        }
+      });
+    }
 
     // Parameter sliders
     this.bindSlider('param-length', 'val-length', (val) => {
@@ -204,6 +238,49 @@ class StringSimulator {
       valueSpan.textContent = formatter(val);
       callback(val);
     });
+  }
+
+  private switchMode(newMode: PhysicsMode): void {
+    this.pause();
+    this.config.mode = newMode;
+
+    // In relativistic mode, fix parameters
+    if (newMode === 'relativistic') {
+      this.config.params.tau = 1.0;
+      this.config.params.mu = 1.0;
+      this.config.params.gamma = 0.0;
+      this.updateModeUI();
+    }
+
+    // Recreate solver
+    this.solver = this.createSolver();
+    this.reset();
+    this.persist();
+  }
+
+  private updateModeUI(): void {
+    const isRelativistic = this.config.mode === 'relativistic';
+
+    // Disable tension and density sliders in relativistic mode
+    const tensionInput = document.getElementById('param-tension') as HTMLInputElement;
+    const densityInput = document.getElementById('param-density') as HTMLInputElement;
+    const dampingInput = document.getElementById('param-damping') as HTMLInputElement;
+
+    if (tensionInput) tensionInput.disabled = isRelativistic;
+    if (densityInput) densityInput.disabled = isRelativistic;
+    if (dampingInput) dampingInput.disabled = isRelativistic;
+
+    // Update displayed values
+    if (isRelativistic) {
+      this.setSliderValue('param-tension', 1.0, (v) => v.toFixed(1));
+      this.setSliderValue('param-density', 1.0, (v) => v.toFixed(1));
+      this.setSliderValue('param-damping', 0.0, (v) => v.toFixed(2));
+    }
+
+    // Show/hide worldsheet toggle
+    if (this.worldsheetToggle) {
+      this.worldsheetToggle.style.display = isRelativistic ? 'inline-block' : 'none';
+    }
   }
 
   private persist(): void {
@@ -277,6 +354,20 @@ class StringSimulator {
     }
 
     this.renderer.render(x, state.y, energy);
+
+    // Render worldsheet for relativistic mode
+    if (this.config.mode === 'relativistic' && this.worldsheetRenderer && this.showWorldsheet) {
+      const relState = state as import('./physics/relativistic').RelativisticStringState;
+      if (relState.worldsheet && relState.worldsheet.length > 0) {
+        const bounds = (this.solver as RelativisticStringSolver).getWorldsheetBounds();
+        this.worldsheetRenderer.setBounds(bounds.tMin, bounds.tMax, bounds.yMin, bounds.yMax);
+        this.worldsheetRenderer.render(
+          relState.worldsheet,
+          relState.t,
+          this.config.params.L
+        );
+      }
+    }
   }
 
   private updateMetrics(): void {
@@ -289,6 +380,16 @@ class StringSimulator {
     if (energyEl) energyEl.textContent = metrics.totalEnergy.toFixed(3);
     if (waveSpeedEl) waveSpeedEl.textContent = metrics.waveSpeed.toFixed(3);
     if (fundamentalEl) fundamentalEl.textContent = metrics.fundamentalFreq.toFixed(3);
+
+    // Update causality warning for relativistic mode
+    if (this.config.mode === 'relativistic' && this.solver instanceof RelativisticStringSolver) {
+      const isCausal = this.solver.checkCausality();
+      const causalityEl = document.getElementById('metric-causality');
+      if (causalityEl) {
+        causalityEl.textContent = isCausal ? '✓ Causal' : '⚠ Acausal';
+        causalityEl.className = isCausal ? 'metric-value ok' : 'metric-value warning';
+      }
+    }
   }
 }
 

@@ -23,6 +23,14 @@
         </div>
       </div>
       
+      <div id="worldsheet-container" style="display: none;">
+        <h3>Worldsheet View</h3>
+        <canvas id="worldsheet-canvas"></canvas>
+        <p class="worldsheet-legend">
+          String trajectory through spacetime. Light cones shown as dashed lines.
+        </p>
+      </div>
+      
       <aside id="controls-panel">
         <div class="control-section">
           <h3>Initial Condition</h3>
@@ -84,6 +92,11 @@
           </label>
         </div>
         
+        <div class="control-section">
+          <h3>Visualization</h3>
+          <button id="btn-worldsheet" class="worldsheet-toggle" style="display: none;">🌐 Worldsheet</button>
+        </div>
+
         <div class="control-section metrics">
           <h3>Metrics</h3>
           <div class="metric">
@@ -97,6 +110,10 @@
           <div class="metric">
             <span class="metric-label">Fundamental:</span>
             <span id="metric-fundamental" class="metric-value">0.000</span>
+          </div>
+          <div class="metric relativistic-only" style="display: none;">
+            <span class="metric-label">Causality:</span>
+            <span id="metric-causality" class="metric-value">—</span>
           </div>
         </div>
       </aside>
