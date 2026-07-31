@@ -1,12 +1,38 @@
 # Active Context
 
-*Last Updated: 2026-07-31 03:04:05 IST*
+*Last Updated: 2026-07-31 14:55 IST*
 
 ## Current Tasks
-- T6: Energy Metrics & FFT — 🔄 IN PROGRESS
-  - Energy metrics and energy-density strip are implemented.
-  - FFT utility exists but has not yet been integrated into a spectrum display.
-  - Next: add a clearly labelled spectrum view with frequency calibration.
+
+### Active
+- **T10: P0 Bug Fixes** — 🔄 IN PROGRESS
+  - T10a: Canvas resize transform accumulation
+  - T10b: Causal rays in data space (not pixel space)
+  - T10c: History timestamp off-by-one
+  - Attribution: Terra review, Sage verification
+
+- **T11: Three-View Layout Redesign** — ⬜ PENDING
+  - Linked profile + worldsheet + probe trajectory instrument
+  - Desktop 65/35 split, mobile stacked
+  - Attribution: Terra review, Deepak mockups
+
+- **T12: Probe Trajectory & Interaction** — ⬜ PENDING
+  - Draggable probe on profile
+  - Trajectory plot `y(τ; σ*)`
+  - Worldsheet vertical probe line
+  - Attribution: Terra review, Deepak mockups
+
+- **T13: Enhanced Diagnostics** — ⬜ PENDING
+  - T13a: Courant number, max transverse speed, energy drift
+  - T13b: Energy strip labeling with formula
+  - T13c: Worldsheet field selector (`y`, `∂τy`, `ℰ`, `∂σy`)
+  - T13d: Color bar legend
+  - Attribution: Terra review
+
+### Paused / Deferred
+- T6: Energy Metrics & FFT — 🔄 IN PROGRESS (superseded by T13; FFT spectrum deferred)
+- Worldsheet scrubbing — deferred until 2D views are stable
+- 3D embedded worldsheet view — deferred indefinitely
 
 ## Completed Tasks (Recent)
 - T1: Project Setup & Build Tooling — ✅ COMPLETED (2026-07-30)
@@ -21,10 +47,13 @@
   - Added curated presets, responsive layout, accessibility improvements
   - Verified desktop and mobile behavior, local storage persistence
 
-## Next Steps
-1. Integrate FFT for a frequency-spectrum display.
-2. Add recording and playback of simulations.
-3. Consider user-selectable energy-density visibility and spectrum scaling.
+## Priority Order (Agreed with Deepak)
+
+1. **P0**: Fix canvas transform, causal rays, history timestamps
+2. **P1**: Three-view layout + probe trajectory
+3. **P2**: Field selector, energy label, diagnostics
+4. **P3**: Worldsheet scrubbing (deferred)
+5. **P4**: 3D embedded view (deferred)
 
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
@@ -32,3 +61,11 @@
 - Rendering: ✅ Canvas renderer with smooth curves, visible energy density, and optional relativistic history
 - UI: ✅ Full responsive control panel with persisted settings
 - Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/
+
+## Open Questions
+- Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
+  - Terra warns it may confuse with null characteristics
+  - Sage: keep it for physics-education audience, label clearly
+  - Decision: keep, with explicit label
+- Mobile layout: tab-based view switching or stacked scroll?
+  - Decision: stacked with collapsible panels (matches mockup)
