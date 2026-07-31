@@ -29,6 +29,7 @@ export class WorldsheetRenderer {
   private tauMax: number = 1;
   private yMin: number = -1;
   private yMax: number = 1;
+  private characteristicSpeed: number = 1;
 
   constructor(config: WorldsheetRendererConfig) {
     this.canvas = config.canvas;
@@ -49,6 +50,7 @@ export class WorldsheetRenderer {
     this.width = rect.width;
     this.height = rect.height;
 
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.canvas.width = this.width * this.dpr;
     this.canvas.height = this.height * this.dpr;
     this.canvas.style.width = `${this.width}px`;
@@ -68,6 +70,10 @@ export class WorldsheetRenderer {
     this.yMax = yMax;
     this.sigmaMin = sigmaMin;
     this.sigmaMax = sigmaMax;
+  }
+
+  setCharacteristicSpeed(speed: number): void {
+    this.characteristicSpeed = speed;
   }
 
   // Map sigma (position along string) → canvas x
@@ -111,16 +117,16 @@ export class WorldsheetRenderer {
     this.drawGrid();
     this.drawAxes();
 
-    if (worldsheet.length < 2 || worldsheet[0].length < 2) return;
+    if (worldsheet.length < 1 || worldsheet[0].length < 1) return;
 
     // Draw worldsheet as colored surface
-    this.drawWorldsheetSurface(worldsheet);
+    if (worldsheet.length > 1 && worldsheet[0].length > 1) this.drawWorldsheetSurface(worldsheet);
 
     // Draw current string snapshot on top
     this.drawCurrentString(worldsheet);
 
     // Draw light cone boundaries
-    this.drawLightConeBoundaries();
+    this.drawCharacteristics();
   }
 
   private clear(): void {
@@ -282,31 +288,22 @@ export class WorldsheetRenderer {
     ctx.fill();
   }
 
-  private drawLightConeBoundaries(): void {
+  private drawCharacteristics(): void {
     const { ctx } = this;
 
-    // In the (σ, τ) plane, light travels at 45°
-    // Draw dashed lines showing the speed-of-light limit
+    // Characteristics are defined in (σ, τ) data space, not pixel space.
     ctx.strokeStyle = 'rgba(255, 200, 100, 0.3)';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
 
-    const x0 = this.mapSigma(this.sigmaMin);
-    const xL = this.mapSigma(this.sigmaMax);
-    const yBottom = this.mapTau(this.tauMin);
-    const yTop = this.mapTau(this.tauMax);
-
-    // Light cone from left endpoint (slope = ±1)
-    ctx.beginPath();
-    ctx.moveTo(x0, yBottom);
-    ctx.lineTo(x0 + (yBottom - yTop), yTop); // 45° line
-    ctx.stroke();
-
-    // Light cone from right endpoint
-    ctx.beginPath();
-    ctx.moveTo(xL, yBottom);
-    ctx.lineTo(xL - (yBottom - yTop), yTop); // -45° line
-    ctx.stroke();
+    const tauSpan = this.tauMax - this.tauMin;
+    for (const [sigmaStart, direction] of [[this.sigmaMin, 1], [this.sigmaMax, -1]] as const) {
+      const sigmaEnd = sigmaStart + direction * this.characteristicSpeed * tauSpan;
+      ctx.beginPath();
+      ctx.moveTo(this.mapSigma(sigmaStart), this.mapTau(this.tauMin));
+      ctx.lineTo(this.mapSigma(sigmaEnd), this.mapTau(this.tauMax));
+      ctx.stroke();
+    }
 
     ctx.setLineDash([]);
   }

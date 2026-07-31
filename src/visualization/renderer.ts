@@ -51,6 +51,7 @@ export class StringRenderer {
     this.width = rect.width;
     this.height = rect.height;
 
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.canvas.width = this.width * this.dpr;
     this.canvas.height = this.height * this.dpr;
     this.canvas.style.width = `${this.width}px`;

@@ -21,6 +21,11 @@ export interface WorldsheetPoint {
   y: number;
 }
 
+interface HistorySample {
+  t: number;
+  y: Float64Array;
+}
+
 export interface RelativisticStringState extends StringState {
   /** Worldsheet history for visualization */
   worldsheet: WorldsheetPoint[][];
@@ -32,7 +37,7 @@ export class RelativisticStringSolver {
   private config: SimulationConfig;
   private state: RelativisticStringState;
   private prevY: Float64Array;
-  private history: Float64Array[] = [];
+  private history: HistorySample[] = [];
   private maxHistory: number = 200; // Number of time steps to keep for worldsheet
 
   constructor(config: SimulationConfig) {
@@ -72,8 +77,8 @@ export class RelativisticStringSolver {
       this.prevY[i] = this.state.y[i] - this.config.dt * this.state.v[i];
     }
     this.state.t = 0;
-    this.history = [];
-    this.state.worldsheet = [];
+    this.history = [{ t: 0, y: new Float64Array(this.state.y) }];
+    this.buildWorldsheet();
   }
 
   /** Set boundary conditions */
@@ -141,12 +146,6 @@ export class RelativisticStringSolver {
     // Preserve the preceding state for the central-difference update.
     const currentY = new Float64Array(y);
 
-    // Store history for worldsheet
-    this.history.push(new Float64Array(y));
-    if (this.history.length > this.maxHistory) {
-      this.history.shift();
-    }
-
     // Interior points: finite difference wave equation with c = 1
     for (let i = 1; i < N - 1; i++) {
       // Evaluate every stencil from one immutable time slice. Updating in
@@ -170,6 +169,9 @@ export class RelativisticStringSolver {
       right: (y[N - 1] - this.prevY[N - 1]) / dt,
     };
 
+    this.history.push({ t: this.state.t, y: new Float64Array(y) });
+    if (this.history.length > this.maxHistory) this.history.shift();
+
     // Build worldsheet from history
     this.buildWorldsheet();
   }
@@ -180,8 +182,6 @@ export class RelativisticStringSolver {
     const { L } = this.config.params;
     const history = this.history;
 
-    if (history.length < 2) return;
-
     const worldsheet: WorldsheetPoint[][] = [];
 
     // Create parametric lines: for each spatial point, trace its history in time
@@ -190,8 +190,8 @@ export class RelativisticStringSolver {
       const x = (i / (N - 1)) * L;
 
       for (let h = 0; h < history.length; h++) {
-        const t = this.state.t - (history.length - 1 - h) * this.config.dt;
-        line.push({ t, x, y: history[h][i] });
+        const sample = history[h];
+        line.push({ t: sample.t, x, y: sample.y[i] });
       }
 
       worldsheet.push(line);
@@ -269,14 +269,14 @@ export class RelativisticStringSolver {
     let yMin = Infinity;
     let yMax = -Infinity;
 
-    for (const h of history) {
-      for (let i = 0; i < h.length; i++) {
-        yMin = Math.min(yMin, h[i]);
-        yMax = Math.max(yMax, h[i]);
+    for (const sample of history) {
+      for (let i = 0; i < sample.y.length; i++) {
+        yMin = Math.min(yMin, sample.y[i]);
+        yMax = Math.max(yMax, sample.y[i]);
       }
     }
 
-    const tMax = this.state.t;
+    const tMax = Math.max(this.config.dt, this.state.t);
     const tMin = Math.max(0, tMax - this.maxHistory * this.config.dt);
 
     const padding = Math.max((yMax - yMin) * 0.1, 0.05);

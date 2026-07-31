@@ -6,12 +6,20 @@
  */
 
 import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep, waveSpeed } from './core';
+import type { WorldsheetPoint } from './relativistic';
+
+interface HistorySample {
+  t: number;
+  y: Float64Array;
+}
 
 export class ClassicalStringSolver {
   private config: SimulationConfig;
   private state: StringState;
   private prevY: Float64Array;
   private c: number; // wave speed
+  private history: HistorySample[] = [];
+  private readonly maxHistory = 200;
 
   constructor(config: SimulationConfig) {
     this.config = { ...config };
@@ -42,6 +50,7 @@ export class ClassicalStringSolver {
       this.prevY[i] = this.state.y[i] - this.config.dt * this.state.v[i];
     }
     this.state.t = 0;
+    this.history = [{ t: 0, y: new Float64Array(this.state.y) }];
   }
 
   /** Set boundary conditions */
@@ -124,6 +133,8 @@ export class ClassicalStringSolver {
     this.applyBoundaryConditions();
     this.prevY.set(currentY);
     this.state.t += dt;
+    this.history.push({ t: this.state.t, y: new Float64Array(y) });
+    if (this.history.length > this.maxHistory) this.history.shift();
   }
 
   /** Multiple steps */
@@ -175,5 +186,39 @@ export class ClassicalStringSolver {
       coords[i] = (i / (N - 1)) * L;
     }
     return coords;
+  }
+
+  /** Sampled classical spacetime history for the worldsheet display. */
+  getWorldsheet(): WorldsheetPoint[][] {
+    const { N } = this.config;
+    const { L } = this.config.params;
+    const stride = Math.max(1, Math.floor(N / 50));
+    const worldsheet: WorldsheetPoint[][] = [];
+
+    for (let i = 0; i < N; i += stride) {
+      const x = (i / (N - 1)) * L;
+      worldsheet.push(this.history.map(sample => ({ t: sample.t, x, y: sample.y[i] })));
+    }
+    return worldsheet;
+  }
+
+  getWorldsheetBounds(): { tMin: number; tMax: number; yMin: number; yMax: number } {
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    for (const sample of this.history) {
+      for (const value of sample.y) {
+        yMin = Math.min(yMin, value);
+        yMax = Math.max(yMax, value);
+      }
+    }
+    if (!Number.isFinite(yMin)) return { tMin: 0, tMax: 1, yMin: -1, yMax: 1 };
+    const padding = Math.max((yMax - yMin) * 0.1, 0.05);
+    const tMax = Math.max(this.config.dt, this.state.t);
+    return {
+      tMin: Math.max(0, tMax - this.maxHistory * this.config.dt),
+      tMax,
+      yMin: yMin - padding,
+      yMax: yMax + padding,
+    };
   }
 }

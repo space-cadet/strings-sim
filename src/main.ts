@@ -88,7 +88,7 @@ class StringSimulator {
     };
 
     this.timeScale = saved?.timeScale ?? 1.0;
-    this.showWorldsheet = saved?.showWorldsheet ?? false;
+    this.showWorldsheet = saved?.showWorldsheet ?? true;
     this.classicalParams = { ...(saved?.classicalParams ?? params) };
 
     // Initialize solver based on mode
@@ -161,10 +161,16 @@ class StringSimulator {
   }
 
   private updateWorldsheetVisibility(): void {
-    const canShow = this.config.mode === 'relativistic' && this.showWorldsheet;
+    const canShow = this.showWorldsheet;
     this.worldsheetToggle?.classList.toggle('active', canShow);
     const container = document.getElementById('worldsheet-container');
     if (container) container.style.display = canShow ? 'block' : 'none';
+    if (canShow && this.worldsheetRenderer) {
+      requestAnimationFrame(() => {
+        this.worldsheetRenderer?.handleResize();
+        this.render();
+      });
+    }
   }
 
   private setSliderValue(id: string, value: number, formatter?: (v: number) => string): void {
@@ -175,6 +181,27 @@ class StringSimulator {
   }
 
   private bindEvents(): void {
+    // Mobile browsers can discard a canvas bitmap while compositing a scroll.
+    // Queue one redraw per frame so returning to a plot never depends on Play.
+    let repaintQueued = false;
+    const repaint = () => {
+      if (repaintQueued) return;
+      repaintQueued = true;
+      requestAnimationFrame(() => {
+        repaintQueued = false;
+        this.render();
+      });
+    };
+    window.addEventListener('scroll', repaint, { passive: true });
+    window.visualViewport?.addEventListener('resize', () => {
+      this.renderer.handleResize();
+      this.worldsheetRenderer?.handleResize();
+      repaint();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) repaint();
+    });
+
     // Playback controls
     this.btnPlay.addEventListener('click', () => this.play());
     this.btnPause.addEventListener('click', () => this.pause());
@@ -314,10 +341,7 @@ class StringSimulator {
     this.setSliderValue('param-density', this.config.params.mu, (v) => v.toFixed(1));
     this.setSliderValue('param-damping', this.config.params.gamma, (v) => v.toFixed(2));
 
-    // Show/hide worldsheet toggle
-    if (this.worldsheetToggle) {
-      this.worldsheetToggle.style.display = isRelativistic ? 'inline-block' : 'none';
-    }
+    if (this.worldsheetToggle) this.worldsheetToggle.style.display = 'inline-block';
 
     const causalityMetric = document.getElementById('causality-metric');
     if (causalityMetric) causalityMetric.style.display = isRelativistic ? 'flex' : 'none';
@@ -375,10 +399,7 @@ class StringSimulator {
       this.stepAccumulator -= steps;
     }
 
-    // Update metrics every few frames
-    if (steps > 0 && Math.floor(this.solver.getState().t / this.config.dt) % 8 === 0) {
-      this.updateMetrics();
-    }
+    if (steps > 0) this.updateMetrics();
 
     // Render
     this.render();
@@ -402,18 +423,17 @@ class StringSimulator {
 
     this.renderer.render(x, state.y, energy);
 
-    // Render worldsheet for relativistic mode
-    if (this.config.mode === 'relativistic' && this.worldsheetRenderer && this.showWorldsheet) {
-      const relState = state as import('./physics/relativistic').RelativisticStringState;
-      if (relState.worldsheet && relState.worldsheet.length > 0) {
-        const bounds = (this.solver as RelativisticStringSolver).getWorldsheetBounds();
-        this.worldsheetRenderer.setBounds(
-          bounds.tMin, bounds.tMax,
-          bounds.yMin, bounds.yMax,
-          0, this.config.params.L
-        );
-        this.worldsheetRenderer.render(relState.worldsheet);
-      }
+    if (this.worldsheetRenderer && this.showWorldsheet) {
+      const isRelativistic = this.solver instanceof RelativisticStringSolver;
+      const worldsheet = isRelativistic
+        ? (state as import('./physics/relativistic').RelativisticStringState).worldsheet
+        : (this.solver as ClassicalStringSolver).getWorldsheet();
+      const bounds = isRelativistic
+        ? (this.solver as RelativisticStringSolver).getWorldsheetBounds()
+        : (this.solver as ClassicalStringSolver).getWorldsheetBounds();
+      this.worldsheetRenderer.setBounds(bounds.tMin, bounds.tMax, bounds.yMin, bounds.yMax, 0, this.config.params.L);
+      this.worldsheetRenderer.setCharacteristicSpeed(isRelativistic ? 1 : this.solver.getMetrics().waveSpeed);
+      this.worldsheetRenderer.render(worldsheet);
     }
   }
 
@@ -424,9 +444,9 @@ class StringSimulator {
     const waveSpeedEl = document.getElementById('metric-wavespeed');
     const fundamentalEl = document.getElementById('metric-fundamental');
 
-    if (energyEl) energyEl.textContent = metrics.totalEnergy.toFixed(3);
-    if (waveSpeedEl) waveSpeedEl.textContent = metrics.waveSpeed.toFixed(3);
-    if (fundamentalEl) fundamentalEl.textContent = metrics.fundamentalFreq.toFixed(3);
+    if (energyEl) energyEl.textContent = metrics.totalEnergy.toFixed(5);
+    if (waveSpeedEl) waveSpeedEl.textContent = metrics.waveSpeed.toFixed(4);
+    if (fundamentalEl) fundamentalEl.textContent = metrics.fundamentalFreq.toFixed(4);
 
     // Update causality warning for relativistic mode
     if (this.config.mode === 'relativistic' && this.solver instanceof RelativisticStringSolver) {
