@@ -16,3 +16,8 @@
 ### Changed
 
 - Refined the responsive layout, touch targets, focus treatment, and relativistic-model wording.
+### T10/T11/T13 responsive instrument release
+
+- Added shared Classical and Relativistic worldsheet histories, data-space characteristics, and mobile repaint recovery.
+- Rebuilt the responsive instrument layout and bounded the worldsheet plot across viewport transitions.
+- Updated live diagnostics cadence and precision, then published and verified the production payload.

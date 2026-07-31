@@ -1,20 +1,14 @@
 # Active Context
 
-*Last Updated: 2026-07-31 14:55 IST*
+*Last Updated: 2026-07-31 18:13 IST*
 
 ## Current Tasks
 
 ### Active
-- **T10: P0 Bug Fixes** — 🔄 IN PROGRESS
-  - T10a: Canvas resize transform accumulation
-  - T10b: Causal rays in data space (not pixel space)
-  - T10c: History timestamp off-by-one
-  - Attribution: Terra review, Sage verification
-
-- **T11: Three-View Layout Redesign** — ⬜ PENDING
+- **T11: Three-View Layout Redesign** — 🔄 IN PROGRESS
   - Linked profile + worldsheet + probe trajectory instrument
   - Desktop 65/35 split, mobile stacked
-  - Attribution: Terra review, Deepak mockups
+  - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review and Deepak mockups
 
 - **T12: Probe Trajectory & Interaction** — ⬜ PENDING
   - Draggable probe on profile
@@ -22,12 +16,12 @@
   - Worldsheet vertical probe line
   - Attribution: Terra review, Deepak mockups
 
-- **T13: Enhanced Diagnostics** — ⬜ PENDING
+- **T13: Enhanced Diagnostics** — 🔄 IN PROGRESS
   - T13a: Courant number, max transverse speed, energy drift
   - T13b: Energy strip labeling with formula
   - T13c: Worldsheet field selector (`y`, `∂τy`, `ℰ`, `∂σy`)
   - T13d: Color bar legend
-  - Attribution: Terra review
+  - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
 - T6: Energy Metrics & FFT — 🔄 IN PROGRESS (superseded by T13; FFT spectrum deferred)
@@ -35,6 +29,9 @@
 - 3D embedded worldsheet view — deferred indefinitely
 
 ## Completed Tasks (Recent)
+
+- T10: P0 Bug Fixes — ✅ COMPLETED (2026-07-31)
+  - DPR-safe resize, data-space characteristics, timestamped histories, mobile repaint recovery
 - T1: Project Setup & Build Tooling — ✅ COMPLETED (2026-07-30)
 - T2: Classical String Physics Engine — ✅ COMPLETED (2026-07-30)
 - T3: Canvas Rendering Engine — ✅ COMPLETED (2026-07-30)
@@ -58,8 +55,8 @@
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
 - Physics: ✅ Classical and linearized relativistic solvers with immutable-slice finite differences, stable stepping, boundary conditions, and damping where applicable
-- Rendering: ✅ Canvas renderer with smooth curves, visible energy density, and optional relativistic history
-- UI: ✅ Full responsive control panel with persisted settings
+- Rendering: ✅ Classical and relativistic worldsheets, bounded responsive plot wrapper, mobile repaint recovery
+- UI: ✅ Responsive instrument layout, persisted settings, separate playback strip, live diagnostic cards
 - Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/
 
 ## Open Questions

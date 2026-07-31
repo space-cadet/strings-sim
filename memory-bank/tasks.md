@@ -1,16 +1,15 @@
 # Tasks — String Motion Simulator
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-07-31 14:55 IST*
+*Last Updated: 2026-07-31 18:13 IST*
 
 ## Active Tasks
 
 | ID | Title | Status | Priority | Started | Dependencies | Details |
 |----|-------|--------|----------|---------|--------------|---------|
-| T10 | P0 Bug Fixes | 🔄 In Progress | HIGH | 2026-07-31 | — | [Details](tasks/T10.md) |
-| T11 | Three-View Layout Redesign | ⬜ Pending | HIGH | — | T10 | [Details](tasks/T11.md) |
+| T11 | Three-View Layout Redesign | 🔄 In Progress | HIGH | 2026-07-31 | T10 | [Details](tasks/T11.md) |
 | T12 | Probe Trajectory & Interaction | ⬜ Pending | HIGH | — | T10, T11 | [Details](tasks/T12.md) |
-| T13 | Enhanced Diagnostics | ⬜ Pending | MEDIUM | — | T10, T11, T12 | [Details](tasks/T13.md) |
+| T13 | Enhanced Diagnostics | 🔄 In Progress | MEDIUM | 2026-07-31 | T10, T11, T12 | [Details](tasks/T13.md) |
 
 ## Completed Tasks
 
@@ -25,6 +24,7 @@
 | T7 | Deployment | ✅ Completed | LOW | 2026-07-30 | 2026-07-30 | T4 | Initial publication |
 | T8 | Git Repository | ✅ Completed | LOW | 2026-07-30 | 2026-07-30 | — | Public GitHub repository created |
 | T9 | Simulation Integrity & Responsive UX | ✅ Completed | HIGH | 2026-07-31 | 2026-07-31 | T2, T4, T5 | [Details](tasks/T9.md) |
+| T10 | P0 Bug Fixes | ✅ Completed | HIGH | 2026-07-31 | 2026-07-31 | — | [Details](tasks/T10.md) |
 
 ## Deferred Tasks
 
@@ -35,8 +35,8 @@
 
 ## Status Summary
 
-- **Active**: 4 (T10 in progress, T11-T13 pending)
-- **Completed**: 9 (including T6 superseded)
+- **Active**: 3 (T11 and T13 in progress; T12 pending)
+- **Completed**: 10 (including T6 superseded)
 - **Paused/Deferred**: 2
 - **Total**: 15
 
