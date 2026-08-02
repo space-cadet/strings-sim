@@ -145,6 +145,8 @@ This pattern keeps the page useful to newcomers while making the computational d
 - Browser checks opened the Simulator, selected the Glossary tab, resolved `/implementation/#courant-condition`, and confirmed the matching heading.
 - Hovering the String profile help link revealed its short tooltip and exposed the correct Learn deep-link target.
 - The final browser-console check found no errors or warnings.
+- Source commit `8a8d154` and website payload commit `f0cbc19` were pushed after the website checkout fast-forwarded to `a151f43`.
+- GitHub Actions run `30765405359` completed successfully. Public HTTP checks returned 200 for Simulator, Learn, Glossary, How it works, and `assets/docs-COqnTtK3.js`.
 
 ## Accuracy Rules
 

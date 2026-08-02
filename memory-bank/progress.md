@@ -27,3 +27,10 @@
 - Added initial accessible question-mark links for String profile, Worldsheet, Boundary Conditions, Tension, and Wave Speed.
 - Added the first guided Learn sequence for the physical picture, wave behaviour, and the profile/worldsheet bridge.
 - Verified the production build, tab navigation, a Courant deep link, tooltip visibility, and a clean browser console. Full content/control coverage, mobile verification, and publication remain pending.
+
+## 2026-08-03 — T16 foundation published
+
+- Fast-forwarded the website checkout to `a151f43` before deployment.
+- Pushed source commit `8a8d154` and static website payload commit `f0cbc19`.
+- Confirmed successful GitHub Actions deployment run `30765405359`.
+- Verified HTTP 200 for the live Simulator, Learn, Glossary, How it works, and documentation JavaScript bundle.

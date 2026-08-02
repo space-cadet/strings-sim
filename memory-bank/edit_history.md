@@ -7,6 +7,17 @@
 
 ## 2026-08-03
 
+#### 01:51:58 IST - T16: Record source and static-site publication
+- Modified `memory-bank/tasks/T16.md` - Recorded source and website commits, deployment workflow completion, and public HTTP verification.
+- Modified `memory-bank/implementation-details/glossary-and-contextual-help.md` - Recorded deployment evidence and live route verification.
+- Modified `memory-bank/activeContext.md` - Changed T16 state from foundation delivered to foundation published.
+- Modified `memory-bank/session_cache.md` - Recorded published-session status and deployment history.
+- Modified `memory-bank/sessions/2026-08-03-night.md` - Recorded publication completion and the remaining T16 scope.
+- Modified `memory-bank/progress.md` - Recorded the website fast-forward, commits, workflow, and HTTP checks.
+- Modified `memory-bank/edit_history.md` - Regenerated the audit view with this T16 edit chunk.
+
+## 2026-08-03
+
 #### 01:45:50 IST - T16: Deliver tabbed learning and contextual-help foundation
 - Created `src/content/glossary.ts` - Added the canonical typed entries for the initial learning, glossary, and numerical-method concepts.
 - Created `src/docs.ts` - Added shared rendering for the Learn, Glossary, and How it works pages from the glossary registry.

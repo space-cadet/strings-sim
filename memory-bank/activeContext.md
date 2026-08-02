@@ -7,7 +7,7 @@
 ### Active
 - **T16: Mathematical Glossary and Contextual Help System** — 🔄 IN PROGRESS
   - Foundation delivered: shared registry, linked static tabs, initial Learn content, and five contextual help controls
-  - Remaining: all-control coverage, full glossary/numerical copy, richer experiments, mobile validation, and publication
+  - Remaining: all-control coverage, full glossary/numerical copy, richer experiments, and mobile validation
   - Linked static tabs: Simulator, Learn, Glossary, and How it works
   - Shared glossary registry, accessible question-mark help controls, guided experiments, and full mathematical/numerical documentation
 
@@ -69,7 +69,7 @@
 - The glossary must describe the linearized relativistic teaching model precisely without implying a full quantum, interacting string-theory calculation.
 - Tooltip text should remain short and plain-language; detailed formulae, implementation notes, and caveats belong in the linked documentation section.
 - Tabs are ordinary nested static-page links, not a JavaScript-only control, so each view has a stable bookmarkable URL.
-- T16 foundation has passed build and browser navigation/deep-link checks; do not claim a completed full glossary or mobile verification yet.
+- T16 foundation was published with source `8a8d154` and website payload `f0cbc19`; do not claim a completed full glossary or mobile verification yet.
 - Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
   - Terra warns it may confuse with null characteristics
   - Sage: keep it for physics-education audience, label clearly
