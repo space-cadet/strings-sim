@@ -1,0 +1,72 @@
+:root {
+  --bg-primary: #090b13;
+  --bg-panel: #111724;
+  --bg-panel-soft: #151d2c;
+  --text-primary: #f1f4fb;
+  --text-secondary: #aab6ca;
+  --border: #2b3b57;
+  --accent: #54d9ff;
+  --accent-soft: #a98cff;
+  --warning: #f4ca70;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: radial-gradient(circle at 12% -10%, #17345a 0, transparent 30rem), var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+a { color: var(--accent); }
+
+.docs-header {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.site-brand { color: var(--text-primary); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+
+.site-tabs { display: flex; gap: 0.25rem; overflow-x: auto; scrollbar-width: thin; }
+.site-tabs a { border-bottom: 2px solid transparent; color: var(--text-secondary); padding: 0.55rem 0.75rem; text-decoration: none; white-space: nowrap; }
+.site-tabs a:hover, .site-tabs a:focus-visible, .site-tabs a[aria-current="page"] { border-color: var(--accent); color: var(--text-primary); }
+
+.learning-page, .documentation-page { max-width: 1040px; margin: 0 auto; padding: clamp(2.5rem, 7vw, 5.5rem) 1.25rem 4rem; }
+.hero-copy { max-width: 760px; margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+h1 { font-size: clamp(2.35rem, 6vw, 4.8rem); letter-spacing: -0.055em; line-height: 1; margin: 0.45rem 0 1.2rem; }
+h2 { font-size: 1.2rem; line-height: 1.2; margin: 0; }
+.intro, .lead { color: var(--text-secondary); font-size: 1.1rem; }
+
+.lesson-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.lesson-step, .glossary-card, .method-note { background: linear-gradient(145deg, rgba(21, 29, 44, 0.95), rgba(13, 18, 29, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+.lesson-step > span { color: var(--accent-soft); display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 1.75rem; }
+.lesson-step p, .glossary-card p, .method-note p { color: var(--text-secondary); }
+.lesson-step a { font-weight: 700; }
+
+.concept-pair { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem; }
+.glossary-list { display: grid; gap: 1rem; }
+.card-heading { align-items: baseline; display: flex; gap: 0.75rem; justify-content: space-between; }
+.entry-symbol, .formula { color: var(--accent-soft); font-family: Georgia, serif; font-style: italic; }
+.formula { background: #0a111d; border-left: 2px solid var(--accent); padding: 0.65rem 0.8rem; }
+.try-this { border-left: 2px solid var(--accent-soft); padding-left: 0.8rem; }
+.caveat { border-left: 2px solid var(--warning); padding-left: 0.8rem; }
+.method-note { margin-bottom: 1rem; }
+.docs-footer { border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.82rem; padding: 1.5rem; text-align: center; }
+
+a:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 3px; }
+
+@media (max-width: 720px) {
+  .docs-header { align-items: flex-start; flex-direction: column; }
+  .site-tabs { max-width: 100%; width: 100%; }
+  .site-tabs a { padding-inline: 0.65rem; }
+  .lesson-grid, .concept-pair { grid-template-columns: 1fr; }
+}

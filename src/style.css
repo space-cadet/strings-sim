@@ -37,7 +37,7 @@ body {
 }
 
 /* Header */
-header {
+.site-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -46,7 +46,7 @@ header {
   text-align: left;
 }
 
-header h1 {
+.site-header h1 {
   font-size: 1rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -57,13 +57,20 @@ header h1 {
   background-clip: text;
 }
 
-header .subtitle {
+.site-header .subtitle {
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin-top: 0.25rem;
 }
 
-.header-status { color: var(--text-secondary); font-size: 0.78rem; }
+.site-tabs { display: flex; align-items: center; gap: 0.25rem; overflow-x: auto; }
+.site-tabs a { border-bottom: 2px solid transparent; color: var(--text-secondary); font-size: 0.8rem; padding: 0.5rem 0.65rem; text-decoration: none; white-space: nowrap; }
+.site-tabs a:hover, .site-tabs a:focus-visible, .site-tabs a[aria-current="page"] { border-color: var(--accent-hover); color: var(--text-primary); }
+
+.help-link { color: var(--accent-hover); display: inline-flex; font-family: inherit; font-size: 0.72em; font-style: normal; line-height: 1; margin-left: 0.28rem; position: relative; text-decoration: none; vertical-align: middle; }
+.help-link > span[aria-hidden="true"] { align-items: center; border: 1px solid currentColor; border-radius: 50%; display: inline-flex; font-size: 0.78em; font-weight: 700; height: 1.45em; justify-content: center; width: 1.45em; }
+.help-tooltip { background: #0b0e17; border: 1px solid var(--accent-hover); border-radius: 6px; bottom: calc(100% + 0.5rem); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: var(--text-primary); font-size: 0.76rem; font-style: normal; font-weight: 400; line-height: 1.35; opacity: 0; padding: 0.55rem 0.65rem; pointer-events: none; position: absolute; right: 0; transform: translateY(0.2rem); transition: opacity 0.15s ease, transform 0.15s ease; visibility: hidden; width: min(15rem, 70vw); z-index: 10; }
+.help-link:hover .help-tooltip, .help-link:focus-visible .help-tooltip { opacity: 1; transform: translateY(0); visibility: visible; }
 
 /* Main Layout */
 main {
@@ -518,16 +525,16 @@ input:focus-visible {
 }
 
 @media (max-width: 560px) {
-  header {
+  .site-header {
     padding: 0.85rem 1rem;
   }
 
-  header h1 {
+  .site-header h1 {
     font-size: 1.3rem;
   }
 
-  header { align-items: center; }
-  .header-status { display: none; }
+  .site-header { align-items: center; flex-wrap: wrap; }
+  .site-tabs { max-width: 100%; order: 3; width: 100%; }
   main { padding: 0.55rem; gap: 0.55rem; }
   #left-column { gap: 0.55rem; }
   #canvas-container { min-height: 270px; height: 68vw; }
