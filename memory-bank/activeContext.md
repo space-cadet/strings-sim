@@ -1,10 +1,16 @@
 # Active Context
 
-*Last Updated: 2026-07-31 18:13 IST*
+*Last Updated: 2026-08-03 00:36:36 IST*
 
 ## Current Tasks
 
 ### Active
+- **T16: Mathematical Glossary and Contextual Help System** — 🔄 IN PROGRESS
+  - Foundation delivered: shared registry, linked static tabs, initial Learn content, and five contextual help controls
+  - Remaining: all-control coverage, full glossary/numerical copy, richer experiments, mobile validation, and publication
+  - Linked static tabs: Simulator, Learn, Glossary, and How it works
+  - Shared glossary registry, accessible question-mark help controls, guided experiments, and full mathematical/numerical documentation
+
 - **T11: Three-View Layout Redesign** — 🔄 IN PROGRESS
   - Linked profile + worldsheet + probe trajectory instrument
   - Desktop 65/35 split, mobile stacked
@@ -46,8 +52,8 @@
 
 ## Priority Order (Agreed with Deepak)
 
-1. **P0**: Fix canvas transform, causal rays, history timestamps
-2. **P1**: Three-view layout + probe trajectory
+1. **P1**: Three-view layout + probe trajectory
+2. **P1**: Mathematical glossary, documentation, and contextual help
 3. **P2**: Field selector, energy label, diagnostics
 4. **P3**: Worldsheet scrubbing (deferred)
 5. **P4**: 3D embedded view (deferred)
@@ -60,6 +66,10 @@
 - Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/
 
 ## Open Questions
+- The glossary must describe the linearized relativistic teaching model precisely without implying a full quantum, interacting string-theory calculation.
+- Tooltip text should remain short and plain-language; detailed formulae, implementation notes, and caveats belong in the linked documentation section.
+- Tabs are ordinary nested static-page links, not a JavaScript-only control, so each view has a stable bookmarkable URL.
+- T16 foundation has passed build and browser navigation/deep-link checks; do not claim a completed full glossary or mobile verification yet.
 - Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
   - Terra warns it may confuse with null characteristics
   - Sage: keep it for physics-education audience, label clearly

@@ -1,7 +1,7 @@
 # Tasks — String Motion Simulator
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-07-31 18:13 IST*
+*Last Updated: 2026-08-03 00:36:36 IST*
 
 ## Active Tasks
 
@@ -10,6 +10,7 @@
 | T11 | Three-View Layout Redesign | 🔄 In Progress | HIGH | 2026-07-31 | T10 | [Details](tasks/T11.md) |
 | T12 | Probe Trajectory & Interaction | ⬜ Pending | HIGH | — | T10, T11 | [Details](tasks/T12.md) |
 | T13 | Enhanced Diagnostics | 🔄 In Progress | MEDIUM | 2026-07-31 | T10, T11, T12 | [Details](tasks/T13.md) |
+| T16 | Mathematical Glossary and Contextual Help System | 🔄 In Progress | HIGH | 2026-08-03 | T9, T11 | [Details](tasks/T16.md) |
 
 ## Completed Tasks
 
@@ -35,15 +36,17 @@
 
 ## Status Summary
 
-- **Active**: 3 (T11 and T13 in progress; T12 pending)
+- **Active**: 3 (T11, T13, and T16 in progress; T12 pending)
 - **Completed**: 10 (including T6 superseded)
 - **Paused/Deferred**: 2
-- **Total**: 15
+- **Total**: 16
 
 ## Task Dependency Graph
 
 ```
 T10 (bug fixes) ──► T11 (layout) ──► T12 (probe) ──► T13 (diagnostics)
+                         │
+                         ├──► T16 (glossary and contextual help)
                          │
                          ▼
                     T14 (scrubbing) [deferred]
@@ -56,6 +59,7 @@ T10 (bug fixes) ──► T11 (layout) ──► T12 (probe) ──► T13 (diag
 |------|-------|-------------|
 | **P0** | T10a, T10b, T10c | Bug fixes: canvas transform, causal rays, timestamps |
 | **P1** | T11, T12 | Layout redesign + probe trajectory |
+| **P1** | T16 | Mathematical glossary, documentation, and contextual help |
 | **P2** | T13a-T13d | Diagnostics, field selector, energy labeling |
 | **P3** | T14 | Worldsheet scrubbing |
 | **P4** | T15 | 3D embedded view |

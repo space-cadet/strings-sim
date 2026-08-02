@@ -5,6 +5,50 @@
 
 ---
 
+## 2026-08-03
+
+#### 01:45:50 IST - T16: Deliver tabbed learning and contextual-help foundation
+- Created `src/content/glossary.ts` - Added the canonical typed entries for the initial learning, glossary, and numerical-method concepts.
+- Created `src/docs.ts` - Added shared rendering for the Learn, Glossary, and How it works pages from the glossary registry.
+- Created `src/docs.css` - Added responsive shared documentation-page styling and accessible tab states.
+- Created `learn/index.html` - Added the static Learn page entry.
+- Created `glossary/index.html` - Added the static Glossary page entry.
+- Created `implementation/index.html` - Added the static How it works page entry.
+- Modified `vite.config.ts` - Configured the four Vite multipage HTML inputs.
+- Modified `index.html` - Added linked tabs and the first five contextual help links.
+- Modified `src/style.css` - Added responsive Simulator tab navigation and hover/focus help-tooltip styling.
+- Modified `memory-bank/tasks/T16.md` - Recorded the delivered foundation and remaining acceptance scope.
+- Modified `memory-bank/implementation-details/glossary-and-contextual-help.md` - Recorded delivered files and build/browser verification.
+- Modified `memory-bank/activeContext.md` - Recorded the T16 foundation state and remaining work.
+- Modified `memory-bank/session_cache.md` - Updated current session status and history.
+- Modified `memory-bank/sessions/2026-08-03-night.md` - Recorded implementation, verification, and next steps.
+- Modified `memory-bank/progress.md` - Recorded the delivered T16 foundation.
+- Modified `memory-bank/edit_history.md` - Regenerated the audit view with this T16 edit chunk.
+
+## 2026-08-03
+
+#### 00:55:24 IST - T16: Record tabbed learning architecture and layout evidence
+- Modified `memory-bank/tasks/T16.md` - Replaced the single documentation page with four linkable static tabs and added pedagogical acceptance criteria.
+- Modified `memory-bank/implementation-details/glossary-and-contextual-help.md` - Defined routes, link-target rules, guided learning sequence, and tabbed-navigation requirements.
+- Created `memory-bank/screenshots/T16/tabbed-site-layout-concept.png` - Added a generated desktop/mobile concept board for the proposed layout.
+- Modified `memory-bank/activeContext.md` - Recorded the linked static-tab decision.
+- Modified `memory-bank/session_cache.md` - Recorded the latest T16 planning milestone.
+- Modified `memory-bank/sessions/2026-08-03-night.md` - Updated current working state, next steps, and visual planning evidence.
+- Modified `memory-bank/progress.md` - Recorded the tabbed delivery model and layout concept evidence.
+- Modified `memory-bank/edit_history.md` - Regenerated the audit view with this T16 edit chunk.
+
+## 2026-08-03
+
+#### 00:36:36 IST - T16: Record glossary and contextual-help implementation plan
+- Created `memory-bank/tasks/T16.md` - Defined approved scope, acceptance criteria, dependencies, and accuracy boundaries for the educational documentation layer.
+- Created `memory-bank/implementation-details/glossary-and-contextual-help.md` - Recorded the shared registry, static deep-link, accessible help-control, content, and verification architecture.
+- Created `memory-bank/sessions/2026-08-03-night.md` - Recorded the approved planning session and next implementation steps.
+- Modified `memory-bank/tasks.md` - Added T16 to the active task registry, status summary, dependency graph, and priority tiers.
+- Modified `memory-bank/activeContext.md` - Added T16 as a cross-cutting educational documentation focus and updated priority order.
+- Modified `memory-bank/session_cache.md` - Set the current session to T16 and recorded its implementation context.
+- Modified `memory-bank/progress.md` - Recorded the approved glossary and contextual-help plan.
+- Modified `memory-bank/edit_history.md` - Regenerated the audit view with this T16 edit chunk.
+
 ## 2026-07-31
 
 #### 18:13:40 IST - T10: Responsive canvas and worldsheet completion (GPT-5.6 Terra via Codex)

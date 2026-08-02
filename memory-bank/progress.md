@@ -11,3 +11,19 @@
 - Delivered the responsive instrument layout and bounded worldsheet canvas lifecycle for desktop/mobile transitions.
 - Added shared Classical/Relativistic worldsheet history and continuous live metric updates.
 - Published source `4f1b5db` and website payload `e93c0ec`; live hashed assets were verified.
+
+## 2026-08-03 — T16 glossary and contextual-help plan approved
+
+- Defined a shared glossary registry as the single source for concise GUI help and detailed documentation.
+- Reframed the documentation delivery as four nested static pages: Simulator, Learn, Glossary, and How it works.
+- Defined accessible hover/focus/touch behavior, guided wave experiments, and a full content outline spanning physical concepts, plots, controls, numerical implementation, and model limitations.
+- Captured a generated desktop/mobile concept board at `memory-bank/screenshots/T16/tabbed-site-layout-concept.png` as planning evidence.
+- Recorded T16 as planned work; no simulator code or user-facing documentation page has yet been implemented.
+
+## 2026-08-03 — T16 foundation delivered
+
+- Added four static, linked pages: Simulator, Learn, Glossary, and How it works.
+- Added a typed glossary registry and a shared renderer for the three documentation pages.
+- Added initial accessible question-mark links for String profile, Worldsheet, Boundary Conditions, Tension, and Wave Speed.
+- Added the first guided Learn sequence for the physical picture, wave behaviour, and the profile/worldsheet bridge.
+- Verified the production build, tab navigation, a Courant deep link, tooltip visibility, and a clean browser console. Full content/control coverage, mobile verification, and publication remain pending.
