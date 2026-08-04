@@ -28,6 +28,12 @@ The foundation is intentionally not a claim that every current control or future
 - Expanded Learn to seven experiment cards: physical picture, initial shape versus velocity, modes, boundary conditions, worldsheet, probe, and damping.
 - Added registry tests that ensure current glossary help links resolve and new mathematical entries retain inline LaTex notation.
 
+## 2026-08-04 Publication Verification
+
+- Source commit `f470d58` and website payload commit `0f4afd2` were pushed.
+- Website deployment workflow `30912639074` completed successfully.
+- Public HTTP checks returned 200 for Simulator, Learn, Glossary, How it works, and the locally bundled `docs-Dga7QbCs.js` asset.
+
 ## Single Source of Truth
 
 Create a typed glossary registry, proposed at `src/content/glossary.ts`. Each entry has:

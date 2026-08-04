@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-08-04 18:36:51 IST*
+*Last Updated: 2026-08-04 18:43:14 IST*
 
 ## Current Tasks
 
@@ -70,7 +70,7 @@
 - Tooltip text should remain short and plain-language; detailed formulae, implementation notes, and caveats belong in the linked documentation section.
 - Tabs are ordinary nested static-page links, not a JavaScript-only control, so each view has a stable bookmarkable URL.
 - T16 foundation was published with source `8a8d154` and website payload `f0cbc19`; do not claim a completed full glossary or mobile verification yet.
-- T12 and the expanded T16 material are implemented locally with automated checks and desktop/mobile evidence; publish only after the scoped source commit and website payload complete.
+- T12 and the expanded T16 material were published with source `f470d58` and website payload `0f4afd2`. Deployment workflow `30912639074` and public routes/assets were verified; T12 still awaits manual acceptance testing.
 - Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
   - Terra warns it may confuse with null characteristics
   - Sage: keep it for physics-education audience, label clearly

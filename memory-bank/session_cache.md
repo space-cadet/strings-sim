@@ -1,13 +1,13 @@
 # Session Cache
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-04 18:36:51 IST*
+*Last Updated: 2026-08-04 18:43:14 IST*
 
 ## Current Session
 **Started**: 2026-08-03 01:51:58 IST
 **Focus Task**: T12 probe trajectory and T16 contextual-help expansion
 **Session File**: memory-bank/sessions/2026-08-03-night.md
-**Status**: 🔄 Probe and current-control help expansion implemented; manual probe test pending
+**Status**: 🔄 Probe and current-control help expansion published; manual probe test pending
 **Previous Session**: 2026-07-31 18:13 — responsive instrument and worldsheet completion
 
 ## Overview
@@ -32,7 +32,7 @@
 - T16: Mathematical Glossary and Contextual Help System 🔄 IN PROGRESS (current-control expansion delivered; T13 additions deferred)
 
 ## Session History (Last 5)
-- 2026-08-04 18:36 — T12/T16: linked probe trajectory, LaTex documentation expansion, tests, and desktop/mobile evidence; source and static-site publication pending
+- 2026-08-04 18:43 — T12/T16: linked probe trajectory and LaTex documentation expansion published; source `f470d58`, website `0f4afd2`, workflow `30912639074`, and live routes/assets verified
 - 2026-08-03 01:51 — T16: published source and website payload; workflow and public HTTP verification passed
 - 2026-07-31 18:13 — T10/T11/T13: responsive instrument UI, shared worldsheets, dynamic metrics, source/website publication, and evidence handoff
 - 2026-07-31 03:30 — Attribution update: merged GPT's T9 work, updated memory-bank with proper attribution
