@@ -8,6 +8,8 @@ import { ClassicalStringSolver } from './physics/classical';
 import { RelativisticStringSolver } from './physics/relativistic';
 import { StringRenderer } from './visualization/renderer';
 import { WorldsheetRenderer } from './visualization/worldsheet';
+import { ProbeTrajectoryRenderer } from './visualization/probe-trajectory';
+import { ProbeTrajectoryState } from './visualization/probe-state';
 import { presets } from './ui/presets';
 
 interface SavedSettings {
@@ -44,6 +46,8 @@ class StringSimulator {
   private solver: ClassicalStringSolver | RelativisticStringSolver;
   private renderer: StringRenderer;
   private worldsheetRenderer: WorldsheetRenderer | null = null;
+  private probeRenderer: ProbeTrajectoryRenderer | null = null;
+  private probe: ProbeTrajectoryState;
   private config: SimulationConfig;
   private isRunning: boolean = false;
   private animationId: number | null = null;
@@ -107,6 +111,10 @@ class StringSimulator {
     if (worldsheetCanvas) {
       this.worldsheetRenderer = new WorldsheetRenderer({ canvas: worldsheetCanvas });
     }
+    const probeCanvas = document.getElementById('probe-canvas') as HTMLCanvasElement;
+    if (probeCanvas) this.probeRenderer = new ProbeTrajectoryRenderer({ canvas: probeCanvas });
+    this.probe = new ProbeTrajectoryState(Math.floor(N / 2), params.L / 2, 200);
+    this.recordProbeState();
 
     // Cache UI elements
     this.btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
@@ -196,6 +204,7 @@ class StringSimulator {
     window.visualViewport?.addEventListener('resize', () => {
       this.renderer.handleResize();
       this.worldsheetRenderer?.handleResize();
+      this.probeRenderer?.handleResize();
       repaint();
     });
     document.addEventListener('visibilitychange', () => {
@@ -206,6 +215,26 @@ class StringSimulator {
     this.btnPlay.addEventListener('click', () => this.play());
     this.btnPause.addEventListener('click', () => this.pause());
     this.btnReset.addEventListener('click', () => this.reset());
+
+    const profileCanvas = document.getElementById('string-canvas') as HTMLCanvasElement;
+    const worldsheetCanvas = document.getElementById('worldsheet-canvas') as HTMLCanvasElement;
+    profileCanvas.addEventListener('pointerdown', (event) => this.selectProbeAt(this.renderer.getSigmaFromClientX(event.clientX)));
+    profileCanvas.addEventListener('pointermove', (event) => {
+      if (event.buttons & 1) this.selectProbeAt(this.renderer.getSigmaFromClientX(event.clientX));
+    });
+    worldsheetCanvas.addEventListener('pointerdown', (event) => {
+      if (this.worldsheetRenderer) this.selectProbeAt(this.worldsheetRenderer.getSigmaFromClientX(event.clientX));
+    });
+    worldsheetCanvas.addEventListener('pointermove', (event) => {
+      if ((event.buttons & 1) && this.worldsheetRenderer) this.selectProbeAt(this.worldsheetRenderer.getSigmaFromClientX(event.clientX));
+    });
+    [profileCanvas, worldsheetCanvas].forEach(canvas => {
+      canvas.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        this.selectProbeIndex(this.probe.sigmaIndex + (event.key === 'ArrowLeft' ? -1 : 1));
+      });
+    });
 
     // Preset selection
     this.presetSelect.addEventListener('change', () => {
@@ -380,6 +409,8 @@ class StringSimulator {
     const presetName = this.presetSelect.value;
     const preset = presets[presetName] || presets.pluck;
     this.initializePreset(preset);
+    this.probe.clear();
+    this.recordProbeState();
     this.updateMetrics();
     this.render();
   }
@@ -395,7 +426,10 @@ class StringSimulator {
     this.stepAccumulator += this.stepsPerFrame * this.timeScale;
     const steps = Math.floor(this.stepAccumulator);
     if (steps > 0) {
-      this.solver.stepN(steps);
+      for (let i = 0; i < steps; i++) {
+        this.solver.stepN(1);
+        this.recordProbeState();
+      }
       this.stepAccumulator -= steps;
     }
 
@@ -421,7 +455,8 @@ class StringSimulator {
       energy[i] = 0.5 * this.config.params.mu * v2 + 0.5 * this.config.params.tau * slope ** 2;
     }
 
-    this.renderer.render(x, state.y, energy);
+    this.renderer.render(x, state.y, energy, this.probe.sigmaIndex);
+    this.probeRenderer?.render(this.probe.snapshot());
 
     if (this.worldsheetRenderer && this.showWorldsheet) {
       const isRelativistic = this.solver instanceof RelativisticStringSolver;
@@ -433,8 +468,30 @@ class StringSimulator {
         : (this.solver as ClassicalStringSolver).getWorldsheetBounds();
       this.worldsheetRenderer.setBounds(bounds.tMin, bounds.tMax, bounds.yMin, bounds.yMax, 0, this.config.params.L);
       this.worldsheetRenderer.setCharacteristicSpeed(isRelativistic ? 1 : this.solver.getMetrics().waveSpeed);
-      this.worldsheetRenderer.render(worldsheet);
+      this.worldsheetRenderer.render(worldsheet, this.probe.sigma);
     }
+  }
+
+  private selectProbeAt(sigma: number): void {
+    const index = Math.round(sigma / this.config.dx);
+    this.selectProbeIndex(index);
+  }
+
+  private selectProbeIndex(index: number): void {
+    const clampedIndex = Math.max(0, Math.min(this.config.N - 1, index));
+    const sigma = clampedIndex * this.config.dx;
+    this.probe.select(clampedIndex, sigma);
+    this.recordProbeState();
+    const panel = document.getElementById('probe-panel') as HTMLDetailsElement | null;
+    if (panel) panel.open = true;
+    const status = document.getElementById('probe-status');
+    if (status) status.textContent = `σ* = ${sigma.toFixed(2)}`;
+    this.render();
+  }
+
+  private recordProbeState(): void {
+    const state = this.solver.getState();
+    this.probe.record(state.t, state.y[this.probe.sigmaIndex]);
   }
 
   private updateMetrics(): void {

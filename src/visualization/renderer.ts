@@ -82,7 +82,14 @@ export class StringRenderer {
   }
 
   /** Main render function */
-  render(x: Float64Array, y: Float64Array, energy?: Float64Array): void {
+  getSigmaFromClientX(clientX: number): number {
+    const rect = this.canvas.getBoundingClientRect();
+    const fraction = Math.min(1, Math.max(0, (clientX - rect.left - this.config.padding.left) /
+      Math.max(1, rect.width - this.config.padding.left - this.config.padding.right)));
+    return this.xMin + fraction * (this.xMax - this.xMin);
+  }
+
+  render(x: Float64Array, y: Float64Array, energy?: Float64Array, probeIndex?: number): void {
     this.clear();
     
     if (this.config.showGrid) {
@@ -91,6 +98,7 @@ export class StringRenderer {
     
     this.drawAxes();
     this.drawString(x, y);
+    if (probeIndex !== undefined && probeIndex >= 0 && probeIndex < x.length) this.drawProbe(x[probeIndex], y[probeIndex]);
     
     if (this.config.showEnergy && energy) {
       this.drawEnergy(x, energy);
@@ -265,5 +273,19 @@ export class StringRenderer {
       ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.7)`;
       ctx.fillRect(x1, barY, x2 - x1, barHeight);
     }
+  }
+
+  private drawProbe(x: number, y: number): void {
+    const { ctx } = this;
+    ctx.fillStyle = '#00d4ff';
+    ctx.strokeStyle = '#08131a';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00d4ff';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(this.mapX(x), this.mapY(y), 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.stroke();
   }
 }

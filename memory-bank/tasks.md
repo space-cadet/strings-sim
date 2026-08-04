@@ -1,14 +1,14 @@
 # Tasks — String Motion Simulator
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-03 00:36:36 IST*
+*Last Updated: 2026-08-04 18:36:51 IST*
 
 ## Active Tasks
 
 | ID | Title | Status | Priority | Started | Dependencies | Details |
 |----|-------|--------|----------|---------|--------------|---------|
 | T11 | Three-View Layout Redesign | 🔄 In Progress | HIGH | 2026-07-31 | T10 | [Details](tasks/T11.md) |
-| T12 | Probe Trajectory & Interaction | ⬜ Pending | HIGH | — | T10, T11 | [Details](tasks/T12.md) |
+| T12 | Probe Trajectory & Interaction | 🔄 In Progress | HIGH | 2026-08-04 | T10, T11 | [Details](tasks/T12.md) |
 | T13 | Enhanced Diagnostics | 🔄 In Progress | MEDIUM | 2026-07-31 | T10, T11, T12 | [Details](tasks/T13.md) |
 | T16 | Mathematical Glossary and Contextual Help System | 🔄 In Progress | HIGH | 2026-08-03 | T9, T11 | [Details](tasks/T16.md) |
 
@@ -36,7 +36,7 @@
 
 ## Status Summary
 
-- **Active**: 3 (T11, T13, and T16 in progress; T12 pending)
+- **Active**: 4 (T11, T12, T13, and T16 in progress)
 - **Completed**: 10 (including T6 superseded)
 - **Paused/Deferred**: 2
 - **Total**: 16

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-04
+
+### Added
+
+- Added the linked primary probe trajectory with profile/worldsheet interaction and a bounded timestamped history.
+- Added locally rendered LaTex glossary material, current-control contextual help, and a seven-step Learn sequence.
+- Added probe and glossary-registry tests plus desktop/mobile and documentation evidence.
+
 ## 2026-07-31
 
 ### Fixed
