@@ -1,9 +1,34 @@
 # Edit History
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-07-31 18:13:40 IST*
+*Last Updated: 2026-08-04 18:43:14 IST*
 
 ---
+
+## 2026-08-04
+
+#### 18:43:14 IST - T12, T16: Record publication verification
+- Modified \`memory-bank/tasks/T16.md\` - Recorded the source and deployment commits, successful website action, and live documentation checks.
+- Modified \`memory-bank/implementation-details/glossary-and-contextual-help.md\` - Added public-release verification evidence for the expanded mathematical learning content.
+- Modified \`memory-bank/activeContext.md\`, \`memory-bank/session_cache.md\`, and \`memory-bank/sessions/2026-08-03-night.md\` - Synchronized active-work and session records with the deployment result.
+- Modified \`memory-bank/progress.md\` and \`memory-bank/changelog.md\` - Added the verified source, website, workflow, and live-asset publication trail.
+- Modified \`memory-bank/edit_history.md\` - Recorded this final Memory Bank closeout.
+
+#### 18:36:51 IST - T12, T16: Record probe and contextual-help expansion
+- Modified `memory-bank/tasks/T12.md` - Recorded the delivered primary probe slice, validation, and manual-test gate.
+- Modified `memory-bank/tasks/T16.md` - Recorded current-control coverage, learning expansion, and deferred T13 documentation.
+- Modified `memory-bank/tasks.md` - Marked T12 in progress and synchronized the active-task summary.
+- Modified `memory-bank/implementation-details/probe-trajectory.md` - Recorded the implemented state, renderers, and deferred extensions.
+- Modified `memory-bank/implementation-details/glossary-and-contextual-help.md` - Recorded KaTeX, glossary, contextual-link, Learn, and registry-test expansion.
+- Modified `memory-bank/activeContext.md` - Updated active T12/T16 status and publication handoff.
+- Modified `memory-bank/session_cache.md` - Recorded the current session focus and history.
+- Modified `memory-bank/sessions/2026-08-03-night.md` - Appended the T12/T16 continuation, validation, evidence, and manual-test gate.
+- Modified `memory-bank/progress.md` - Recorded the implemented probe and documentation milestone.
+- Modified `memory-bank/changelog.md` - Recorded feature, documentation, test, and evidence additions.
+- Created `memory-bank/screenshots/2026-08-04-181614-probe-trajectory-desktop.png` - Added desktop probe evidence.
+- Created `memory-bank/screenshots/2026-08-04-181614-probe-trajectory-mobile.png` - Added mobile probe evidence.
+- Created `memory-bank/screenshots/2026-08-04-183000-expanded-learn-page.png` - Added expanded Learn-page evidence.
+- Created `memory-bank/ui-tests/2026-08-04-181614-probe-trajectory.md` - Added structured probe UI-test record.
 
 ## 2026-08-03
 

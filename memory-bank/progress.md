@@ -34,3 +34,12 @@
 - Pushed source commit `8a8d154` and static website payload commit `f0cbc19`.
 - Confirmed successful GitHub Actions deployment run `30765405359`.
 - Verified HTTP 200 for the live Simulator, Learn, Glossary, How it works, and documentation JavaScript bundle.
+
+## 2026-08-04 — T12 probe and T16 help expansion
+
+- Added a primary probe trajectory that links a selected profile marker, worldsheet worldline, and rolling $y(\sigma_\ast,\tau)$ trace.
+- Added a KaTeX-backed shared glossary and seven guided Learn experiments for the current model, controls, diagnostics, and numerical method.
+- Added 11 new contextual help links and registry tests that protect their direct glossary targets.
+- Verified four automated tests, the production build, desktop/mobile probe interaction, the expanded Learn page, and a clean browser console.
+- Published source `f470d58` and website payload `0f4afd2`. GitHub Actions run `30912639074` succeeded; public routes and the new documentation bundle returned HTTP 200.
+- Manual T12 acceptance testing remains pending.

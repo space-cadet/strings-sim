@@ -1,6 +1,7 @@
 # Probe Trajectory Implementation
 
 *Created: 2026-07-31 14:55 IST*
+*Last Updated: 2026-08-04 18:36:51 IST*
 **Attribution**: GPT-5.6 Terra (OpenAI), Deepak Vaid mockups
 
 ## Overview
@@ -137,3 +138,10 @@ All three use the same probe color (e.g., `#00d4ff`) for visual linkage.
 
 - T12
 - Terra's review (Point 3, 6)
+
+## Delivered 2026-08-04
+
+- `src/visualization/probe-state.ts` owns the selected index, physical $\sigma_\ast$, and a bounded 200-sample timestamped scalar history.
+- `src/main.ts` records the probe after each solver step, clears stale samples after reset or reselection, and supports profile/worldsheet pointer selection plus focused-canvas arrow-key adjustment.
+- `src/visualization/renderer.ts` draws the selected cyan marker; `src/visualization/worldsheet.ts` draws the matching dashed cyan worldline; `src/visualization/probe-trajectory.ts` renders the $\tau$-horizontal trace and $y=0$ reference line.
+- The primary probe is delivered. Secondary pinned probes and the optional $|\partial_\tau y|=1$ guide are not implemented.

@@ -1,8 +1,8 @@
 # Glossary and Contextual Help Architecture
 
 *Created: 2026-08-03 00:36:36 IST*
-*Last Updated: 2026-08-03 01:45:50 IST*
-*Status: Foundation delivered; content and contextual-help expansion remain*
+*Last Updated: 2026-08-04 18:36:51 IST*
+*Status: Current-control expansion delivered; future T13 entries remain*
 *Related Task: T16*
 
 ## Purpose
@@ -18,6 +18,21 @@ The String Motion Simulator is intended to be a visual guide to learning string 
 - The first Learn path introduces $\sigma$, $\tau$, and $y(\sigma,\tau)$; wave behaviour and normal modes; and the profile/worldsheet conceptual bridge.
 
 The foundation is intentionally not a claim that every current control or future T12/T13 concept is documented yet.
+
+## 2026-08-04 Expansion
+
+- Added locally bundled KaTeX rendering for the shared `\\(...\\)` registry notation; documentation pages no longer present formula strings as plain text.
+- Added present-tense entries for the classical and linearized relativistic teaching models, presets and initial conditions, length, damping, playback time scale, total energy, fundamental frequency, energy-density strip, numerical grid, timestep, and rolling history.
+- Added probe-trajectory documentation and a direct help target for $y(\sigma_\ast,\tau)$.
+- Added accessible contextual links beside the delivered mode selector, preset selector, length, density, damping, playback, visualization, energy strip, total energy, and fundamental-frequency controls.
+- Expanded Learn to seven experiment cards: physical picture, initial shape versus velocity, modes, boundary conditions, worldsheet, probe, and damping.
+- Added registry tests that ensure current glossary help links resolve and new mathematical entries retain inline LaTex notation.
+
+## 2026-08-04 Publication Verification
+
+- Source commit `f470d58` and website payload commit `0f4afd2` were pushed.
+- Website deployment workflow `30912639074` completed successfully.
+- Public HTTP checks returned 200 for Simulator, Learn, Glossary, How it works, and the locally bundled `docs-Dga7QbCs.js` asset.
 
 ## Single Source of Truth
 

@@ -76,6 +76,13 @@ export class WorldsheetRenderer {
     this.characteristicSpeed = speed;
   }
 
+  getSigmaFromClientX(clientX: number): number {
+    const rect = this.canvas.getBoundingClientRect();
+    const { left, right } = this.config.padding;
+    const fraction = Math.min(1, Math.max(0, (clientX - rect.left - left) / Math.max(1, rect.width - left - right)));
+    return this.sigmaMin + fraction * (this.sigmaMax - this.sigmaMin);
+  }
+
   // Map sigma (position along string) → canvas x
   private mapSigma(s: number): number {
     const { left, right } = this.config.padding;
@@ -112,7 +119,7 @@ export class WorldsheetRenderer {
     }
   }
 
-  render(worldsheet: WorldsheetPoint[][]): void {
+  render(worldsheet: WorldsheetPoint[][], probeSigma?: number): void {
     this.clear();
     this.drawGrid();
     this.drawAxes();
@@ -124,6 +131,8 @@ export class WorldsheetRenderer {
 
     // Draw current string snapshot on top
     this.drawCurrentString(worldsheet);
+
+    if (probeSigma !== undefined) this.drawProbeWorldline(probeSigma);
 
     // Draw light cone boundaries
     this.drawCharacteristics();
@@ -286,6 +295,18 @@ export class WorldsheetRenderer {
     ctx.beginPath();
     ctx.arc(this.mapSigma(lastPoint.x), this.mapTau(lastPoint.t), 4, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  private drawProbeWorldline(sigma: number): void {
+    const { ctx } = this;
+    ctx.strokeStyle = '#00d4ff';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    ctx.moveTo(this.mapSigma(sigma), this.mapTau(this.tauMin));
+    ctx.lineTo(this.mapSigma(sigma), this.mapTau(this.tauMax));
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   private drawCharacteristics(): void {

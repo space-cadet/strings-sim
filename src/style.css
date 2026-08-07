@@ -239,10 +239,13 @@ main {
 /* Mode Toggle */
 .mode-toggle {
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
   padding: 0;
   border: 0;
 }
+
+.mode-toggle h3 { flex-basis: 100%; }
 
 .mode-toggle button {
   flex: 1;
@@ -403,6 +406,8 @@ footer {
 .probe-panel summary::-webkit-details-marker { display: none; }
 .probe-panel summary span { color: var(--text-secondary); font-size: 0.72rem; font-weight: 400; letter-spacing: 0; text-transform: none; }
 .probe-panel p { padding: 0 1rem 1rem; color: var(--text-secondary); font-size: 0.82rem; }
+#probe-plot { height: clamp(180px, 18vw, 250px); margin: 0 1rem; }
+#probe-canvas { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; display: block; height: 100%; width: 100%; }
 
 /* Worldsheet Toggle Button */
 .worldsheet-toggle {
@@ -522,6 +527,8 @@ input:focus-visible {
   #worldsheet-plot {
     height: clamp(190px, 48vw, 280px);
   }
+
+  #probe-plot { height: clamp(170px, 48vw, 230px); }
 }
 
 @media (max-width: 560px) {

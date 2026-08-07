@@ -1,13 +1,13 @@
 # Active Context
 
-*Last Updated: 2026-08-03 00:36:36 IST*
+*Last Updated: 2026-08-04 18:43:14 IST*
 
 ## Current Tasks
 
 ### Active
 - **T16: Mathematical Glossary and Contextual Help System** — 🔄 IN PROGRESS
-  - Foundation delivered: shared registry, linked static tabs, initial Learn content, and five contextual help controls
-  - Remaining: all-control coverage, full glossary/numerical copy, richer experiments, and mobile validation
+  - Current-control expansion delivered: shared registry, local KaTeX, seven Learn experiments, and contextual help for the implemented controls and diagnostics
+  - Remaining: entries and links for T13 controls after they exist, final live-release verification
   - Linked static tabs: Simulator, Learn, Glossary, and How it works
   - Shared glossary registry, accessible question-mark help controls, guided experiments, and full mathematical/numerical documentation
 
@@ -16,10 +16,10 @@
   - Desktop 65/35 split, mobile stacked
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review and Deepak mockups
 
-- **T12: Probe Trajectory & Interaction** — ⬜ PENDING
-  - Draggable probe on profile
-  - Trajectory plot `y(τ; σ*)`
-  - Worldsheet vertical probe line
+- **T12: Probe Trajectory & Interaction** — 🔄 IN PROGRESS
+  - Primary draggable/clickable probe implemented on profile and worldsheet
+  - Linked trajectory plot $y(\sigma_\ast,\tau)$, cyan profile marker, and worldsheet worldline implemented
+  - User manual acceptance test pending before completion
   - Attribution: Terra review, Deepak mockups
 
 - **T13: Enhanced Diagnostics** — 🔄 IN PROGRESS
@@ -70,6 +70,7 @@
 - Tooltip text should remain short and plain-language; detailed formulae, implementation notes, and caveats belong in the linked documentation section.
 - Tabs are ordinary nested static-page links, not a JavaScript-only control, so each view has a stable bookmarkable URL.
 - T16 foundation was published with source `8a8d154` and website payload `f0cbc19`; do not claim a completed full glossary or mobile verification yet.
+- T12 and the expanded T16 material were published with source `f470d58` and website payload `0f4afd2`. Deployment workflow `30912639074` and public routes/assets were verified; T12 still awaits manual acceptance testing.
 - Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
   - Terra warns it may confuse with null characteristics
   - Sage: keep it for physics-education audience, label clearly
