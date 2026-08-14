@@ -1,7 +1,7 @@
 # Tasks — String Motion Simulator
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-04 18:36:51 IST*
+*Last Updated: 2026-08-14 19:28:22 IST*
 
 ## Active Tasks
 
@@ -27,6 +27,15 @@
 | T10 | P0 Bug Fixes | ✅ Completed | HIGH | 2026-07-31 | 2026-07-31 | — | [Details](tasks/T10.md) |
 | T12 | Probe Trajectory & Interaction | ✅ Completed | HIGH | 2026-08-04 | 2026-08-14 | T10, T11 | [Details](tasks/T12.md) |
 
+## Planned String-Theory Expansion
+
+| ID | Title | Status | Priority | Started | Dependencies | Details |
+|----|-------|--------|----------|---------|--------------|---------|
+| T17 | Linearized Model Baseline and Scope Guardrails | ⏸️ Planned | HIGH | — | T16 | [Details](tasks/T17.md) |
+| T18 | Nonlinear Classical Relativistic String Solver | ⏸️ Planned | HIGH | — | T17 | [Details](tasks/T18.md) |
+| T19 | Free Quantum String Mode Visualizer | ⏸️ Planned | MEDIUM | — | T17 | [Details](tasks/T19.md) |
+| T20 | Perturbative String Interaction Concept Visualizer | ⏸️ Planned | LOW | — | T19 | [Details](tasks/T20.md) |
+
 ## Deferred Tasks
 
 | ID | Title | Status | Priority | Reason |
@@ -38,8 +47,8 @@
 
 - **Active**: 3 (T11, T13, and T16 in progress)
 - **Completed**: 12 (including T6 and T12)
-- **Paused/Deferred**: 2
-- **Total**: 16
+- **Paused/Deferred**: 6
+- **Total**: 20
 
 ## Task Dependency Graph
 
@@ -51,6 +60,10 @@ T10 (bug fixes) ──► T11 (layout) ──► T12 (probe) ──► T13 (diag
                          ▼
                     T14 (scrubbing) [deferred]
                     T15 (3D view) [deferred]
+
+T16 (documentation) ──► T17 (linear baseline) ──► T18 (nonlinear classical solver)
+                                      │
+                                      └──────────► T19 (free quantum modes) ──► T20 (interaction concepts)
 ```
 
 ## Priority Tiers
@@ -63,3 +76,4 @@ T10 (bug fixes) ──► T11 (layout) ──► T12 (probe) ──► T13 (diag
 | **P2** | T13a-T13d | Diagnostics, field selector, energy labeling |
 | **P3** | T14 | Worldsheet scrubbing |
 | **P4** | T15 | 3D embedded view |
+| **Future** | T17–T20 | Scoped progression from the linear baseline to nonlinear, free-quantum, and interaction teaching layers |

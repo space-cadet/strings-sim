@@ -57,3 +57,9 @@
 - The analysis requires at least 16 uniformly timestamped samples, removes the sample mean, applies a Hann window, zero-pads to a power of two, and highlights the largest nonzero-frequency bin.
 - The rendered axis focuses on the useful low-frequency range while peak detection still considers the complete positive-frequency FFT. The panel explicitly states that it is a short-window numerical signal estimate, not a quantum-string spectrum.
 - Added a focused FFT regression test, glossary/help entry, and browser screenshot at `screenshots/2026-08-14-t6-frequency-spectrum.png`. Build, tests, diff check, and browser verification passed.
+
+## 2026-08-14 — T17–T20 full-string development roadmap approved
+
+- Created four bounded future tasks: linear-model scope and regression guardrails (T17), a nonlinear classical relativistic solver (T18), a finite free-quantum mode visualizer (T19), and conceptual perturbative-interaction diagrams (T20).
+- Recorded formulation, constraint, convergence, finite-state, accessibility, and claim-boundary gates in `implementation-details/full-string-development-roadmap.md`.
+- This is planning documentation only. The deployed application remains the existing linearized transverse classical teaching model.

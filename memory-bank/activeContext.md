@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-08-14 19:10:45 IST*
+*Last Updated: 2026-08-14 19:28:22 IST*
 
 ## Current Tasks
 
@@ -28,6 +28,9 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
+- **T17–T20: String-Theory Expansion Roadmap** — ⏸️ PLANNED
+  - T17 preserves and documents the current linear reference model; T18 is a constraint-preserving nonlinear classical solver; T19 is a finite free-quantum mode visualizer; T20 is a conceptual perturbative-interaction visualizer.
+  - No solver, quantum-state, or interaction feature has started. See `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
@@ -56,6 +59,7 @@
 3. **P2**: Field selector, energy label, diagnostics
 4. **P3**: Worldsheet scrubbing (deferred)
 5. **P4**: 3D embedded view (deferred)
+6. **Future**: T17 scope guardrails, then T18 nonlinear classical solver, T19 free quantum modes, and T20 interaction concepts
 
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
