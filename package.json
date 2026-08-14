@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "rm -rf .test-dist && tsc src/visualization/probe-state.ts src/visualization/frequency-spectrum.ts src/content/glossary.ts --outDir .test-dist --target ES2022 --module NodeNext --moduleResolution NodeNext && node --test test/*.test.mjs",
+    "test": "rm -rf .test-dist && tsc src/visualization/probe-state.ts src/visualization/frequency-spectrum.ts src/content/glossary.ts src/physics/t17-baselines.ts src/physics/nonlinear-relativistic.ts --outDir .test-dist --target ES2022 --module NodeNext --moduleResolution NodeNext && node --test test/*.test.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {

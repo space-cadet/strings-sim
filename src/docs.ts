@@ -109,7 +109,7 @@ function implementationPage(): string {
   const entries = glossaryEntries.filter(entry => entry.primaryTab === 'implementation');
   return `<main class="documentation-page">
     <section class="hero-copy"><p class="eyebrow">Method</p><h1>How the simulator works</h1><p class="intro">The app advances a discretised transverse-string model. These notes explain the numerical choices and their limits in plain language.</p></section>
-    <section class="method-note" id="model-boundary"><h2>A teaching model, stated plainly</h2><p>The simulator visualises classical and linearized transverse-string dynamics. It is designed to build intuition about waves, modes, and worldsheets; it does not compute a full interacting quantum string theory.</p></section>
+    <section class="method-note" id="model-boundary"><h2>A teaching model, stated plainly</h2><p>The T17 reference path visualises classical and linearized transverse-string dynamics. It is designed to build intuition about waves, modes, and numerical worldsheets; it does not compute a full interacting quantum string theory. The separate T18 mode adds a bounded classical closed-string target-space embedding with explicit conformal-gauge constraints.</p><p>The periodic option in the reference path is a closed-boundary case for the linear wave equation. T18 is a separate flat-spacetime classical model and does not add quantization, string interactions, scattering amplitudes, or open-string endpoints.</p></section>
     <section class="glossary-list">${entries.map(entry => glossaryCard(entry)).join('')}</section>
   </main>`;
 }

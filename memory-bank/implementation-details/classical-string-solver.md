@@ -1,6 +1,6 @@
 # Classical String Solver and Energy
 
-*Updated: 2026-07-31 18:13 IST*
+*Updated: 2026-08-15 01:44:29 IST*
 *Implementation Attribution: GPT-5.6 Terra (Codex)*
 
 ## Model
@@ -19,7 +19,7 @@ The solver uses a central-difference/Verlet-like update. Every spatial Laplacian
 - Length changes recompute $\Delta\sigma$ and the conservative timestep.
 - Tension and density update the wave speed and timestep.
 - Damping updates the active solver immediately.
-- Fixed, free, and mixed endpoints are applied after every timestep.
+- Fixed, free, mixed, and periodic endpoints are applied after every timestep. Periodic runs update the unique samples as a ring and retain a duplicate endpoint for the existing renderer contract.
 
 ## Energy and History
 
@@ -27,4 +27,4 @@ The current display calculates local energy from velocity and spatial slope. Tot
 
 ## Boundary
 
-The numerical scheme is educational and linear; it is not a nonlinear string or material-loss calibration.
+The numerical scheme is educational and linear; it is not a nonlinear string or material-loss calibration. T17 records this solver as the reference path for later nonlinear comparisons.

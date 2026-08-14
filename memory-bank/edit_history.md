@@ -1,9 +1,79 @@
 # Edit History
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-14 19:28:22 IST*
+*Last Updated: 2026-08-15 03:09:37 IST*
 
 ---
+
+## 2026-08-15
+
+#### 03:09:37 IST - T18: Record preset distinctness audit gate
+- Modified `memory-bank/tasks/T18.md` - Added T18e and recorded the user's concern that visual/raster differences do not establish physically distinct configurations.
+- Modified `memory-bank/implementation-details/full-string-development-roadmap.md` - Recast the eight presets as proposed until tangent, embedding, velocity, and invariant comparisons are audited.
+- Modified `memory-bank/activeContext.md`, `memory-bank/session_cache.md`, and `memory-bank/sessions/2026-08-14-evening.md` - Recorded the next-session audit and requested session title.
+- Created `memory-bank/edits/2026-08-15/030937-T18-preset-distinctness-follow-up.md` - Added the follow-up gate and evidence boundary.
+
+## 2026-08-15
+
+#### 02:59:21 IST - T18: Publish conformal preset family
+- Modified `memory-bank/tasks/T18.md` - Recorded website commit `c4a6a46`, Actions run `31842567883`, and live route/asset verification.
+- Modified `memory-bank/activeContext.md`, `memory-bank/session_cache.md`, and `memory-bank/sessions/2026-08-14-evening.md` - Synchronized T18 publication evidence.
+- Created `memory-bank/edits/2026-08-15/025921-T18-preset-publication.md` - Added the deployment and live-marker evidence.
+
+## 2026-08-15
+
+#### 02:48:48 IST - T18: Define varied conformal preset family
+- Modified `src/physics/nonlinear-relativistic.ts` - Added eight dedicated T18 preset definitions, even-harmonic tangent construction, labels, descriptions, and factory functions.
+- Modified `src/main.ts` - Applied the selected T18 preset, synchronized mode-specific labels/descriptions, and resized the embedding canvas when its panel becomes visible.
+- Modified `index.html`, `src/style.css`, and `src/content/glossary.ts` - Added T18 preset explanation copy and a visible preset description.
+- Modified `memory-bank/implementation-details/full-string-development-roadmap.md` - Recorded the preset family and T18 parameter boundaries.
+- Modified `test/nonlinear-relativistic.test.mjs` - Verified all eight presets are valid and geometrically varied.
+- Created `memory-bank/ui-tests/2026-08-15-024848-t18-presets.md` and `memory-bank/screenshots/2026-08-15-t18-preset-variation.png` - Recorded browser selection and rendering evidence.
+
+## 2026-08-15
+
+#### 02:28:40 IST - T18: Publish playback and profile correction
+- Modified `memory-bank/tasks/T18.md` - Recorded website commit `ad9bd08`, Actions run `31840298369`, and live route/asset verification.
+- Modified `memory-bank/activeContext.md`, `memory-bank/session_cache.md`, and `memory-bank/sessions/2026-08-14-evening.md` - Synchronized the live deployment evidence and current T18 state.
+- Created `memory-bank/edits/2026-08-15/022840-T18-correction-publication.md` - Added the publication and live-marker evidence.
+
+## 2026-08-15
+
+#### 02:26:22 IST - T18: Correct playback control and profile clipping
+- Modified `index.html` - Replaced Play and Pause buttons with one accessible Play/Pause toggle and clarified the T18 crossing/reconnection boundary.
+- Modified `src/main.ts` - Added toggle-state synchronization and adaptive profile y-axis fitting.
+- Modified `src/visualization/renderer.ts` - Added padded data-driven vertical bounds with a minimum display range.
+- Modified `src/content/glossary.ts` - Clarified that projected crossings do not calculate reconnection or string interactions.
+- Created `memory-bank/ui-tests/2026-08-15-022622-t18-play-pause-profile.md` - Recorded browser interaction and profile-range evidence.
+- Created `memory-bank/screenshots/2026-08-15-t18-profile-autoscale.png` and `memory-bank/screenshots/2026-08-15-t18-profile-autoscale-top.png` - Captured playback and profile evidence.
+
+## 2026-08-15
+
+#### 02:13:40 IST - T16, T18: Publish and live-verify simulator release
+- Modified `memory-bank/tasks/T16.md` - Marked the documentation/help system complete after live route and asset verification.
+- Modified `memory-bank/tasks/T18.md` - Recorded website commit `9105ef0`, deployment run `31839085133`, live routes/assets, and the remaining nonlinear observable gate.
+- Modified `memory-bank/tasks.md`, `memory-bank/activeContext.md`, and `memory-bank/session_cache.md` - Synchronized task counts, active/completed status, and current publication state.
+- Modified `memory-bank/sessions/2026-08-14-evening.md` - Recorded source gates, website replacement scope, GitHub Actions success, and public HTTP evidence.
+- Created `memory-bank/edits/2026-08-15/021340-T16-T18-publication.md` - Added the publication evidence chunk.
+
+## 2026-08-15
+
+#### 02:06:29 IST - T17, T18: Implement baseline and nonlinear engine
+- Modified `src/physics/core.ts` - Added periodic boundary and nonlinear mode types with natural-unit timestep handling.
+- Modified `src/physics/classical.ts` - Added periodic ring updates and metrics.
+- Modified `src/physics/relativistic.ts` - Added periodic linear reference updates and metrics.
+- Created `src/physics/t17-baselines.ts` - Added reproducible fixed, free, periodic, and mixed velocity-bearing baseline reports.
+- Created `src/physics/nonlinear-relativistic.ts` - Added constrained closed-string conformal-gauge evolution and diagnostics.
+- Created `src/visualization/embedding.ts` - Added target-space projection rendering for T18.
+- Created `test/t17-baselines.test.mjs` - Added T17 regression coverage and tolerance checks.
+- Created `test/nonlinear-relativistic.test.mjs` - Added T18 constraint, energy, refinement, and small-amplitude checks.
+- Modified `index.html`, `src/main.ts`, and `src/style.css` - Added the separate T18 mode, embedding panel, and live constraint diagnostic.
+- Modified `src/content/glossary.ts` and `src/docs.ts` - Added T18 formulation, constraints, and model-boundary documentation.
+- Modified `package.json` - Included physics regression modules in the test compilation.
+- Modified `memory-bank/tasks/T17.md`, `memory-bank/tasks/T18.md`, `memory-bank/tasks.md`, `memory-bank/activeContext.md`, `memory-bank/session_cache.md`, `memory-bank/sessions/2026-08-14-evening.md`, `memory-bank/projectbrief.md`, and `memory-bank/implementation-details/` - Recorded T17 closeout and T18 progress.
+- Created `memory-bank/ui-tests/2026-08-15-020328-t18-nonlinear-mode.md` - Recorded desktop/mobile browser verification.
+- Created `memory-bank/screenshots/2026-08-15-t18-nonlinear-mode.png` - Captured T18 desktop evidence.
+- Created `memory-bank/screenshots/2026-08-15-t18-nonlinear-mobile.png` - Captured T18 mobile evidence.
 
 ## 2026-08-14
 

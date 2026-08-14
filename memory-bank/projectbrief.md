@@ -17,11 +17,9 @@ An interactive web application for simulating and visualizing string motion — 
 - Normal mode decomposition
 
 ### Relativistic String
-- Nambu-Goto action based dynamics
-- Light-cone gauge visualization
-- Worldsheet parametrization
-- String tension and energy-momentum
-- Classical string breaking/joining (optional)
+- The released simulator provides a linearized transverse natural-unit teaching model.
+- T17 records that model as the tested reference path and explicitly excludes a full target-space embedding, quantization, and interactions.
+- T18 is implementing a separate classical closed-string conformal-gauge engine in flat spacetime; it is not a quantum or interacting solver.
 
 ## Features (MVP)
 
@@ -82,7 +80,7 @@ strings-sim/
 
 ## Status
 
-🔄 **Phase 1: Setup & Planning** — In Progress
+🔄 **T18 nonlinear classical engine** — Core implementation in progress; UI and comparison gates remain
 
 ## Next Steps
 

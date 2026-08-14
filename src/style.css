@@ -150,6 +150,24 @@ main {
   display: block;
 }
 
+#embedding-plot {
+  height: clamp(260px, 30vw, 420px);
+  min-height: 260px;
+  overflow: hidden;
+}
+
+#embedding-canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.embedding-note {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  padding: 0 1rem 0.9rem;
+}
+
 #canvas-controls {
   display: flex;
   justify-content: center;
@@ -313,6 +331,13 @@ select {
   border-radius: 8px;
   font-size: 0.85rem;
   cursor: pointer;
+}
+
+.control-note {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  margin-top: 0.55rem;
 }
 
 label span[id^="val-"] {
@@ -540,6 +565,8 @@ input:focus-visible {
   #worldsheet-plot {
     height: clamp(190px, 48vw, 280px);
   }
+
+  #embedding-plot { height: clamp(230px, 58vw, 360px); }
 
   #probe-plot { height: clamp(170px, 48vw, 230px); }
 }

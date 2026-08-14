@@ -5,8 +5,8 @@
  * using the finite difference method with Verlet-like time stepping.
  */
 
-import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep, waveSpeed } from './core';
-import type { WorldsheetPoint } from './relativistic';
+import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep, waveSpeed } from './core.js';
+import type { WorldsheetPoint } from './relativistic.js';
 
 interface HistorySample {
   t: number;
@@ -85,6 +85,10 @@ export class ClassicalStringSolver {
         v[0] = 0;
         v[N - 1] = v[N - 2];
         break;
+      case 'periodic':
+        y[N - 1] = y[0];
+        v[N - 1] = v[0];
+        break;
     }
   }
 
@@ -111,12 +115,22 @@ export class ClassicalStringSolver {
     // the Verlet update into a first-order step.
     const currentY = new Float64Array(y);
 
-    // Interior points: finite difference wave equation
-    for (let i = 1; i < N - 1; i++) {
+    // A periodic run uses the first N-1 samples as a ring and retains the
+    // final sample as a duplicate endpoint for the profile contract.
+    const periodicCount = this.config.boundary === 'periodic' ? N - 1 : N;
+    const first = this.config.boundary === 'periodic' ? 0 : 1;
+    const last = this.config.boundary === 'periodic' ? periodicCount : N - 1;
+    for (let i = first; i < last; i++) {
       // All spatial differences must come from the same time slice. Reading
       // y[i - 1] here after it has been updated makes the method directional
       // and destroys the stability guarantee of the explicit scheme.
-      const laplacian = currentY[i - 1] - 2 * currentY[i] + currentY[i + 1];
+      const left = this.config.boundary === 'periodic'
+        ? currentY[(i - 1 + periodicCount) % periodicCount]
+        : currentY[i - 1];
+      const right = this.config.boundary === 'periodic'
+        ? currentY[(i + 1) % periodicCount]
+        : currentY[i + 1];
+      const laplacian = left - 2 * currentY[i] + right;
       
       if (damping > 0) {
         // Damped wave equation
@@ -159,12 +173,15 @@ export class ClassicalStringSolver {
     let ke = 0; // kinetic energy: ½ μ ∫ v² dx
     let pe = 0; // potential energy: ½ τ ∫ (∂y/∂x)² dx
 
-    for (let i = 0; i < N; i++) {
+    const sampleCount = this.config.boundary === 'periodic' ? N - 1 : N;
+    for (let i = 0; i < sampleCount; i++) {
       ke += 0.5 * mu * v[i] ** 2 * dx;
     }
 
     for (let i = 1; i < N; i++) {
-      const slope = (y[i] - y[i - 1]) / dx;
+      const segmentStart = this.config.boundary === 'periodic' ? i - 1 : i - 1;
+      const segmentEnd = this.config.boundary === 'periodic' ? i % (N - 1) : i;
+      const slope = (y[segmentEnd] - y[segmentStart]) / dx;
       pe += 0.5 * tau * slope ** 2 * dx;
     }
 
@@ -173,7 +190,9 @@ export class ClassicalStringSolver {
       kineticEnergy: ke,
       potentialEnergy: pe,
       waveSpeed: this.c,
-      fundamentalFreq: this.config.boundary === 'mixed' ? this.c / (4 * L) : this.c / (2 * L),
+      fundamentalFreq: this.config.boundary === 'mixed' ? this.c / (4 * L)
+        : this.config.boundary === 'periodic' ? this.c / L
+        : this.c / (2 * L),
     };
   }
 

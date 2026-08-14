@@ -27,9 +27,9 @@ export interface StringParameters {
   gamma: number;
 }
 
-export type BoundaryCondition = 'fixed' | 'free' | 'mixed';
+export type BoundaryCondition = 'fixed' | 'free' | 'mixed' | 'periodic';
 
-export type PhysicsMode = 'classical' | 'relativistic';
+export type PhysicsMode = 'classical' | 'relativistic' | 'nonlinear';
 
 export interface SimulationConfig {
   /** Number of spatial grid points */
@@ -67,7 +67,7 @@ export function waveSpeed(params: StringParameters): number {
  * A Courant number of 0.5 leaves headroom when a user changes parameters.
  */
 export function stableTimeStep(dx: number, params: StringParameters, mode: PhysicsMode): number {
-  const c = mode === 'relativistic' ? 1 : waveSpeed(params);
+  const c = mode === 'classical' ? waveSpeed(params) : 1;
   return dx / (2 * c);
 }
 

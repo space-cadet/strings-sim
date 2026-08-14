@@ -13,7 +13,7 @@ test('every simulator glossary help link resolves to a shared entry', async () =
 });
 
 test('new mathematical glossary entries retain inline LaTex delimiters', () => {
-  for (const id of ['classical-model', 'relativistic-model', 'initial-conditions', 'numerical-grid', 'time-step', 'history-window']) {
+  for (const id of ['classical-model', 'relativistic-model', 'nonlinear-classical-model', 'initial-conditions', 'numerical-grid', 'time-step', 'history-window']) {
     const entry = glossaryEntries.find(candidate => candidate.id === id);
     assert.ok(entry, `missing ${id}`);
     assert.match(`${entry.symbol ?? ''} ${entry.formula ?? ''} ${entry.meaning}`, /\\\(/, `${id} lacks LaTex notation`);

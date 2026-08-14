@@ -6,11 +6,13 @@
 import { SimulationConfig, StringParameters, BoundaryCondition, PhysicsMode, stableTimeStep } from './physics/core';
 import { ClassicalStringSolver } from './physics/classical';
 import { RelativisticStringSolver } from './physics/relativistic';
+import { NonlinearRelativisticStringSolver, createT18PresetInitialData, getT18PresetDefinition } from './physics/nonlinear-relativistic';
 import { StringRenderer } from './visualization/renderer';
 import { WorldsheetRenderer } from './visualization/worldsheet';
 import { ProbeTrajectoryRenderer } from './visualization/probe-trajectory';
 import { ProbeTrajectoryState } from './visualization/probe-state';
 import { analyseProbeSpectrum, FrequencySpectrumRenderer } from './visualization/frequency-spectrum';
+import { EmbeddingRenderer } from './visualization/embedding';
 import { presets } from './ui/presets';
 
 interface SavedSettings {
@@ -62,11 +64,12 @@ function saveSettings(settings: SavedSettings): void {
 }
 
 class StringSimulator {
-  private solver: ClassicalStringSolver | RelativisticStringSolver;
+  private solver: ClassicalStringSolver | RelativisticStringSolver | NonlinearRelativisticStringSolver;
   private renderer: StringRenderer;
   private worldsheetRenderer: WorldsheetRenderer | null = null;
   private probeRenderer: ProbeTrajectoryRenderer | null = null;
   private spectrumRenderer: FrequencySpectrumRenderer | null = null;
+  private embeddingRenderer: EmbeddingRenderer | null = null;
   private probe: ProbeTrajectoryState;
   private config: SimulationConfig;
   private isRunning: boolean = false;
@@ -82,8 +85,7 @@ class StringSimulator {
   private classicalParams: StringParameters;
 
   // UI elements
-  private btnPlay: HTMLButtonElement;
-  private btnPause: HTMLButtonElement;
+  private btnPlayPause: HTMLButtonElement;
   private btnReset: HTMLButtonElement;
   private presetSelect: HTMLSelectElement;
   private boundarySelect: HTMLSelectElement;
@@ -115,6 +117,8 @@ class StringSimulator {
       boundary: saved?.boundary ?? 'fixed',
       params,
     };
+    if (this.config.mode === 'nonlinear') this.config.boundary = 'periodic';
+    this.updateDiscretization();
 
     this.timeScale = saved?.timeScale ?? 1.0;
     this.showWorldsheet = saved?.showWorldsheet ?? true;
@@ -126,7 +130,7 @@ class StringSimulator {
     this.solver = this.createSolver();
     const presetName = saved?.preset ?? 'pluck';
     const preset = presets[presetName] || presets.pluck;
-    this.initializePreset(preset);
+    this.initializePreset(preset, presetName);
 
     // Initialize renderer
     const canvas = document.getElementById('string-canvas') as HTMLCanvasElement;
@@ -143,12 +147,13 @@ class StringSimulator {
     if (probeCanvas) this.probeRenderer = new ProbeTrajectoryRenderer({ canvas: probeCanvas });
     const spectrumCanvas = document.getElementById('spectrum-canvas') as HTMLCanvasElement;
     if (spectrumCanvas) this.spectrumRenderer = new FrequencySpectrumRenderer(spectrumCanvas);
+    const embeddingCanvas = document.getElementById('embedding-canvas') as HTMLCanvasElement;
+    if (embeddingCanvas) this.embeddingRenderer = new EmbeddingRenderer(embeddingCanvas);
     this.probe = new ProbeTrajectoryState(Math.floor(N / 2), params.L / 2, 200);
     this.recordProbeState();
 
     // Cache UI elements
-    this.btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
-    this.btnPause = document.getElementById('btn-pause') as HTMLButtonElement;
+    this.btnPlayPause = document.getElementById('btn-play-pause') as HTMLButtonElement;
     this.btnReset = document.getElementById('btn-reset') as HTMLButtonElement;
     this.presetSelect = document.getElementById('preset-select') as HTMLSelectElement;
     this.boundarySelect = document.getElementById('boundary-select') as HTMLSelectElement;
@@ -166,7 +171,8 @@ class StringSimulator {
     this.boundarySelect.value = this.config.boundary;
     this.modeButtons.forEach(btn => {
       const isActive = (btn.id === 'mode-relativistic' && this.config.mode === 'relativistic') ||
-                       (btn.id === 'mode-classical' && this.config.mode === 'classical');
+                       (btn.id === 'mode-classical' && this.config.mode === 'classical') ||
+                       (btn.id === 'mode-nonlinear' && this.config.mode === 'nonlinear');
       btn.classList.toggle('active', isActive);
     });
 
@@ -184,14 +190,21 @@ class StringSimulator {
     this.render();
   }
 
-  private createSolver(): ClassicalStringSolver | RelativisticStringSolver {
+  private createSolver(): ClassicalStringSolver | RelativisticStringSolver | NonlinearRelativisticStringSolver {
     if (this.config.mode === 'relativistic') {
       return new RelativisticStringSolver(this.config);
+    }
+    if (this.config.mode === 'nonlinear') {
+      return new NonlinearRelativisticStringSolver({ ...this.config, boundary: 'periodic', mode: 'nonlinear' });
     }
     return new ClassicalStringSolver(this.config);
   }
 
-  private initializePreset(preset: (typeof presets)[string]): void {
+  private initializePreset(preset: (typeof presets)[string], presetName = this.presetSelect?.value ?? 'pluck'): void {
+    if (this.solver instanceof NonlinearRelativisticStringSolver) {
+      this.solver.initialize(createT18PresetInitialData(this.config.N, presetName));
+      return;
+    }
     const speed = this.solver.getMetrics().waveSpeed;
     this.solver.initialize(
       (x, L) => preset.displacement(x, L),
@@ -200,7 +213,9 @@ class StringSimulator {
   }
 
   private updateDiscretization(): void {
-    this.config.dx = this.config.params.L / (this.config.N - 1);
+    this.config.dx = this.config.mode === 'nonlinear'
+      ? this.config.params.L / this.config.N
+      : this.config.params.L / (this.config.N - 1);
     this.config.dt = stableTimeStep(this.config.dx, this.config.params, this.config.mode);
   }
 
@@ -242,6 +257,7 @@ class StringSimulator {
       this.worldsheetRenderer?.handleResize();
       this.probeRenderer?.handleResize();
       this.spectrumRenderer?.handleResize();
+      this.embeddingRenderer?.handleResize();
       repaint();
     });
     document.addEventListener('visibilitychange', () => {
@@ -249,8 +265,7 @@ class StringSimulator {
     });
 
     // Playback controls
-    this.btnPlay.addEventListener('click', () => this.play());
-    this.btnPause.addEventListener('click', () => this.pause());
+    this.btnPlayPause.addEventListener('click', () => this.togglePlayPause());
     this.btnReset.addEventListener('click', () => this.reset());
 
     const profileCanvas = document.getElementById('string-canvas') as HTMLCanvasElement;
@@ -276,6 +291,7 @@ class StringSimulator {
     // Preset selection
     this.presetSelect.addEventListener('change', () => {
       this.reset();
+      this.updatePresetUI();
       this.persist();
     });
 
@@ -292,7 +308,9 @@ class StringSimulator {
       btn.addEventListener('click', () => {
         this.modeButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const newMode = btn.id === 'mode-relativistic' ? 'relativistic' : 'classical';
+        const newMode: PhysicsMode = btn.id === 'mode-relativistic'
+          ? 'relativistic'
+          : btn.id === 'mode-nonlinear' ? 'nonlinear' : 'classical';
         if (newMode !== this.config.mode) {
           this.switchMode(newMode);
         }
@@ -387,8 +405,9 @@ class StringSimulator {
 
     // Relativistic strings use natural units: c = 1 and no damping. Restore
     // the user's classical parameters when they return to that mode.
-    if (newMode === 'relativistic') {
+    if (newMode === 'relativistic' || newMode === 'nonlinear') {
       this.config.params = { ...this.config.params, tau: 1.0, mu: 1.0, gamma: 0.0 };
+      if (newMode === 'nonlinear') this.config.boundary = 'periodic';
     } else {
       this.config.params = { ...this.classicalParams };
     }
@@ -404,16 +423,26 @@ class StringSimulator {
 
   private updateModeUI(): void {
     const isRelativistic = this.config.mode === 'relativistic';
+    const isNonlinear = this.config.mode === 'nonlinear';
+    const isNaturalUnitMode = isRelativistic || isNonlinear;
+    this.updatePresetUI();
     document.body.classList.toggle('relativistic-mode', isRelativistic);
+    document.body.classList.toggle('nonlinear-mode', isNonlinear);
 
     // Disable tension and density sliders in relativistic mode
     const tensionInput = document.getElementById('param-tension') as HTMLInputElement;
     const densityInput = document.getElementById('param-density') as HTMLInputElement;
     const dampingInput = document.getElementById('param-damping') as HTMLInputElement;
+    const lengthInput = document.getElementById('param-length') as HTMLInputElement;
 
-    if (tensionInput) tensionInput.disabled = isRelativistic;
-    if (densityInput) densityInput.disabled = isRelativistic;
-    if (dampingInput) dampingInput.disabled = isRelativistic;
+    if (tensionInput) tensionInput.disabled = isNaturalUnitMode;
+    if (densityInput) densityInput.disabled = isNaturalUnitMode;
+    if (dampingInput) dampingInput.disabled = isNaturalUnitMode;
+    if (lengthInput) lengthInput.disabled = isNonlinear;
+    if (this.boundarySelect) {
+      this.boundarySelect.disabled = isNonlinear;
+      if (isNonlinear) this.boundarySelect.value = 'periodic';
+    }
 
     // Keep control values in sync when returning to classical mode.
     this.setSliderValue('param-length', this.config.params.L, (v) => v.toFixed(1));
@@ -424,8 +453,36 @@ class StringSimulator {
     if (this.worldsheetToggle) this.worldsheetToggle.style.display = 'inline-block';
 
     const energyDriftMetric = document.getElementById('energy-drift-metric');
-    if (energyDriftMetric) energyDriftMetric.style.display = isRelativistic ? 'flex' : 'none';
+    if (energyDriftMetric) energyDriftMetric.style.display = isNaturalUnitMode ? 'flex' : 'none';
+    const embeddingContainer = document.getElementById('embedding-container');
+    if (embeddingContainer) embeddingContainer.style.display = isNonlinear ? 'block' : 'none';
+    if (isNonlinear && this.embeddingRenderer) {
+      requestAnimationFrame(() => {
+        this.embeddingRenderer?.handleResize();
+        this.render();
+      });
+    }
+    const constraintMetric = document.getElementById('constraint-metric');
+    if (constraintMetric) constraintMetric.style.display = isNonlinear ? 'flex' : 'none';
     this.updateWorldsheetFieldCopy();
+  }
+
+  private updatePresetUI(): void {
+    const isNonlinear = this.config.mode === 'nonlinear';
+    Array.from(this.presetSelect.options).forEach((option) => {
+      const referencePreset = presets[option.value];
+      if (!referencePreset) return;
+      const t18Preset = getT18PresetDefinition(option.value);
+      option.textContent = isNonlinear ? t18Preset.label : referencePreset.label;
+      option.title = isNonlinear ? t18Preset.description : referencePreset.label;
+    });
+    const description = document.getElementById('preset-description');
+    if (description) {
+      description.hidden = !isNonlinear;
+      description.textContent = isNonlinear
+        ? getT18PresetDefinition(this.presetSelect.value).description
+        : '';
+    }
   }
 
   private persist(): void {
@@ -445,16 +502,33 @@ class StringSimulator {
   private play(): void {
     if (this.isRunning) return;
     this.isRunning = true;
+    this.updatePlaybackControl();
     this.lastTime = performance.now();
     this.loop();
   }
 
   private pause(): void {
     this.isRunning = false;
+    this.updatePlaybackControl();
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
+  }
+
+  private togglePlayPause(): void {
+    if (this.isRunning) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+
+  private updatePlaybackControl(): void {
+    this.btnPlayPause.setAttribute('aria-pressed', String(this.isRunning));
+    this.btnPlayPause.setAttribute('aria-label', this.isRunning ? 'Pause simulation' : 'Play simulation');
+    this.btnPlayPause.setAttribute('title', this.isRunning ? 'Pause' : 'Play');
+    this.btnPlayPause.innerHTML = this.isRunning ? '⏸ <span>Pause</span>' : '▶ <span>Play</span>';
   }
 
   private reset(): void {
@@ -510,7 +584,12 @@ class StringSimulator {
       energy[i] = 0.5 * this.config.params.mu * v2 + 0.5 * this.config.params.tau * slope ** 2;
     }
 
+    this.renderer.setVerticalBoundsFromData(state.y);
     this.renderer.render(x, state.y, energy, this.probe.sigmaIndex);
+    if (this.solver instanceof NonlinearRelativisticStringSolver) {
+      const embedding = this.solver.getEmbedding();
+      this.embeddingRenderer?.render(embedding.x, embedding.y);
+    }
     const probeSamples = this.probe.snapshot();
     this.probeRenderer?.render(probeSamples);
     const spectrum = analyseProbeSpectrum(probeSamples);
@@ -523,28 +602,33 @@ class StringSimulator {
     }
 
     if (this.worldsheetRenderer && this.showWorldsheet) {
-      const isRelativistic = this.solver instanceof RelativisticStringSolver;
-      const worldsheet = isRelativistic
+      const hasNativeWorldsheet = this.solver instanceof RelativisticStringSolver || this.solver instanceof NonlinearRelativisticStringSolver;
+      const worldsheet = hasNativeWorldsheet
         ? (state as import('./physics/relativistic').RelativisticStringState).worldsheet
         : (this.solver as ClassicalStringSolver).getWorldsheet();
-      const bounds = isRelativistic
-        ? (this.solver as RelativisticStringSolver).getWorldsheetBounds()
+      const bounds = hasNativeWorldsheet
+        ? (this.solver as RelativisticStringSolver | NonlinearRelativisticStringSolver).getWorldsheetBounds()
         : (this.solver as ClassicalStringSolver).getWorldsheetBounds();
       this.worldsheetRenderer.setBounds(bounds.tMin, bounds.tMax, bounds.yMin, bounds.yMax, 0, this.config.params.L);
       this.worldsheetRenderer.setField(this.worldsheetField, this.config.params.mu, this.config.params.tau);
-      this.worldsheetRenderer.setCharacteristicSpeed(isRelativistic ? 1 : this.solver.getMetrics().waveSpeed);
+      this.worldsheetRenderer.setCharacteristicSpeed(hasNativeWorldsheet ? 1 : this.solver.getMetrics().waveSpeed);
       this.worldsheetRenderer.render(worldsheet, this.probe.sigma);
     }
   }
 
   private selectProbeAt(sigma: number): void {
-    const index = Math.round(sigma / this.config.dx);
+    const spacing = this.solver instanceof NonlinearRelativisticStringSolver
+      ? this.solver.getGridSpacing()
+      : this.config.dx;
+    const index = Math.round(sigma / spacing);
     this.selectProbeIndex(index);
   }
 
   private selectProbeIndex(index: number): void {
     const clampedIndex = Math.max(0, Math.min(this.config.N - 1, index));
-    const sigma = clampedIndex * this.config.dx;
+    const sigma = this.solver instanceof NonlinearRelativisticStringSolver
+      ? clampedIndex * this.solver.getGridSpacing()
+      : clampedIndex * this.config.dx;
     this.probe.select(clampedIndex, sigma);
     this.recordProbeState();
     const panel = document.getElementById('probe-panel') as HTMLDetailsElement | null;
@@ -575,10 +659,15 @@ class StringSimulator {
     const maxSpeed = Math.max(...this.solver.getState().v.map(Math.abs));
     this.setDiagnostic('metric-max-speed', maxSpeed.toFixed(3), maxSpeed <= 1 ? 'ok' : 'warning');
 
-    if (this.config.mode === 'relativistic') {
+    if (this.config.mode === 'relativistic' || this.config.mode === 'nonlinear') {
       const drift = this.initialEnergy === 0 ? 0 : (metrics.totalEnergy - this.initialEnergy) / this.initialEnergy;
       const driftPercent = drift * 100;
       this.setDiagnostic('metric-energy-drift', `${driftPercent >= 0 ? '+' : ''}${driftPercent.toFixed(2)}%`, Math.abs(drift) < 0.01 ? 'ok' : Math.abs(drift) < 0.05 ? 'warning' : 'danger');
+    }
+
+    if (this.solver instanceof NonlinearRelativisticStringSolver) {
+      const residual = this.solver.getConstraintReport().residual;
+      this.setDiagnostic('metric-constraint', residual.toExponential(2), residual < 1e-10 ? 'ok' : residual < 1e-6 ? 'warning' : 'danger');
     }
   }
 

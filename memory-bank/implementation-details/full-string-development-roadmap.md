@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: Approved planning record; no future solver or quantum feature is implemented.*
+*Status: T17 complete; T18 constrained engine and local UI integration in progress; no quantum feature is released.*
 
 ## Purpose
 
@@ -24,11 +24,17 @@ $$
 
 Its role is a tested baseline for wave propagation, normal modes, packets, boundaries, and diagnostics. The current linearized relativistic display does not evolve a full $X^\mu(\sigma,\tau)$ embedding. T17 records regression cases and makes that boundary consistent across UI and documentation.
 
+### T17 baseline record
+
+The reproducible reference fixture in `src/physics/t17-baselines.ts` runs the current natural-unit linear solver at $N=129$, $L=2$, and $\lambda=0.5$ for 512 steps. It covers fixed fundamental, free fundamental, periodic mode, and mixed velocity-bearing initial states. The acceptance bounds are less than 1% relative energy drift, displacement below 0.5, sampled transverse speed at most 1, and periodic endpoint closure at machine precision.
+
 ## T18: Nonlinear Classical Relativistic String
 
-The first solver must select a precise formulation before code is written. A suitable narrow target is a classical embedding in flat Minkowski spacetime, derived from Nambu--Goto or Polyakov dynamics. It needs a gauge, constraint-satisfying initial data, a constraint-preserving integrator, and refinement tests.
+The first implementation uses a narrow conformal-gauge target: a classical closed string in flat 2+1-dimensional Minkowski spacetime, natural units, periodic worldsheet coordinate, and $X^0=\tau$. The solver evolves left- and right-moving unit tangent fields, which preserves the conformal constraints by construction while reconstructing the spatial embedding. It remains a classical flat-spacetime model, not a quantum or interacting solver.
 
-The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, and clear distinction from quantum theory. Boundary support should begin with the simplest rigorously verified case rather than presenting several endpoint conditions prematurely.
+The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, a documented nonlinear observable, and clear distinction from quantum theory. The first local slice supports the simplest rigorously verified closed periodic case; open endpoints are not presented prematurely.
+
+The current local implementation exposes a separate T18 mode, eight proposed closed conformal-loop presets, a target-space projection, and a live constraint residual. The preset family has passed constraint and implementation checks, but user acceptance of physical/geometric distinctness remains open: raster checksums are not enough, so T18e must compare tangent data, embeddings, velocities, and invariants directly. T18 does not yet claim final nonlinear mode-coupling evidence. It keeps natural-unit tension and density fixed, omits damping, and forces periodic boundaries; the configured length sets the loop coordinate interval when the solver is constructed.
 
 ## T19: Free Quantum String Modes
 

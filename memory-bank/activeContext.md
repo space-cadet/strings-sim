@@ -1,13 +1,14 @@
 # Active Context
 
-*Last Updated: 2026-08-14 19:28:22 IST*
+*Last Updated: 2026-08-15 03:09:37 IST*
 
 ## Current Tasks
 
 ### Active
-- **T16: Mathematical Glossary and Contextual Help System** — 🔄 IN PROGRESS
-  - Current-control expansion delivered: shared registry, local KaTeX, seven Learn experiments, and contextual help for the implemented controls and diagnostics
-  - T13 entries and links are delivered; remaining: final live-release verification after publication
+- **T18: Nonlinear Classical Relativistic String Solver** — 🔄 IN PROGRESS
+  - T17 baseline completed; conformal-gauge closed-string engine, eight varied conformal presets, and numerical validation are implemented
+- **T16: Mathematical Glossary and Contextual Help System** — ✅ COMPLETED (2026-08-15)
+  - Shared registry, local KaTeX, seven Learn experiments, contextual help for implemented controls and diagnostics, and T18 model-boundary entries are live-verified
   - Linked static tabs: Simulator, Learn, Glossary, and How it works
   - Shared glossary registry, accessible question-mark help controls, guided experiments, and full mathematical/numerical documentation
 
@@ -28,14 +29,16 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- **T17–T20: String-Theory Expansion Roadmap** — ⏸️ PLANNED
-  - T17 preserves and documents the current linear reference model; T18 is a constraint-preserving nonlinear classical solver; T19 is a finite free-quantum mode visualizer; T20 is a conceptual perturbative-interaction visualizer.
-  - No solver, quantum-state, or interaction feature has started. See `implementation-details/full-string-development-roadmap.md`.
+- **T19–T20: String-Theory Expansion Roadmap** — ⏸️ PLANNED
+  - T19 is a finite free-quantum mode visualizer; T20 is a conceptual perturbative-interaction visualizer.
+  - No T18 solver, quantum-state, or interaction feature has started. See `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
 ## Completed Tasks (Recent)
 
+- T17: Linearized Model Baseline and Scope Guardrails — ✅ COMPLETED (2026-08-15)
+  - Periodic linear reference, four regression cases, tolerances, and model-boundary audit
 - T10: P0 Bug Fixes — ✅ COMPLETED (2026-07-31)
 - T12: Probe Trajectory & Interaction — ✅ COMPLETED (2026-08-14, user acceptance confirmed)
 - T6: Energy Metrics & FFT — ✅ COMPLETED (2026-08-14, selected-probe FFT spectrum)
@@ -59,14 +62,14 @@
 3. **P2**: Field selector, energy label, diagnostics
 4. **P3**: Worldsheet scrubbing (deferred)
 5. **P4**: 3D embedded view (deferred)
-6. **Future**: T17 scope guardrails, then T18 nonlinear classical solver, T19 free quantum modes, and T20 interaction concepts
+6. **Current extension**: T17 scope guardrails and baseline, then T18 nonlinear classical solver; T19 and T20 remain future work
 
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
-- Physics: ✅ Classical and linearized relativistic solvers with immutable-slice finite differences, stable stepping, boundary conditions, and damping where applicable
+- Physics: ✅ Classical and linearized relativistic reference solvers; 🔄 T18 constrained conformal-gauge closed-string engine with numerical diagnostics
 - Rendering: ✅ Classical and relativistic worldsheets, bounded responsive plot wrapper, mobile repaint recovery
 - UI: ✅ Responsive instrument layout, persisted settings, separate playback strip, live diagnostic cards
-- Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/
+- Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/; website commit `c4a6a46`, Actions run `31842567883`
 
 ## Open Questions
 - The glossary must describe the linearized relativistic teaching model precisely without implying a full quantum, interacting string-theory calculation.
@@ -80,3 +83,7 @@
   - Decision: keep, with explicit label
 - Mobile layout: tab-based view switching or stacked scroll?
   - Decision: stacked with collapsible panels (matches mockup)
+- T18 formulation: closed periodic classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$.
+- T18 remaining gate: document a defensible nonlinear geometric observable/mode-mixing example without implying quantum interactions; production publication remains separate.
+- T18 parameter boundary: length is used at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is forced. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
+- T18e next-session gate: audit whether the eight presets are physically/geometrically distinct; do not treat raster checksum differences as sufficient evidence.

@@ -1,11 +1,11 @@
 # Relativistic Solver and Worldsheet
 
-*Updated: 2026-07-31 18:13 IST*
+*Updated: 2026-08-15 01:44:29 IST*
 *Implementation Attribution: GPT-5.6 Terra (Codex)*
 
 ## Model Boundary
 
-`src/physics/relativistic.ts` implements the linearized transverse conformal-gauge string equation in natural units, with $c=1$. It is not a full nonlinear Nambu-Goto simulation.
+`src/physics/relativistic.ts` implements the linearized transverse conformal-gauge string equation in natural units, with $c=1$. Fixed, free, mixed, and periodic boundary cases are supported. It is not a full nonlinear Nambu-Goto simulation; that work belongs to the separate T18 path.
 
 ## History Contract
 

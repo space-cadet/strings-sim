@@ -68,6 +68,22 @@ export class StringRenderer {
     this.yMax = yMax;
   }
 
+  /** Fit the vertical axis to the current profile while retaining breathing room. */
+  setVerticalBoundsFromData(values: Float64Array, minimumHalfRange = 0.5): void {
+    let dataMin = Infinity;
+    let dataMax = -Infinity;
+    for (const value of values) {
+      if (!Number.isFinite(value)) continue;
+      dataMin = Math.min(dataMin, value);
+      dataMax = Math.max(dataMax, value);
+    }
+    if (!Number.isFinite(dataMin) || !Number.isFinite(dataMax)) return;
+
+    const padding = Math.max((dataMax - dataMin) * 0.15, 0.05);
+    this.yMin = Math.min(-minimumHalfRange, dataMin - padding);
+    this.yMax = Math.max(minimumHalfRange, dataMax + padding);
+  }
+
   setShowEnergy(showEnergy: boolean): void {
     this.config.showEnergy = showEnergy;
   }

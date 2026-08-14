@@ -13,7 +13,7 @@
  * τ = μ c², so the wave speed is always c = √(τ/μ) = 1.
  */
 
-import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep } from './core';
+import { StringState, StringParameters, BoundaryCondition, SimulationConfig, SimulationMetrics, stableTimeStep } from './core.js';
 
 export interface WorldsheetPoint {
   t: number;
@@ -127,6 +127,10 @@ export class RelativisticStringSolver {
         v[0] = 0;
         v[N - 1] = v[N - 2];
         break;
+      case 'periodic':
+        y[N - 1] = y[0];
+        v[N - 1] = v[0];
+        break;
     }
   }
 
@@ -146,12 +150,22 @@ export class RelativisticStringSolver {
     // Preserve the preceding state for the central-difference update.
     const currentY = new Float64Array(y);
 
-    // Interior points: finite difference wave equation with c = 1
-    for (let i = 1; i < N - 1; i++) {
+    // A periodic run uses the first N-1 samples as a ring and retains the
+    // final sample as a duplicate endpoint for the profile contract.
+    const periodicCount = this.config.boundary === 'periodic' ? N - 1 : N;
+    const first = this.config.boundary === 'periodic' ? 0 : 1;
+    const last = this.config.boundary === 'periodic' ? periodicCount : N - 1;
+    for (let i = first; i < last; i++) {
       // Evaluate every stencil from one immutable time slice. Updating in
       // place couples the new left neighbour into this point and produces an
       // unstable directional scheme even when the Courant condition is met.
-      const laplacian = currentY[i - 1] - 2 * currentY[i] + currentY[i + 1];
+      const left = this.config.boundary === 'periodic'
+        ? currentY[(i - 1 + periodicCount) % periodicCount]
+        : currentY[i - 1];
+      const right = this.config.boundary === 'periodic'
+        ? currentY[(i + 1) % periodicCount]
+        : currentY[i + 1];
+      const laplacian = left - 2 * currentY[i] + right;
 
       // Verlet-like integration for undamped wave equation
       const newY = 2 * currentY[i] - this.prevY[i] + courantSq * laplacian;
@@ -227,8 +241,9 @@ export class RelativisticStringSolver {
     let kineticEnergy = 0;
     let potentialEnergy = 0;
 
-    for (let i = 1; i < N; i++) {
-      const slope = (y[i] - y[i - 1]) / dx;
+    for (let i = 0; i < N - 1; i++) {
+      const next = this.config.boundary === 'periodic' ? (i + 1) % (N - 1) : i + 1;
+      const slope = (y[next] - y[i]) / dx;
       const vel = v[i];
 
       const ke = 0.5 * vel ** 2 * dx;
@@ -244,7 +259,9 @@ export class RelativisticStringSolver {
       kineticEnergy,
       potentialEnergy,
       waveSpeed: 1.0, // Always 1 in natural units
-      fundamentalFreq: this.config.boundary === 'mixed' ? 0.25 / L : 0.5 / L,
+      fundamentalFreq: this.config.boundary === 'mixed' ? 0.25 / L
+        : this.config.boundary === 'periodic' ? 1 / L
+        : 0.5 / L,
     };
   }
 
