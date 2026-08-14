@@ -9,6 +9,8 @@
 
 import { WorldsheetPoint } from '../physics/relativistic';
 
+export type WorldsheetField = 'displacement' | 'velocity' | 'energy' | 'slope';
+
 export interface WorldsheetRendererConfig {
   canvas: HTMLCanvasElement;
   padding?: { top: number; right: number; bottom: number; left: number };
@@ -30,12 +32,15 @@ export class WorldsheetRenderer {
   private yMin: number = -1;
   private yMax: number = 1;
   private characteristicSpeed: number = 1;
+  private field: WorldsheetField = 'displacement';
+  private massDensity: number = 1;
+  private tension: number = 1;
 
   constructor(config: WorldsheetRendererConfig) {
     this.canvas = config.canvas;
     this.ctx = config.canvas.getContext('2d')!;
     this.config = {
-      padding: { top: 40, right: 40, bottom: 60, left: 70 },
+      padding: { top: 40, right: 78, bottom: 60, left: 70 },
       ...config,
     };
     this.dpr = window.devicePixelRatio || 1;
@@ -76,6 +81,12 @@ export class WorldsheetRenderer {
     this.characteristicSpeed = speed;
   }
 
+  setField(field: WorldsheetField, massDensity: number, tension: number): void {
+    this.field = field;
+    this.massDensity = massDensity;
+    this.tension = tension;
+  }
+
   getSigmaFromClientX(clientX: number): number {
     const rect = this.canvas.getBoundingClientRect();
     const { left, right } = this.config.padding;
@@ -97,13 +108,8 @@ export class WorldsheetRenderer {
     return this.height - bottom - ((t - this.tauMin) / (this.tauMax - this.tauMin)) * plotHeight;
   }
 
-  // Map displacement y → color intensity
-  private displacementColor(y: number): string {
-    // Normalize to [-1, 1]
-    const maxDisp = Math.max(Math.abs(this.yMin), Math.abs(this.yMax)) || 1;
-    const norm = y / maxDisp;
-
-    // Color scheme: negative = purple, zero = dark, positive = cyan
+  private signedColor(value: number, maxValue: number): string {
+    const norm = value / maxValue;
     if (norm < 0) {
       const intensity = Math.abs(norm);
       const r = Math.floor(100 + 155 * intensity);
@@ -117,6 +123,14 @@ export class WorldsheetRenderer {
       const b = Math.floor(200 + 55 * intensity);
       return `rgba(${r}, ${g}, ${b}, ${0.3 + 0.7 * intensity})`;
     }
+  }
+
+  private energyColor(value: number, maxValue: number): string {
+    const intensity = Math.min(1, Math.max(0, value / maxValue));
+    const r = Math.floor(35 + 220 * intensity);
+    const g = Math.floor(30 + 175 * intensity);
+    const b = Math.floor(45 + 45 * intensity);
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   render(worldsheet: WorldsheetPoint[][], probeSigma?: number): void {
@@ -231,16 +245,42 @@ export class WorldsheetRenderer {
     ctx.restore();
   }
 
+  private fieldValue(worldsheet: WorldsheetPoint[][], spatialIndex: number, temporalIndex: number): number {
+    const point = worldsheet[spatialIndex][temporalIndex];
+    if (this.field === 'displacement') return point.y;
+
+    const left = worldsheet[Math.max(0, spatialIndex - 1)][temporalIndex];
+    const right = worldsheet[Math.min(worldsheet.length - 1, spatialIndex + 1)][temporalIndex];
+    const dx = Math.max(Number.EPSILON, right.x - left.x);
+    const slope = (right.y - left.y) / dx;
+    if (this.field === 'slope') return slope;
+
+    const previous = worldsheet[spatialIndex][Math.max(0, temporalIndex - 1)];
+    const next = worldsheet[spatialIndex][Math.min(worldsheet[spatialIndex].length - 1, temporalIndex + 1)];
+    const dt = Math.max(Number.EPSILON, next.t - previous.t);
+    const velocity = (next.y - previous.y) / dt;
+    if (this.field === 'velocity') return velocity;
+    return 0.5 * this.massDensity * velocity ** 2 + 0.5 * this.tension * slope ** 2;
+  }
+
   private drawWorldsheetSurface(worldsheet: WorldsheetPoint[][]): void {
     const { ctx } = this;
-
-    // Each worldsheet[i] is a time-history of one spatial point
-    // worldsheet[i][j] = {t, x, y} where x = position along string, t = time, y = displacement
-
     const numSpatial = worldsheet.length;
     const numTemporal = worldsheet[0].length;
+    const values: number[][] = [];
+    let scale = 0;
 
-    // Draw small rectangles for each (sigma, tau) point, colored by displacement
+    for (let i = 0; i < numSpatial; i++) {
+      values[i] = [];
+      for (let j = 0; j < numTemporal; j++) {
+        const value = this.fieldValue(worldsheet, i, j);
+        values[i][j] = value;
+        scale = Math.max(scale, this.field === 'energy' ? value : Math.abs(value));
+      }
+    }
+    scale = Math.max(scale, 1e-9);
+
+    // Use one scale across the rolling window so zero retains one colour meaning.
     const rectWidth = (this.mapSigma(this.sigmaMax) - this.mapSigma(this.sigmaMin)) / (numSpatial - 1);
     const rectHeight = (this.mapTau(this.tauMin) - this.mapTau(this.tauMax)) / (numTemporal - 1);
 
@@ -249,11 +289,42 @@ export class WorldsheetRenderer {
         const point = worldsheet[i][j];
         const x = this.mapSigma(point.x);
         const y = this.mapTau(point.t);
-
-        ctx.fillStyle = this.displacementColor(point.y);
+        ctx.fillStyle = this.field === 'energy'
+          ? this.energyColor(values[i][j], scale)
+          : this.signedColor(values[i][j], scale);
         ctx.fillRect(x - rectWidth / 2, y - rectHeight / 2, rectWidth + 1, rectHeight + 1);
       }
     }
+    this.drawColorBar(scale);
+  }
+
+  private drawColorBar(scale: number): void {
+    const { ctx } = this;
+    const { right, top, bottom } = this.config.padding;
+    const barWidth = 12;
+    const barHeight = this.height - top - bottom;
+    const x = this.width - right + 16;
+    const y = top;
+    const steps = 60;
+
+    for (let i = 0; i < steps; i++) {
+      const fraction = 1 - i / (steps - 1);
+      const value = this.field === 'energy' ? fraction * scale : (fraction * 2 - 1) * scale;
+      ctx.fillStyle = this.field === 'energy' ? this.energyColor(value, scale) : this.signedColor(value, scale);
+      ctx.fillRect(x, y + (i * barHeight) / steps, barWidth, barHeight / steps + 1);
+    }
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.strokeRect(x, y, barWidth, barHeight);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = '10px "Segoe UI", sans-serif';
+    ctx.textAlign = 'left';
+    const label = (value: number) => Math.abs(value) >= 10 || (Math.abs(value) > 0 && Math.abs(value) < 0.01)
+      ? value.toExponential(1)
+      : value.toFixed(2);
+    ctx.fillText(label(scale), x + barWidth + 5, y + 4);
+    if (this.field !== 'energy') ctx.fillText('0', x + barWidth + 5, y + barHeight / 2 + 4);
+    ctx.fillText(label(this.field === 'energy' ? 0 : -scale), x + barWidth + 5, y + barHeight);
   }
 
   private drawCurrentString(worldsheet: WorldsheetPoint[][]): void {

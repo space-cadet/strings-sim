@@ -8,7 +8,6 @@
 | ID | Title | Status | Priority | Started | Dependencies | Details |
 |----|-------|--------|----------|---------|--------------|---------|
 | T11 | Three-View Layout Redesign | 🔄 In Progress | HIGH | 2026-07-31 | T10 | [Details](tasks/T11.md) |
-| T12 | Probe Trajectory & Interaction | 🔄 In Progress | HIGH | 2026-08-04 | T10, T11 | [Details](tasks/T12.md) |
 | T13 | Enhanced Diagnostics | 🔄 In Progress | MEDIUM | 2026-07-31 | T10, T11, T12 | [Details](tasks/T13.md) |
 | T16 | Mathematical Glossary and Contextual Help System | 🔄 In Progress | HIGH | 2026-08-03 | T9, T11 | [Details](tasks/T16.md) |
 
@@ -21,11 +20,12 @@
 | T3 | Canvas Rendering Engine | ✅ Completed | HIGH | 2026-07-30 | 2026-07-30 | T1 | Canvas displacement and energy rendering |
 | T4 | UI Controls & Presets | ✅ Completed | HIGH | 2026-07-30 | 2026-07-30 | T2, T3 | Interactive controls and persisted settings |
 | T5 | Relativistic String Mode | ✅ Completed | MEDIUM | 2026-07-30 | 2026-07-30 | T2, T3 | Linearized relativistic transverse mode and history view |
-| T6 | Energy Metrics & FFT | 🔄 Superseded | MEDIUM | 2026-07-30 | — | T2 | Energy metrics done; FFT spectrum deferred to post-T13 |
+| T6 | Energy Metrics & FFT | ✅ Completed | MEDIUM | 2026-07-30 | 2026-08-14 | T2, T12 | [Details](tasks/T6.md) |
 | T7 | Deployment | ✅ Completed | LOW | 2026-07-30 | 2026-07-30 | T4 | Initial publication |
 | T8 | Git Repository | ✅ Completed | LOW | 2026-07-30 | 2026-07-30 | — | Public GitHub repository created |
 | T9 | Simulation Integrity & Responsive UX | ✅ Completed | HIGH | 2026-07-31 | 2026-07-31 | T2, T4, T5 | [Details](tasks/T9.md) |
 | T10 | P0 Bug Fixes | ✅ Completed | HIGH | 2026-07-31 | 2026-07-31 | — | [Details](tasks/T10.md) |
+| T12 | Probe Trajectory & Interaction | ✅ Completed | HIGH | 2026-08-04 | 2026-08-14 | T10, T11 | [Details](tasks/T12.md) |
 
 ## Deferred Tasks
 
@@ -36,8 +36,8 @@
 
 ## Status Summary
 
-- **Active**: 4 (T11, T12, T13, and T16 in progress)
-- **Completed**: 10 (including T6 superseded)
+- **Active**: 3 (T11, T13, and T16 in progress)
+- **Completed**: 12 (including T6 and T12)
 - **Paused/Deferred**: 2
 - **Total**: 16
 

@@ -43,3 +43,17 @@
 - Verified four automated tests, the production build, desktop/mobile probe interaction, the expanded Learn page, and a clean browser console.
 - Published source `f470d58` and website payload `0f4afd2`. GitHub Actions run `30912639074` succeeded; public routes and the new documentation bundle returned HTTP 200.
 - Manual T12 acceptance testing remains pending.
+
+## 2026-08-14 — T12 acceptance and T13 implementation
+
+- User confirmed the delivered T12 probe interaction works; T12 is complete.
+- Added T13 Courant, maximum transverse speed, and relativistic energy-drift diagnostics; a persisted optional energy-density strip; a persisted four-field worldsheet selector; and a numerical colour bar.
+- Added matching glossary entries and contextual-help links for the T13 controls and diagnostics.
+- Production build, focused tests, diff check, and desktop browser verification passed. Long-run relativistic drift and mobile acceptance remain before T13 can close.
+
+## 2026-08-14 — T6 selected-probe frequency spectrum
+
+- Added a compact, collapsible power-spectrum panel for the selected probe trajectory $y(\sigma_\ast,\tau)$.
+- The analysis requires at least 16 uniformly timestamped samples, removes the sample mean, applies a Hann window, zero-pads to a power of two, and highlights the largest nonzero-frequency bin.
+- The rendered axis focuses on the useful low-frequency range while peak detection still considers the complete positive-frequency FFT. The panel explicitly states that it is a short-window numerical signal estimate, not a quantum-string spectrum.
+- Added a focused FFT regression test, glossary/help entry, and browser screenshot at `screenshots/2026-08-14-t6-frequency-spectrum.png`. Build, tests, diff check, and browser verification passed.

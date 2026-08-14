@@ -10,6 +10,7 @@ import { StringRenderer } from './visualization/renderer';
 import { WorldsheetRenderer } from './visualization/worldsheet';
 import { ProbeTrajectoryRenderer } from './visualization/probe-trajectory';
 import { ProbeTrajectoryState } from './visualization/probe-state';
+import { analyseProbeSpectrum, FrequencySpectrumRenderer } from './visualization/frequency-spectrum';
 import { presets } from './ui/presets';
 
 interface SavedSettings {
@@ -20,7 +21,25 @@ interface SavedSettings {
   classicalParams?: StringParameters;
   timeScale: number;
   showWorldsheet?: boolean;
+  showEnergyStrip?: boolean;
+  worldsheetField?: WorldsheetField;
 }
+
+type WorldsheetField = 'displacement' | 'velocity' | 'energy' | 'slope';
+
+const WORLDSHEET_FIELD_FORMULAS: Record<WorldsheetField, string> = {
+  displacement: 'y(σ, τ)',
+  velocity: '∂τy(σ, τ)',
+  energy: 'ℰ(σ, τ)',
+  slope: '∂σy(σ, τ)',
+};
+
+const WORLDSHEET_FIELD_LEGENDS: Record<WorldsheetField, string> = {
+  displacement: 'σ is position, τ is time, and colour indicates transverse displacement.',
+  velocity: 'σ is position, τ is time, and colour indicates transverse velocity.',
+  energy: 'σ is position, τ is time, and colour indicates computed energy density.',
+  slope: 'σ is position, τ is time, and colour indicates local spatial slope.',
+};
 
 const SETTINGS_KEY = 'strings-sim-settings';
 
@@ -47,6 +66,7 @@ class StringSimulator {
   private renderer: StringRenderer;
   private worldsheetRenderer: WorldsheetRenderer | null = null;
   private probeRenderer: ProbeTrajectoryRenderer | null = null;
+  private spectrumRenderer: FrequencySpectrumRenderer | null = null;
   private probe: ProbeTrajectoryState;
   private config: SimulationConfig;
   private isRunning: boolean = false;
@@ -56,6 +76,9 @@ class StringSimulator {
   private stepsPerFrame: number = 4;
   private stepAccumulator: number = 0;
   private showWorldsheet: boolean = false;
+  private showEnergyStrip: boolean = true;
+  private worldsheetField: WorldsheetField = 'displacement';
+  private initialEnergy: number = 0;
   private classicalParams: StringParameters;
 
   // UI elements
@@ -66,6 +89,8 @@ class StringSimulator {
   private boundarySelect: HTMLSelectElement;
   private modeButtons: NodeListOf<HTMLButtonElement>;
   private worldsheetToggle: HTMLButtonElement | null = null;
+  private energyStripToggle: HTMLInputElement | null = null;
+  private worldsheetFieldSelect: HTMLSelectElement | null = null;
 
   constructor() {
     // Try to load saved settings
@@ -93,6 +118,8 @@ class StringSimulator {
 
     this.timeScale = saved?.timeScale ?? 1.0;
     this.showWorldsheet = saved?.showWorldsheet ?? true;
+    this.showEnergyStrip = saved?.showEnergyStrip ?? true;
+    this.worldsheetField = saved?.worldsheetField ?? 'displacement';
     this.classicalParams = { ...(saved?.classicalParams ?? params) };
 
     // Initialize solver based on mode
@@ -104,6 +131,7 @@ class StringSimulator {
     // Initialize renderer
     const canvas = document.getElementById('string-canvas') as HTMLCanvasElement;
     this.renderer = new StringRenderer({ canvas });
+    this.renderer.setShowEnergy(this.showEnergyStrip);
     this.renderer.setBounds(0, params.L, -0.5, 0.5);
 
     // Initialize worldsheet renderer if canvas exists
@@ -113,6 +141,8 @@ class StringSimulator {
     }
     const probeCanvas = document.getElementById('probe-canvas') as HTMLCanvasElement;
     if (probeCanvas) this.probeRenderer = new ProbeTrajectoryRenderer({ canvas: probeCanvas });
+    const spectrumCanvas = document.getElementById('spectrum-canvas') as HTMLCanvasElement;
+    if (spectrumCanvas) this.spectrumRenderer = new FrequencySpectrumRenderer(spectrumCanvas);
     this.probe = new ProbeTrajectoryState(Math.floor(N / 2), params.L / 2, 200);
     this.recordProbeState();
 
@@ -124,6 +154,12 @@ class StringSimulator {
     this.boundarySelect = document.getElementById('boundary-select') as HTMLSelectElement;
     this.modeButtons = document.querySelectorAll('.mode-toggle button');
     this.worldsheetToggle = document.getElementById('btn-worldsheet') as HTMLButtonElement;
+    this.energyStripToggle = document.getElementById('show-energy-strip') as HTMLInputElement;
+    this.worldsheetFieldSelect = document.getElementById('worldsheet-field') as HTMLSelectElement;
+    if (this.energyStripToggle) this.energyStripToggle.checked = this.showEnergyStrip;
+    if (this.worldsheetFieldSelect) this.worldsheetFieldSelect.value = this.worldsheetField;
+    this.updateWorldsheetFieldCopy();
+    this.initialEnergy = this.solver.getMetrics().totalEnergy;
 
     // Restore UI state
     this.presetSelect.value = presetName;
@@ -205,6 +241,7 @@ class StringSimulator {
       this.renderer.handleResize();
       this.worldsheetRenderer?.handleResize();
       this.probeRenderer?.handleResize();
+      this.spectrumRenderer?.handleResize();
       repaint();
     });
     document.addEventListener('visibilitychange', () => {
@@ -270,6 +307,20 @@ class StringSimulator {
         this.persist();
       });
     }
+
+    this.energyStripToggle?.addEventListener('change', () => {
+      this.showEnergyStrip = this.energyStripToggle!.checked;
+      this.renderer.setShowEnergy(this.showEnergyStrip);
+      this.persist();
+      this.render();
+    });
+
+    this.worldsheetFieldSelect?.addEventListener('change', () => {
+      this.worldsheetField = this.worldsheetFieldSelect!.value as WorldsheetField;
+      this.updateWorldsheetFieldCopy();
+      this.persist();
+      this.render();
+    });
 
     // Parameter sliders
     this.bindSlider('param-length', 'val-length', (val) => {
@@ -372,8 +423,9 @@ class StringSimulator {
 
     if (this.worldsheetToggle) this.worldsheetToggle.style.display = 'inline-block';
 
-    const causalityMetric = document.getElementById('causality-metric');
-    if (causalityMetric) causalityMetric.style.display = isRelativistic ? 'flex' : 'none';
+    const energyDriftMetric = document.getElementById('energy-drift-metric');
+    if (energyDriftMetric) energyDriftMetric.style.display = isRelativistic ? 'flex' : 'none';
+    this.updateWorldsheetFieldCopy();
   }
 
   private persist(): void {
@@ -385,6 +437,8 @@ class StringSimulator {
       classicalParams: this.classicalParams,
       timeScale: this.timeScale,
       showWorldsheet: this.showWorldsheet,
+      showEnergyStrip: this.showEnergyStrip,
+      worldsheetField: this.worldsheetField,
     });
   }
 
@@ -409,6 +463,7 @@ class StringSimulator {
     const presetName = this.presetSelect.value;
     const preset = presets[presetName] || presets.pluck;
     this.initializePreset(preset);
+    this.initialEnergy = this.solver.getMetrics().totalEnergy;
     this.probe.clear();
     this.recordProbeState();
     this.updateMetrics();
@@ -456,7 +511,16 @@ class StringSimulator {
     }
 
     this.renderer.render(x, state.y, energy, this.probe.sigmaIndex);
-    this.probeRenderer?.render(this.probe.snapshot());
+    const probeSamples = this.probe.snapshot();
+    this.probeRenderer?.render(probeSamples);
+    const spectrum = analyseProbeSpectrum(probeSamples);
+    this.spectrumRenderer?.render(spectrum);
+    const spectrumStatus = document.getElementById('spectrum-status');
+    if (spectrumStatus) {
+      spectrumStatus.textContent = spectrum
+        ? `peak ${spectrum.dominantFrequency.toFixed(3)}`
+        : `${probeSamples.length}/16 samples`;
+    }
 
     if (this.worldsheetRenderer && this.showWorldsheet) {
       const isRelativistic = this.solver instanceof RelativisticStringSolver;
@@ -467,6 +531,7 @@ class StringSimulator {
         ? (this.solver as RelativisticStringSolver).getWorldsheetBounds()
         : (this.solver as ClassicalStringSolver).getWorldsheetBounds();
       this.worldsheetRenderer.setBounds(bounds.tMin, bounds.tMax, bounds.yMin, bounds.yMax, 0, this.config.params.L);
+      this.worldsheetRenderer.setField(this.worldsheetField, this.config.params.mu, this.config.params.tau);
       this.worldsheetRenderer.setCharacteristicSpeed(isRelativistic ? 1 : this.solver.getMetrics().waveSpeed);
       this.worldsheetRenderer.render(worldsheet, this.probe.sigma);
     }
@@ -505,15 +570,30 @@ class StringSimulator {
     if (waveSpeedEl) waveSpeedEl.textContent = metrics.waveSpeed.toFixed(4);
     if (fundamentalEl) fundamentalEl.textContent = metrics.fundamentalFreq.toFixed(4);
 
-    // Update causality warning for relativistic mode
-    if (this.config.mode === 'relativistic' && this.solver instanceof RelativisticStringSolver) {
-      const isCausal = this.solver.checkCausality();
-      const causalityEl = document.getElementById('metric-causality');
-      if (causalityEl) {
-        causalityEl.textContent = isCausal ? '✓ Causal' : '⚠ Acausal';
-        causalityEl.className = isCausal ? 'metric-value ok' : 'metric-value warning';
-      }
+    const courant = (this.config.mode === 'relativistic' ? 1 : metrics.waveSpeed) * this.config.dt / this.config.dx;
+    this.setDiagnostic('metric-courant', courant.toFixed(2), courant <= 1 ? 'ok' : 'danger');
+    const maxSpeed = Math.max(...this.solver.getState().v.map(Math.abs));
+    this.setDiagnostic('metric-max-speed', maxSpeed.toFixed(3), maxSpeed <= 1 ? 'ok' : 'warning');
+
+    if (this.config.mode === 'relativistic') {
+      const drift = this.initialEnergy === 0 ? 0 : (metrics.totalEnergy - this.initialEnergy) / this.initialEnergy;
+      const driftPercent = drift * 100;
+      this.setDiagnostic('metric-energy-drift', `${driftPercent >= 0 ? '+' : ''}${driftPercent.toFixed(2)}%`, Math.abs(drift) < 0.01 ? 'ok' : Math.abs(drift) < 0.05 ? 'warning' : 'danger');
     }
+  }
+
+  private setDiagnostic(id: string, value: string, status: 'ok' | 'warning' | 'danger'): void {
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.textContent = value;
+    element.className = `metric-value ${status}`;
+  }
+
+  private updateWorldsheetFieldCopy(): void {
+    const formula = document.getElementById('worldsheet-formula');
+    if (formula) formula.textContent = WORLDSHEET_FIELD_FORMULAS[this.worldsheetField];
+    const legend = document.querySelector('.worldsheet-legend');
+    if (legend) legend.textContent = WORLDSHEET_FIELD_LEGENDS[this.worldsheetField];
   }
 }
 

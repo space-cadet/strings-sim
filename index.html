@@ -53,8 +53,17 @@
                 <p class="eyebrow">Spacetime evolution</p>
                 <h2 id="worldsheet-heading">Worldsheet <a class="help-link" href="./learn/#worldsheet" aria-label="Learn about the worldsheet"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">The history of every point on the string.</span></a></h2>
               </div>
-              <p class="panel-formula">y(σ, τ)</p>
+              <p id="worldsheet-formula" class="panel-formula">y(σ, τ)</p>
             </div>
+            <label class="worldsheet-field-control" for="worldsheet-field">
+              Field <a class="help-link" href="./glossary/#worldsheet-fields" aria-label="Learn about worldsheet fields"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">Choose which measured quantity controls worldsheet colour.</span></a>
+              <select id="worldsheet-field" aria-label="Worldsheet field">
+                <option value="displacement">y — Displacement</option>
+                <option value="velocity">∂τy — Velocity</option>
+                <option value="energy">ℰ — Energy density</option>
+                <option value="slope">∂σy — Slope</option>
+              </select>
+            </label>
             <div id="worldsheet-plot">
               <canvas id="worldsheet-canvas" aria-label="String worldsheet spacetime plot"></canvas>
             </div>
@@ -67,6 +76,11 @@
             <summary>Probe trajectory <a class="help-link" href="./glossary/#probe-trajectory" aria-label="Learn about the probe trajectory"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">One selected point’s displacement through time: y(σ*, τ).</span></a><span id="probe-status">Select a point</span></summary>
             <div id="probe-plot"><canvas id="probe-canvas" aria-label="Selected probe trajectory y of sigma star and tau" tabindex="0"></canvas></div>
             <p>Click or drag on the profile or worldsheet to choose σ*. The cyan marker, worldline, and trace refer to the same point.</p>
+          </details>
+          <details id="spectrum-panel" class="instrument-panel spectrum-panel">
+            <summary>Frequency spectrum <a class="help-link" href="./glossary/#frequency-spectrum" aria-label="Learn about the frequency spectrum"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">A power spectrum of the selected probe’s recent motion.</span></a><span id="spectrum-status">Run the probe</span></summary>
+            <div id="spectrum-plot"><canvas id="spectrum-canvas" aria-label="Power spectrum of the selected probe trajectory"></canvas></div>
+            <p>The highlighted peak is the strongest frequency in the recent probe window; it is a short-window numerical estimate, not a quantum string spectrum.</p>
           </details>
         </div>
       </section>
@@ -137,6 +151,7 @@
         <div class="control-section">
           <h3>Visualization <a class="help-link" href="./learn/#worldsheet" aria-label="Learn about the worldsheet view"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">Show or hide the rolling spacetime history.</span></a></h3>
           <button id="btn-worldsheet" class="worldsheet-toggle" style="display: none;">🌐 Worldsheet</button>
+          <label class="toggle-control"><input type="checkbox" id="show-energy-strip" checked /> Show energy density</label>
         </div>
 
         <div class="control-section metrics">
@@ -153,9 +168,17 @@
             <span class="metric-label">Fundamental <a class="help-link" href="./glossary/#fundamental-frequency" aria-label="Learn about the fundamental frequency"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">The lowest standing-wave frequency predicted by the current settings.</span></a></span>
             <span id="metric-fundamental" class="metric-value">0.000</span>
           </div>
-          <div id="causality-metric" class="metric relativistic-only" style="display: none;">
-            <span class="metric-label">Causality:</span>
-            <span id="metric-causality" class="metric-value">—</span>
+          <div class="metric">
+            <span class="metric-label">Courant λ <a class="help-link" href="./implementation/#courant-condition" aria-label="Learn about the Courant condition"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">A numerical stability measure for the explicit solver.</span></a></span>
+            <span id="metric-courant" class="metric-value">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Max |∂τy| <a class="help-link" href="./glossary/#max-transverse-speed" aria-label="Learn about maximum transverse speed"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">The largest sampled transverse speed in the current state.</span></a></span>
+            <span id="metric-max-speed" class="metric-value">—</span>
+          </div>
+          <div id="energy-drift-metric" class="metric relativistic-only" style="display: none;">
+            <span class="metric-label">ΔE / E₀ <a class="help-link" href="./glossary/#energy-drift" aria-label="Learn about energy drift"><span aria-hidden="true">?</span><span class="help-tooltip" role="tooltip">Change in total energy since the last reset.</span></a></span>
+            <span id="metric-energy-drift" class="metric-value">—</span>
           </div>
         </div>
       </aside>

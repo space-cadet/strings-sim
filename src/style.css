@@ -188,7 +188,9 @@ main {
 }
 
 .energy-key > span:first-child { color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.08em; }
-.energy-gradient { height: 10px; border-radius: 2px; background: linear-gradient(90deg, #5d124c, #6c3cb8, #00c5ef); }
+.energy-gradient { height: 10px; border-radius: 2px; background: linear-gradient(90deg, rgb(35, 30, 45), rgb(145, 118, 68), rgb(255, 205, 90)); }
+.toggle-control { display: flex; gap: 0.55rem; align-items: center; margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.85rem; }
+.toggle-control input { width: auto; min-height: 20px; min-width: 20px; }
 
 #canvas-controls button:hover {
   background: var(--accent);
@@ -353,6 +355,7 @@ label span[id^="val-"] {
 #metric-energy { color: var(--metric-energy); }
 #metric-wavespeed { color: var(--metric-wavespeed); }
 #metric-fundamental { color: var(--metric-freq); }
+.metric-value.danger { color: var(--danger); }
 
 /* Footer */
 footer {
@@ -385,6 +388,9 @@ footer {
   margin: 0 1rem;
 }
 
+.worldsheet-field-control { display: flex; align-items: center; gap: 0.7rem; padding: 0 1rem 0.65rem; color: var(--text-secondary); font-size: 0.8rem; }
+.worldsheet-field-control select { flex: 1; min-width: 0; }
+
 #worldsheet-canvas {
   display: block;
   width: 100%;
@@ -408,6 +414,13 @@ footer {
 .probe-panel p { padding: 0 1rem 1rem; color: var(--text-secondary); font-size: 0.82rem; }
 #probe-plot { height: clamp(180px, 18vw, 250px); margin: 0 1rem; }
 #probe-canvas { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; display: block; height: 100%; width: 100%; }
+.spectrum-panel { padding: 0; }
+.spectrum-panel summary { padding: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; }
+.spectrum-panel summary::-webkit-details-marker { display: none; }
+.spectrum-panel summary span { color: var(--text-secondary); font-size: 0.72rem; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.spectrum-panel p { padding: 0 1rem 1rem; color: var(--text-secondary); font-size: 0.82rem; }
+#spectrum-plot { height: clamp(160px, 16vw, 220px); margin: 0 1rem; }
+#spectrum-canvas { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; display: block; height: 100%; width: 100%; }
 
 /* Worldsheet Toggle Button */
 .worldsheet-toggle {

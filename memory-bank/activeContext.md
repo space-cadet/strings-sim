@@ -1,13 +1,13 @@
 # Active Context
 
-*Last Updated: 2026-08-04 18:43:14 IST*
+*Last Updated: 2026-08-14 19:10:45 IST*
 
 ## Current Tasks
 
 ### Active
 - **T16: Mathematical Glossary and Contextual Help System** — 🔄 IN PROGRESS
   - Current-control expansion delivered: shared registry, local KaTeX, seven Learn experiments, and contextual help for the implemented controls and diagnostics
-  - Remaining: entries and links for T13 controls after they exist, final live-release verification
+  - T13 entries and links are delivered; remaining: final live-release verification after publication
   - Linked static tabs: Simulator, Learn, Glossary, and How it works
   - Shared glossary registry, accessible question-mark help controls, guided experiments, and full mathematical/numerical documentation
 
@@ -16,27 +16,26 @@
   - Desktop 65/35 split, mobile stacked
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review and Deepak mockups
 
-- **T12: Probe Trajectory & Interaction** — 🔄 IN PROGRESS
+- **T12: Probe Trajectory & Interaction** — ✅ COMPLETED
   - Primary draggable/clickable probe implemented on profile and worldsheet
   - Linked trajectory plot $y(\sigma_\ast,\tau)$, cyan profile marker, and worldsheet worldline implemented
-  - User manual acceptance test pending before completion
+  - User manual acceptance confirmed 2026-08-14
   - Attribution: Terra review, Deepak mockups
 
 - **T13: Enhanced Diagnostics** — 🔄 IN PROGRESS
-  - T13a: Courant number, max transverse speed, energy drift
-  - T13b: Energy strip labeling with formula
-  - T13c: Worldsheet field selector (`y`, `∂τy`, `ℰ`, `∂σy`)
-  - T13d: Color bar legend
+  - T13a–d implementation delivered: Courant/max-speed/energy-drift diagnostics, optional sequential energy strip, four-field selector, and colour bar
+  - Remaining: long-run relativistic drift regression and mobile manual acceptance
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- T6: Energy Metrics & FFT — 🔄 IN PROGRESS (superseded by T13; FFT spectrum deferred)
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
 ## Completed Tasks (Recent)
 
 - T10: P0 Bug Fixes — ✅ COMPLETED (2026-07-31)
+- T12: Probe Trajectory & Interaction — ✅ COMPLETED (2026-08-14, user acceptance confirmed)
+- T6: Energy Metrics & FFT — ✅ COMPLETED (2026-08-14, selected-probe FFT spectrum)
   - DPR-safe resize, data-space characteristics, timestamped histories, mobile repaint recovery
 - T1: Project Setup & Build Tooling — ✅ COMPLETED (2026-07-30)
 - T2: Classical String Physics Engine — ✅ COMPLETED (2026-07-30)
@@ -70,7 +69,7 @@
 - Tooltip text should remain short and plain-language; detailed formulae, implementation notes, and caveats belong in the linked documentation section.
 - Tabs are ordinary nested static-page links, not a JavaScript-only control, so each view has a stable bookmarkable URL.
 - T16 foundation was published with source `8a8d154` and website payload `f0cbc19`; do not claim a completed full glossary or mobile verification yet.
-- T12 and the expanded T16 material were published with source `f470d58` and website payload `0f4afd2`. Deployment workflow `30912639074` and public routes/assets were verified; T12 still awaits manual acceptance testing.
+  - T12 and the expanded T16 material were published with source `f470d58` and website payload `0f4afd2`. Deployment workflow `30912639074` and public routes/assets were verified; T12 user acceptance later passed.
 - Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
   - Terra warns it may confuse with null characteristics
   - Sage: keep it for physics-education audience, label clearly

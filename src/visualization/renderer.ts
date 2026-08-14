@@ -68,6 +68,10 @@ export class StringRenderer {
     this.yMax = yMax;
   }
 
+  setShowEnergy(showEnergy: boolean): void {
+    this.config.showEnergy = showEnergy;
+  }
+
   /** Map data coordinates to canvas pixels */
   private mapX(x: number): number {
     const { left, right } = this.config.padding;
@@ -266,11 +270,13 @@ export class StringRenderer {
       const x2 = this.mapX(x[i + 1]);
       const intensity = energy[i] / maxE;
       
-      const r = Math.floor(255 * intensity);
-      const g = Math.floor(100 * (1 - intensity));
-      const b = Math.floor(200 * (1 - intensity * 0.5));
-      
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.7)`;
+      // Energy is nonnegative, so it uses a sequential dark-to-warm scale
+      // rather than the cyan/magenta scale reserved for signed displacement.
+      const r = Math.floor(35 + 220 * intensity);
+      const g = Math.floor(30 + 175 * intensity);
+      const b = Math.floor(45 + 45 * intensity);
+
+      ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
       ctx.fillRect(x1, barY, x2 - x1, barHeight);
     }
   }
