@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-08-15 03:09:37 IST*
+*Last Updated: 2026-08-15 03:10:45 IST*
 
 ## Current Tasks
 
@@ -87,3 +87,4 @@
 - T18 remaining gate: document a defensible nonlinear geometric observable/mode-mixing example without implying quantum interactions; production publication remains separate.
 - T18 parameter boundary: length is used at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is forced. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
 - T18e next-session gate: audit whether the eight presets are physically/geometrically distinct; do not treat raster checksum differences as sufficient evidence.
+- Source commit `0785465` is pushed; website payload remains published as `c4a6a46`.
