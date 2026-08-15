@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   NonlinearRelativisticStringSolver,
+  createAntiPeriodicT18InitialData,
   createOpenT18InitialData,
   createConformalLoopInitialData,
   createT18PresetInitialData,
@@ -126,6 +127,24 @@ test('T18 permits odd open grids while keeping the periodic grid contract even',
   }, 0.5);
   assert.equal(solver.getSpatialCoords()[62], 2);
   assert.ok(solver.getConstraintReport().residual < 1e-12);
+});
+
+test('T18 doubled-domain anti-periodic cells close after two reference lengths', () => {
+  const solver = new NonlinearRelativisticStringSolver({
+    N: 64,
+    dt: 0,
+    dx: 2 / 64,
+    mode: 'nonlinear',
+    boundary: 'anti-periodic',
+    params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+  }, 0.5);
+  solver.initialize(createAntiPeriodicT18InitialData(64));
+  assert.equal(solver.getEmbedding().x.length, 128);
+  solver.stepN(160);
+  const report = solver.getConstraintReport();
+  assert.ok(report.closureError < 1e-12, `doubled-domain closure ${report.closureError}`);
+  assert.ok(report.maxBoundaryEnergyFlux === 0);
+  assert.ok(report.residual < 1e-12, `anti-periodic residual ${report.residual}`);
 });
 
 test('T18 presets are varied closed conformal initial states', () => {

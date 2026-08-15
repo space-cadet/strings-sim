@@ -145,3 +145,44 @@ export function evolveT17PeriodicReference(
   }
   return current;
 }
+
+/**
+ * Evolve one linear reference cell with anti-periodic field identification:
+ * f(sigma + L) = -f(sigma). The returned samples cover one length-L cell;
+ * this helper deliberately does not claim that the cell is a single-valued
+ * closed string embedding.
+ */
+export function evolveT17AntiPeriodicReference(
+  initialY: Float64Array,
+  initialVelocity: Float64Array,
+  L: number,
+  steps: number,
+  courant = 0.5,
+): Float64Array {
+  if (initialY.length !== initialVelocity.length) throw new Error('T17 reference arrays must have equal length.');
+  const N = initialY.length;
+  if (N < 16) throw new Error('T17 anti-periodic references require at least 16 samples.');
+  const dx = L / N;
+  const dt = courant * dx;
+  let current = new Float64Array(initialY);
+  let previous = new Float64Array(N);
+  for (let i = 0; i < N; i++) previous[i] = current[i] - dt * initialVelocity[i];
+
+  const sample = (values: Float64Array, index: number): number => {
+    const cell = Math.floor(index / N);
+    const localIndex = index - cell * N;
+    return (cell % 2 === 0 ? 1 : -1) * values[localIndex];
+  };
+
+  for (let step = 0; step < steps; step++) {
+    const next = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      const left = sample(current, i - 1);
+      const right = sample(current, i + 1);
+      next[i] = 2 * current[i] - previous[i] + courant ** 2 * (left - 2 * current[i] + right);
+    }
+    previous = current;
+    current = next;
+  }
+  return current;
+}

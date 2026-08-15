@@ -76,3 +76,15 @@
 - Implemented T18 periodic, fixed, free, and mixed boundary contracts with reflected characteristic transport, constraint-compatible endpoint data, endpoint residuals, and boundary energy-flux diagnostics. Periodic closure and the existing T18 audit tests remain green; anti-periodic/twisted semantics and UI exposure remain planned.
 - Implemented T19 normalized finite superpositions, the declared dimensionless free Hamiltonian, exact phase evolution, basis-state probabilities, cutoff warnings, time controls, and play/pause interaction. Updated glossary and implementation documentation to distinguish amplitudes/probabilities from classical profiles and to preserve the finite educational boundary.
 - Added focused regression coverage; 28 tests pass and the production build succeeds. No source or website publication was performed.
+
+## 2026-08-16 — T18 anti-periodic reference semantics
+
+- Added `evolveT17AntiPeriodicReference`, a standalone linear fixture with sign-reversing field identification and a half-integer-mode regression.
+- Chose and documented the T18 doubled-domain interpretation: an anti-periodic length-$L$ cell is not an ordinary closed embedding; a future T18 implementation must construct and validate its length-$2L$ periodic extension before UI exposure.
+- The focused suite now passes 29 tests. No source or website publication was performed in this slice.
+
+## 2026-08-16 — T18 doubled-domain UI path
+
+- Implemented the nonlinear anti-periodic T18 path: tangent fields use sign-reversing transport on the base cell, while the target-space projection reconstructs and closes the length-$2L$ doubled domain.
+- Added the anti-periodic boundary selector option, mode-specific UI copy, source imports, and a doubled-domain closure regression. The profile remains the base cell so the UI does not imply that the cell alone is an ordinary closed loop.
+- The focused suite now passes 30 tests and the production build succeeds. Browser acceptance, source/publication handoff, and live route verification remain pending.

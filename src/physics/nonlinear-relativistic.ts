@@ -38,10 +38,10 @@ export interface ConformalConstraintReport {
 
 export interface T18BoundaryContract {
   boundary: BoundaryCondition;
-  topology: 'closed' | 'open';
-  leftEndpoint: 'periodic' | 'fixed' | 'free';
-  rightEndpoint: 'periodic' | 'fixed' | 'free';
-  fieldIdentification: 'periodic' | 'reflected';
+  topology: 'closed' | 'open' | 'anti-periodic-cell';
+  leftEndpoint: 'periodic' | 'fixed' | 'free' | 'anti-periodic';
+  rightEndpoint: 'periodic' | 'fixed' | 'free' | 'anti-periodic';
+  fieldIdentification: 'periodic' | 'reflected' | 'anti-periodic';
 }
 
 export interface NonlinearStringState extends StringState {
@@ -241,6 +241,15 @@ export function getT18BoundaryContract(boundary: BoundaryCondition): T18Boundary
       fieldIdentification: 'periodic',
     };
   }
+  if (boundary === 'anti-periodic') {
+    return {
+      boundary,
+      topology: 'anti-periodic-cell',
+      leftEndpoint: 'anti-periodic',
+      rightEndpoint: 'anti-periodic',
+      fieldIdentification: 'anti-periodic',
+    };
+  }
   return {
     boundary,
     topology: 'open',
@@ -278,6 +287,27 @@ export function createOpenT18InitialData(
     left.y[i] = Math.sin(angle);
     right.x[i] = Math.cos(angle);
     right.y[i] = -Math.sin(angle);
+  }
+  return { left, right, center: { x: 0, y: 0 } };
+}
+
+/**
+ * One anti-periodic reference cell. The doubled-domain solver extends both
+ * tangent fields with a sign flip across the cell boundary, so the second
+ * cell retraces the first with reversed tangent and closes at length 2L.
+ */
+export function createAntiPeriodicT18InitialData(N: number): NonlinearInitialData {
+  if (N < 16) throw new Error('An anti-periodic T18 cell requires at least 16 samples.');
+  const left = { x: new Float64Array(N), y: new Float64Array(N) };
+  const right = { x: new Float64Array(N), y: new Float64Array(N) };
+  for (let i = 0; i < N; i++) {
+    const theta = 2 * Math.PI * i / N;
+    const leftAngle = 0.18 + 0.38 * Math.sin(theta);
+    const rightAngle = -0.42 + 0.24 * Math.sin(theta + Math.PI / 4);
+    left.x[i] = Math.cos(leftAngle);
+    left.y[i] = Math.sin(leftAngle);
+    right.x[i] = Math.cos(rightAngle);
+    right.y[i] = Math.sin(rightAngle);
   }
   return { left, right, center: { x: 0, y: 0 } };
 }
@@ -505,6 +535,7 @@ export class NonlinearRelativisticStringSolver {
   private readonly boundary: BoundaryCondition;
   private readonly leftBoundarySign: number;
   private readonly rightBoundarySign: number;
+  private readonly embeddingSampleCount: number;
   private left: TangentField;
   private right: TangentField;
   private center = { x: 0, y: 0 };
@@ -524,23 +555,28 @@ export class NonlinearRelativisticStringSolver {
     this.N = config.N;
     this.L = config.params.L;
     this.boundary = config.boundary;
-    this.ds = this.boundary === 'periodic' ? this.L / this.N : this.L / (this.N - 1);
+    this.ds = this.boundary === 'periodic' || this.boundary === 'anti-periodic'
+      ? this.L / this.N
+      : this.L / (this.N - 1);
     this.courant = courant;
     this.dt = this.courant * this.ds;
     this.tension = 1;
     this.leftBoundarySign = this.boundary === 'periodic' || this.boundary === 'fixed' || this.boundary === 'mixed' ? 1 : -1;
     this.rightBoundarySign = this.boundary === 'periodic' || this.boundary === 'fixed' ? 1 : -1;
+    this.embeddingSampleCount = this.boundary === 'anti-periodic' ? 2 * this.N : this.N;
     const defaultData = this.boundary === 'periodic'
       ? createConformalLoopInitialData(this.N)
-      : createOpenT18InitialData(this.N, this.boundary);
+      : this.boundary === 'anti-periodic'
+        ? createAntiPeriodicT18InitialData(this.N)
+        : createOpenT18InitialData(this.N, this.boundary);
     this.left = defaultData.left;
     this.right = defaultData.right;
     this.state = {
       y: new Float64Array(this.N),
       v: new Float64Array(this.N),
       t: 0,
-      embeddingX: new Float64Array(this.N),
-      embeddingY: new Float64Array(this.N),
+      embeddingX: new Float64Array(this.embeddingSampleCount),
+      embeddingY: new Float64Array(this.embeddingSampleCount),
       velocityX: new Float64Array(this.N),
       velocityY: new Float64Array(this.N),
       worldsheet: [],
@@ -560,7 +596,9 @@ export class NonlinearRelativisticStringSolver {
   initialize(data?: NonlinearInitialData): void {
     const initialData = data ?? (this.boundary === 'periodic'
       ? createConformalLoopInitialData(this.N)
-      : createOpenT18InitialData(this.N, this.boundary));
+      : this.boundary === 'anti-periodic'
+        ? createAntiPeriodicT18InitialData(this.N)
+        : createOpenT18InitialData(this.N, this.boundary));
     validateField(initialData.left, this.N, 'Left-moving');
     validateField(initialData.right, this.N, 'Right-moving');
     this.validateBoundaryData(initialData);
@@ -685,6 +723,16 @@ export class NonlinearRelativisticStringSolver {
   private shiftUnitTangent(field: TangentField, offset: number, channel: 'left' | 'right'): TangentField {
     const shifted = { x: new Float64Array(this.N), y: new Float64Array(this.N) };
     for (let i = 0; i < this.N; i++) {
+      if (this.boundary === 'anti-periodic') {
+        const position = i * this.ds + offset * this.ds;
+        const projected = normalize(
+          this.sampleAntiPeriodicTangent(channel, position, 'x'),
+          this.sampleAntiPeriodicTangent(channel, position, 'y'),
+        );
+        shifted.x[i] = projected.x;
+        shifted.y[i] = projected.y;
+        continue;
+      }
       if (this.boundary !== 'periodic') {
         const position = i * this.ds + offset * this.ds;
         const projected = normalize(
@@ -747,8 +795,30 @@ export class NonlinearRelativisticStringSolver {
     ));
   }
 
+  private sampleAntiPeriodicTangent(channel: 'left' | 'right', coordinate: number, component: 'x' | 'y'): number {
+    const cell = Math.floor(coordinate / this.L);
+    const position = coordinate - cell * this.L;
+    const cellSign = cell % 2 === 0 ? 1 : -1;
+    const array = this[channel][component];
+    const coordinateIndex = position / this.ds;
+    const lower = Math.floor(coordinateIndex);
+    const fraction = coordinateIndex - lower;
+    const sample = (index: number): number => {
+      const wrappedCell = Math.floor(index / this.N);
+      const wrappedIndex = index - wrappedCell * this.N;
+      return (wrappedCell % 2 === 0 ? 1 : -1) * array[wrappedIndex];
+    };
+    const p0 = sample(lower - 1);
+    const p1 = sample(lower);
+    const p2 = sample(lower + 1);
+    const p3 = sample(lower + 2);
+    return cellSign * (p1 + 0.5 * fraction * (
+      p2 - p0 + fraction * (2 * p0 - 5 * p1 + 4 * p2 - p3 + fraction * (3 * (p1 - p2) + p3 - p0))
+    ));
+  }
+
   private enforceOpenEndpointRelations(): void {
-    if (this.boundary === 'periodic') return;
+    if (this.boundary === 'periodic' || this.boundary === 'anti-periodic') return;
     this.right.x[0] = this.leftBoundarySign * this.left.x[0];
     this.right.y[0] = this.leftBoundarySign * this.left.y[0];
     const last = this.N - 1;
@@ -785,12 +855,28 @@ export class NonlinearRelativisticStringSolver {
       }
     }
 
-    this.state.y.set(embeddingY);
+    if (this.boundary === 'anti-periodic') {
+      const lastBase = this.N - 1;
+      embeddingX[this.N] = embeddingX[lastBase] + this.ds * ((this.left.x[lastBase] + this.right.x[lastBase]) / 2);
+      embeddingY[this.N] = embeddingY[lastBase] + this.ds * ((this.left.y[lastBase] + this.right.y[lastBase]) / 2);
+      for (let i = 1; i < this.N; i++) {
+        const source = i - 1;
+        embeddingX[this.N + i] = embeddingX[this.N + i - 1] - this.ds * ((this.left.x[source] + this.right.x[source]) / 2);
+        embeddingY[this.N + i] = embeddingY[this.N + i - 1] - this.ds * ((this.left.y[source] + this.right.y[source]) / 2);
+      }
+    }
+
+    this.state.y.set(embeddingY.subarray(0, this.N));
     this.state.v.set(velocityY);
     this.state.t = this.time;
     const closureError = this.boundary === 'periodic'
       ? Math.hypot(sumRPrimeX * this.ds, sumRPrimeY * this.ds)
-      : 0;
+      : this.boundary === 'anti-periodic'
+        ? Math.hypot(
+          embeddingX[this.embeddingSampleCount - 1] - this.ds * ((this.left.x[this.N - 1] + this.right.x[this.N - 1]) / 2) - this.center.x,
+          embeddingY[this.embeddingSampleCount - 1] - this.ds * ((this.left.y[this.N - 1] + this.right.y[this.N - 1]) / 2) - this.center.y,
+        )
+        : 0;
     const leftRPrimeX = (this.left.x[0] + this.right.x[0]) / 2;
     const leftRPrimeY = (this.left.y[0] + this.right.y[0]) / 2;
     const leftVelocityX = (this.left.x[0] - this.right.x[0]) / 2;
@@ -801,7 +887,7 @@ export class NonlinearRelativisticStringSolver {
     const rightVelocityX = (this.left.x[rightIndex] - this.right.x[rightIndex]) / 2;
     const rightVelocityY = (this.left.y[rightIndex] - this.right.y[rightIndex]) / 2;
     const endpointResidual = (endpoint: 'left' | 'right', rPrimeX: number, rPrimeY: number, velocityX: number, velocityY: number): number => {
-      if (this.boundary === 'periodic') return 0;
+      if (this.boundary === 'periodic' || this.boundary === 'anti-periodic') return 0;
       const endpointType = endpoint === 'left'
         ? getT18BoundaryContract(this.boundary).leftEndpoint
         : getT18BoundaryContract(this.boundary).rightEndpoint;
@@ -813,7 +899,7 @@ export class NonlinearRelativisticStringSolver {
     const rightEndpointResidual = endpointResidual('right', rightRPrimeX, rightRPrimeY, rightVelocityX, rightVelocityY);
     const leftFlux = Math.abs(leftRPrimeX * leftVelocityX + leftRPrimeY * leftVelocityY);
     const rightFlux = Math.abs(rightRPrimeX * rightVelocityX + rightRPrimeY * rightVelocityY);
-    const maxBoundaryEnergyFlux = this.boundary === 'periodic' ? 0 : Math.max(leftFlux, rightFlux);
+    const maxBoundaryEnergyFlux = this.boundary === 'periodic' || this.boundary === 'anti-periodic' ? 0 : Math.max(leftFlux, rightFlux);
     this.state.constraints = {
       maxOrthogonalityResidual,
       maxNormalizationResidual,
@@ -832,7 +918,7 @@ export class NonlinearRelativisticStringSolver {
   }
 
   private validateBoundaryData(data: NonlinearInitialData): void {
-    if (this.boundary === 'periodic') return;
+    if (this.boundary === 'periodic' || this.boundary === 'anti-periodic') return;
     const contract = getT18BoundaryContract(this.boundary);
     const residualAt = (index: number, endpoint: 'left' | 'right'): number => {
       const rPrimeX = (data.left.x[index] + data.right.x[index]) / 2;

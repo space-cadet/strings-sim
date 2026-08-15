@@ -7,6 +7,8 @@
 - Planned T18 open/mixed/periodic/anti-periodic boundary extensions, with anti-periodic T18 semantics gated on a twisted-sector or doubled-domain definition.
 - Planned T19 finite free-state evolution with oscillator phase, superposition, probability, cutoff, normalization, and level-matching controls.
 - Added T21 and its implementation record for model-specific external-field coupling from classical and linearized-relativistic sources through T18 constrained forcing and T19 finite Hamiltonian drives.
+- Added a T17 anti-periodic linear reference fixture and half-integer-mode regression. Documented T18’s doubled-domain interpretation and kept anti-periodic embedding/UI exposure gated on a future length-$2L$ construction.
+- Added the T18 nonlinear anti-periodic doubled-domain path, boundary selector exposure, mode-specific copy, and 2N-sample target-space closure regression. Local tests (30) and build pass; browser acceptance and deployment remain separate.
 
 ### Delivered locally
 

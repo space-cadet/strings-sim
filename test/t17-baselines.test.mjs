@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  evolveT17AntiPeriodicReference,
   getT17BaselineDefinitions,
   runT17Baseline,
   T17_BASELINE_TOLERANCES,
@@ -27,3 +28,25 @@ for (const id of ['fixed-fundamental', 'free-fundamental', 'periodic-mode', 'mix
     }
   });
 }
+
+test('T17 anti-periodic reference preserves a half-integer mode on its cell', () => {
+  const N = 128;
+  const L = 2;
+  const amplitude = 0.12;
+  const courant = 0.5;
+  const dx = L / N;
+  const dt = courant * dx;
+  const steps = Math.round(0.5 / dt);
+  const initial = new Float64Array(N);
+  const velocity = new Float64Array(N);
+  for (let i = 0; i < N; i++) initial[i] = amplitude * Math.cos(Math.PI * (i * dx) / L);
+
+  const evolved = evolveT17AntiPeriodicReference(initial, velocity, L, steps, courant);
+  const time = steps * dt;
+  let maxError = 0;
+  for (let i = 0; i < N; i++) {
+    const expected = amplitude * Math.cos(Math.PI * (i * dx) / L) * Math.cos(Math.PI * time / L);
+    maxError = Math.max(maxError, Math.abs(evolved[i] - expected));
+  }
+  assert.ok(maxError < 0.002, `anti-periodic mode error ${maxError}`);
+});

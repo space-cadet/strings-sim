@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: T17 complete; T18 periodic/open boundary engine slice and audit/publication complete with anti-periodic semantics still planned; T19 finite free phase-evolution slice complete with review/user acceptance pending; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
+*Status: T17 complete; T18 periodic/open boundary engine and anti-periodic doubled-domain UI path complete locally with browser/publication gates pending; T19 finite free phase-evolution slice complete with review/user acceptance pending; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
 
 ## Purpose
 
@@ -33,7 +33,7 @@ The reproducible reference fixture in `src/physics/t17-baselines.ts` runs the cu
 
 The implementation uses conformal gauge with $X^0=\tau$ in flat 2+1-dimensional Minkowski spacetime, natural units, and unit tension/density. The validated engine supports the closed periodic loop plus fixed, free, and mixed open endpoint reflections; the simulator UI still exposes only the closed periodic T18 path. The solver evolves left- and right-moving unit tangent fields, which preserves the conformal constraints by construction while reconstructing the spatial embedding. It remains a classical flat-spacetime model, not a quantum or interacting solver.
 
-The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, a documented nonlinear observable, and clear distinction from quantum theory. The local boundary slice now verifies periodic closure plus fixed/free/mixed endpoint relations, residuals, and energy flux; anti-periodic/twisted sectors remain gated.
+The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, a documented nonlinear observable, and clear distinction from quantum theory. The local boundary slice now verifies periodic closure plus fixed/free/mixed endpoint relations, residuals, and energy flux. The T17 reference also validates sign-reversing anti-periodic fields; T18 adopts a doubled-domain interpretation, so a length-$L$ anti-periodic cell is not itself called a closed embedding.
 
 The current local implementation exposes a separate T18 mode, eight closed conformal-loop presets, a target-space projection, and a live constraint residual. T18e now compares tangent spectra, embeddings, velocities, geometric invariants, conserved energy, and browser-rendered projections directly; raster checksums are not used as acceptance evidence. T18 documents a radial-profile geometric mode-mixing observable without claiming interaction or quantum transitions. It keeps natural-unit tension and density fixed, omits damping, and selects the grid/topology contract when the solver is constructed.
 
@@ -47,7 +47,7 @@ Interactions are first introduced as conceptual worldsheet topology: incoming fr
 
 ## Planned extensions: T18, T19, and T21
 
-T18 now has a tested boundary contract and open fixed/free/mixed endpoint evolution. Anti-periodic behavior will be validated in the linear reference path first; T18 will require an explicit twisted-sector or doubled-domain interpretation before it is exposed as a full embedding case.
+T18 now has a tested boundary contract, open fixed/free/mixed endpoint evolution, and an anti-periodic doubled-domain embedding path. Anti-periodic fields are validated in the linear reference path; the simulator constructs their length-$2L$ periodic extension and labels the mode as a doubled-domain cell. Browser acceptance and publication remain separate gates.
 
 T19 now includes finite free-state phase evolution, superpositions, probabilities, play/pause and time controls, and visible cutoff controls. It remains a truncated oscillator model with declared normalization and level-matching rules.
 

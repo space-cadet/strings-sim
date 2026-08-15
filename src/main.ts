@@ -6,7 +6,7 @@
 import { SimulationConfig, StringParameters, BoundaryCondition, PhysicsMode, stableTimeStep } from './physics/core';
 import { ClassicalStringSolver } from './physics/classical';
 import { RelativisticStringSolver } from './physics/relativistic';
-import { NonlinearRelativisticStringSolver, createT18PresetInitialData, getT18PresetDefinition } from './physics/nonlinear-relativistic';
+import { NonlinearRelativisticStringSolver, createAntiPeriodicT18InitialData, createT18PresetInitialData, getT18PresetDefinition } from './physics/nonlinear-relativistic';
 import { StringRenderer } from './visualization/renderer';
 import { WorldsheetRenderer } from './visualization/worldsheet';
 import { ProbeTrajectoryRenderer } from './visualization/probe-trajectory';
@@ -117,7 +117,8 @@ class StringSimulator {
       boundary: saved?.boundary ?? 'fixed',
       params,
     };
-    if (this.config.mode === 'nonlinear') this.config.boundary = 'periodic';
+    if (this.config.mode === 'nonlinear' && this.config.boundary !== 'anti-periodic') this.config.boundary = 'periodic';
+    if (this.config.mode !== 'nonlinear' && this.config.boundary === 'anti-periodic') this.config.boundary = 'periodic';
     this.updateDiscretization();
 
     this.timeScale = saved?.timeScale ?? 1.0;
@@ -195,14 +196,16 @@ class StringSimulator {
       return new RelativisticStringSolver(this.config);
     }
     if (this.config.mode === 'nonlinear') {
-      return new NonlinearRelativisticStringSolver({ ...this.config, boundary: 'periodic', mode: 'nonlinear' });
+      return new NonlinearRelativisticStringSolver({ ...this.config, mode: 'nonlinear' });
     }
     return new ClassicalStringSolver(this.config);
   }
 
   private initializePreset(preset: (typeof presets)[string], presetName = this.presetSelect?.value ?? 'pluck'): void {
     if (this.solver instanceof NonlinearRelativisticStringSolver) {
-      this.solver.initialize(createT18PresetInitialData(this.config.N, presetName));
+      this.solver.initialize(this.config.boundary === 'anti-periodic'
+        ? createAntiPeriodicT18InitialData(this.config.N)
+        : createT18PresetInitialData(this.config.N, presetName));
       return;
     }
     const speed = this.solver.getMetrics().waveSpeed;
@@ -298,8 +301,13 @@ class StringSimulator {
     // Boundary conditions
     this.boundarySelect.addEventListener('change', () => {
       this.config.boundary = this.boundarySelect.value as BoundaryCondition;
-      this.solver.setBoundary(this.config.boundary);
+      if (this.solver instanceof NonlinearRelativisticStringSolver) {
+        this.solver = this.createSolver();
+      } else {
+        this.solver.setBoundary(this.config.boundary);
+      }
       this.reset();
+      this.updateModeUI();
       this.persist();
     });
 
@@ -407,7 +415,8 @@ class StringSimulator {
     // the user's classical parameters when they return to that mode.
     if (newMode === 'relativistic' || newMode === 'nonlinear') {
       this.config.params = { ...this.config.params, tau: 1.0, mu: 1.0, gamma: 0.0 };
-      if (newMode === 'nonlinear') this.config.boundary = 'periodic';
+      if (newMode === 'nonlinear' && !['periodic', 'anti-periodic'].includes(this.config.boundary)) this.config.boundary = 'periodic';
+      if (newMode !== 'nonlinear' && this.config.boundary === 'anti-periodic') this.config.boundary = 'periodic';
     } else {
       this.config.params = { ...this.classicalParams };
     }
@@ -440,8 +449,11 @@ class StringSimulator {
     if (dampingInput) dampingInput.disabled = isNaturalUnitMode;
     if (lengthInput) lengthInput.disabled = isNonlinear;
     if (this.boundarySelect) {
-      this.boundarySelect.disabled = isNonlinear;
-      if (isNonlinear) this.boundarySelect.value = 'periodic';
+      this.boundarySelect.disabled = false;
+      const antiPeriodicOption = this.boundarySelect.querySelector('option[value="anti-periodic"]') as HTMLOptionElement | null;
+      if (antiPeriodicOption) antiPeriodicOption.disabled = !isNonlinear;
+      if (!isNonlinear && this.config.boundary === 'anti-periodic') this.config.boundary = 'periodic';
+      this.boundarySelect.value = this.config.boundary;
     }
 
     // Keep control values in sync when returning to classical mode.
@@ -474,13 +486,19 @@ class StringSimulator {
       if (!referencePreset) return;
       const t18Preset = getT18PresetDefinition(option.value);
       option.textContent = isNonlinear ? t18Preset.label : referencePreset.label;
-      option.title = isNonlinear ? t18Preset.description : referencePreset.label;
+      option.title = isNonlinear
+        ? this.config.boundary === 'anti-periodic'
+          ? 'The anti-periodic doubled-domain mode uses a shared reference cell for every preset.'
+          : t18Preset.description
+        : referencePreset.label;
     });
     const description = document.getElementById('preset-description');
     if (description) {
       description.hidden = !isNonlinear;
       description.textContent = isNonlinear
-        ? getT18PresetDefinition(this.presetSelect.value).description
+        ? this.config.boundary === 'anti-periodic'
+          ? 'Anti-periodic reference cell: the target-space projection shows the validated length-2L doubled-domain closure.'
+          : getT18PresetDefinition(this.presetSelect.value).description
         : '';
     }
   }

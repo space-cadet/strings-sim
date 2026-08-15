@@ -27,7 +27,7 @@ export interface StringParameters {
   gamma: number;
 }
 
-export type BoundaryCondition = 'fixed' | 'free' | 'mixed' | 'periodic';
+export type BoundaryCondition = 'fixed' | 'free' | 'mixed' | 'periodic' | 'anti-periodic';
 
 export type PhysicsMode = 'classical' | 'relativistic' | 'nonlinear';
 
