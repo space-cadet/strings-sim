@@ -63,3 +63,10 @@
 - Created four bounded future tasks: linear-model scope and regression guardrails (T17), a nonlinear classical relativistic solver (T18), a finite free-quantum mode visualizer (T19), and conceptual perturbative-interaction diagrams (T20).
 - Recorded formulation, constraint, convergence, finite-state, accessibility, and claim-boundary gates in `implementation-details/full-string-development-roadmap.md`.
 - This is planning documentation only. The deployed application remains the existing linearized transverse classical teaching model.
+
+## 2026-08-16 — T18/T19/T21 extension plan approved
+
+- Planned T18 boundary extensions for open fixed/free/mixed endpoints, periodic closed loops, and anti-periodic/twisted cases with an explicit closure interpretation.
+- Planned T19 finite free-state phase evolution, superpositions, probabilities, cutoff controls, and normalization/level-matching validation.
+- Created T21 for model-specific external-field couplings across classical, linearized-relativistic, T18, T19, and future T20 work.
+- Recorded the separate source, constrained-force, finite-Hamiltonian, and worldsheet/background semantics in `implementation-details/external-field-coupling.md`.

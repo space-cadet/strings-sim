@@ -1,7 +1,7 @@
 # Tasks — String Motion Simulator
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-15 02:13:40 IST*
+*Last Updated: 2026-08-16 01:16:13 IST*
 
 ## Active Tasks
 
@@ -10,6 +10,8 @@
 | T11 | Three-View Layout Redesign | 🔄 In Progress | HIGH | 2026-07-31 | T10 | [Details](tasks/T11.md) |
 | T13 | Enhanced Diagnostics | 🔄 In Progress | MEDIUM | 2026-07-31 | T10, T11, T12 | [Details](tasks/T13.md) |
 | T18 | Nonlinear Classical Relativistic String Solver | 🔄 In Progress | HIGH | 2026-08-15 | T17 | [Details](tasks/T18.md) |
+| T19 | Free Quantum String Mode Visualizer | 🔄 In Progress | MEDIUM | 2026-08-15 | T17 | [Details](tasks/T19.md) |
+| T20 | Perturbative String Interaction Concept Visualizer | 🔄 In Progress | LOW | 2026-08-15 | T19 | [Details](tasks/T20.md) |
 
 ## Completed Tasks
 
@@ -33,8 +35,10 @@
 |----|-------|--------|----------|---------|--------------|---------|
 | T17 | Linearized Model Baseline and Scope Guardrails | ✅ Completed | HIGH | 2026-08-15 | T16 | [Details](tasks/T17.md) |
 | T16 | Mathematical Glossary and Contextual Help System | ✅ Completed | HIGH | 2026-08-03 | 2026-08-15 | T9, T11 | [Details](tasks/T16.md) |
-| T19 | Free Quantum String Mode Visualizer | ⏸️ Planned | MEDIUM | — | T17 | [Details](tasks/T19.md) |
-| T20 | Perturbative String Interaction Concept Visualizer | ⏸️ Planned | LOW | — | T19 | [Details](tasks/T20.md) |
+| T18 | Nonlinear Classical Relativistic String Solver | 🔄 In Progress | HIGH | 2026-08-15 | T17 | [Details](tasks/T18.md) |
+| T19 | Free Quantum String Mode Visualizer | 🔄 In Progress | MEDIUM | 2026-08-15 | T17 | [Details](tasks/T19.md) |
+| T20 | Perturbative String Interaction Concept Visualizer | 🔄 In Progress | LOW | 2026-08-15 | T19 | [Details](tasks/T20.md) |
+| T21 | External Field Couplings Across String Models | ⏸️ Planned | HIGH | — | T2, T5, T17 | [Details](tasks/T21.md) |
 
 ## Deferred Tasks
 
@@ -45,11 +49,11 @@
 
 ## Status Summary
 
-- **Active**: 3 (T11, T13, and T18 in progress)
+- **Active**: 5 (T11, T13, T18, T19, and T20 in progress)
 - **Completed**: 13 (including T6, T12, T16, and T17)
-- **Planned**: 2 (T19 and T20)
+- **Planned**: 1 (T21)
 - **Deferred**: 2 (T14 and T15)
-- **Total**: 20
+- **Total**: 21
 
 ## Task Dependency Graph
 
@@ -64,7 +68,8 @@ T10 (bug fixes) ──► T11 (layout) ──► T12 (probe) ──► T13 (diag
 
 T16 (documentation) ──► T17 (linear baseline) ──► T18 (nonlinear classical solver)
                                       │
-                                      └──────────► T19 (free quantum modes) ──► T20 (interaction concepts)
+                                      ├──────────► T19 (free quantum modes) ──► T20 (interaction concepts)
+                                      └──────────► T21 (external-field couplings)
 ```
 
 ## Priority Tiers
@@ -77,4 +82,4 @@ T16 (documentation) ──► T17 (linear baseline) ──► T18 (nonlinear cla
 | **P2** | T13a-T13d | Diagnostics, field selector, energy labeling |
 | **P3** | T14 | Worldsheet scrubbing |
 | **P4** | T15 | 3D embedded view |
-| **Future** | T17–T20 | Scoped progression from the linear baseline to nonlinear, free-quantum, and interaction teaching layers |
+| **Future** | T17–T21 | Scoped progression from the linear baseline to nonlinear, free-quantum, interaction, and external-field layers |

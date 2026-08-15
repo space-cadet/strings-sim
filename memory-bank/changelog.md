@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-16
+
+### Planned
+
+- Planned T18 open/mixed/periodic/anti-periodic boundary extensions, with anti-periodic T18 semantics gated on a twisted-sector or doubled-domain definition.
+- Planned T19 finite free-state evolution with oscillator phase, superposition, probability, cutoff, normalization, and level-matching controls.
+- Added T21 and its implementation record for model-specific external-field coupling from classical and linearized-relativistic sources through T18 constrained forcing and T19 finite Hamiltonian drives.
+
 ## 2026-08-04
 
 ### Added

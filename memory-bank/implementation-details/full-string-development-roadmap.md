@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: T17 complete; T18 audit/publication complete for this slice with the broader nonlinear-validation claim bounded; T19/T20 educational slices published with physics-content review and user acceptance pending.*
+*Status: T17 complete; T18 audit/publication complete for this slice with boundary and external-field extensions planned; T19 educational slice published with finite free evolution planned; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
 
 ## Purpose
 
@@ -13,6 +13,7 @@ This roadmap separates four claims that are often collapsed under “full string
 | 2 | T18 | Nonlinear classical relativistic-string solver | Classical flat-spacetime dynamics only |
 | 3 | T19 | Finite free-quantum-string mode visualizer | Educational truncated state space; no interacting quantum evolution |
 | 4 | T20 | Perturbative interaction concept diagrams | No scattering-amplitude or non-perturbative calculation |
+| 5 | T21 | External-field couplings across string models | Model-specific forcing/background semantics; no universal force law |
 
 ## T17: Linearized Reference Model
 
@@ -44,12 +45,21 @@ This is not a real-time quantum-field solver. The local slice is a finite educat
 
 Interactions are first introduced as conceptual worldsheet topology: incoming free strings, a joining/splitting geometry, and outgoing free strings. The local slice includes static accessible diagrams for propagation, pair-of-pants splitting/joining, and a genus-one handle. The diagrams explain the perturbative picture but do not calculate amplitudes, sums over moduli, loops, or non-perturbative dynamics.
 
+## Planned extensions: T18, T19, and T21
+
+T18 will first extend its boundary contract from the validated closed periodic loop to open fixed/free/mixed endpoint evolution. Anti-periodic behavior will be validated in the linear reference path first; T18 will require an explicit twisted-sector or doubled-domain interpretation before it is exposed as a full embedding case.
+
+T19 will add finite free-state phase evolution, superpositions, probabilities, and visible cutoff controls. It remains a truncated oscillator model with declared normalization and level-matching rules.
+
+T21 will add prescribed external fields through model-specific adapters. Classical and linearized-relativistic paths can use source/force terms with work and energy-balance diagnostics. T18 needs a constraint-compatible target-space force density. T19 needs a finite Hamiltonian drive. T20 background coupling remains a separate worldsheet/amplitude problem.
+
 ## Shared Standards
 
 - Use shared glossary and Learn content so UI tooltips, detailed explanations, and implementation notes do not drift.
 - State the theory, spacetime/convention, gauge, units, numerical/finite-state truncations, and all omitted physics before a new mode is exposed.
 - Keep the current linear simulator as a selectable reference path.
 - Treat visual complexity as non-evidence: numerical convergence and constraints validate T18; physical-state rules validate T19; accurately bounded claims validate T20.
+- Treat external fields as model-specific couplings: source work validates classical paths, constraint/work balance validates T18, and unitary finite-Hamiltonian evolution validates T19.
 - Require source tests, production build, browser/mobile checks, documentation review, and separate publication verification for each delivered task.
 
 ## Dependency Order
@@ -61,5 +71,7 @@ T16 documentation foundation
        /  \\
      T18  T19
        \\  /
-        T20
+       T20
+        |
+       T21
 ```

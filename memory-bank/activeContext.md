@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-08-16 00:30:21 IST*
+*Last Updated: 2026-08-16 01:16:13 IST*
 
 ## Current Tasks
 
@@ -11,6 +11,8 @@
   - Finite four-mode occupation explorer with declared bosonic closed-string convention, level matching, and truncation warnings
 - **T20: Perturbative String Interaction Concept Visualizer** — 🔄 IN PROGRESS
   - Static accessible propagation, pair-of-pants, and handle diagrams; no amplitudes or interaction dynamics
+- **T21: External Field Couplings Across String Models** — ⏸️ PLANNED
+  - Shared field registry with model-specific source, constrained-force, finite-Hamiltonian, and future worldsheet semantics
 - **T16: Mathematical Glossary and Contextual Help System** — ✅ COMPLETED (2026-08-15)
   - Shared registry, local KaTeX, seven Learn experiments, contextual help for implemented controls and diagnostics, and T18 model-boundary entries are live-verified
   - Linked static tabs: Simulator, Learn, Glossary, and How it works
@@ -33,7 +35,7 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- T19/T20 physics-content review and user acceptance remain open. Publication and live route/asset verification completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
+- T19/T20 physics-content review and user acceptance remain open. T18 boundary extensions, T19 free evolution, and T21 external-field coupling are planned. Publication and live route/asset verification completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
@@ -64,7 +66,7 @@
 3. **P2**: Field selector, energy label, diagnostics
 4. **P3**: Worldsheet scrubbing (deferred)
 5. **P4**: 3D embedded view (deferred)
-6. **Current extension**: T17 scope guardrails and baseline, then T18 nonlinear classical solver; T19 and T20 remain future work
+6. **Current extension**: T18 boundary conditions, T19 finite free-state evolution, and T21 model-specific external-field couplings; T20 remains a bounded topology visualizer
 
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
@@ -89,4 +91,7 @@
 - T18 local validation/documentation gate and production publication verification are complete for this slice; the broader nonlinear-validation claim remains bounded by the documented observable gate.
 - T18 parameter boundary: length is used at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is forced. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
 - T18e preset audit completed: all eight presets have distinct measured tangent, geometry, and velocity signatures; browser-rendered projections support the revised labels. Energy is retained as a conservation check, not a distinctness signal.
+- T18 boundary extension plan: open fixed/free/mixed endpoints first; validate anti-periodic reference fields before selecting a twisted-sector or doubled-domain interpretation for T18.
+- T19 extension plan: finite free-state phase evolution, superpositions, probabilities, cutoff controls, and normalization/level-matching tests.
+- T21 external-field plan: a shared field registry with model-specific adapters. Classical and linearized relativistic modes use source terms, T18 requires constrained target-space forcing, T19 requires a finite Hamiltonian drive, and T20 worldsheet backgrounds remain a separate amplitude task.
 - Source commit `13d400f` is pushed; website payload `2b99e85` is pushed and live workflow run `31901988509` succeeded. Four public routes and five current hashed assets returned HTTP 200; live T19/T20 and glossary markers were verified in the docs bundle.
