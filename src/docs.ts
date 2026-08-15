@@ -2,7 +2,17 @@ import './docs.css';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
 import { glossaryEntries, type GlossaryEntry, type LearningTab } from './content/glossary';
-import { formatOccupations, getT19State, summarizeT19State, T19_EXAMPLES } from './content/free-string';
+import {
+  evolveT19FreeState,
+  formatOccupations,
+  getT19State,
+  getT19Superposition,
+  summarizeT19State,
+  T19_CUTOFF_WARNING,
+  T19_EXAMPLES,
+  T19_FREE_HAMILTONIAN,
+  T19_FREE_SUPERPOSITIONS,
+} from './content/free-string';
 
 type PageKind = LearningTab;
 
@@ -86,18 +96,44 @@ function t19StateCard(id: string): string {
   </article>`;
 }
 
+function t19EvolutionCard(id: string, time: number): string {
+  const superposition = getT19Superposition(id);
+  const evolved = evolveT19FreeState(superposition, time);
+  const rows = evolved.terms.map(term => {
+    const state = getT19State(term.stateId);
+    return `<tr><th scope="row">${escapeHtml(state.label)}</th><td>${term.frequency}</td><td>${term.amplitude.re.toFixed(3)} ${term.amplitude.im >= 0 ? '+' : '−'} ${Math.abs(term.amplitude.im).toFixed(3)}i</td><td>${term.probability.toFixed(3)}</td></tr>`;
+  }).join('');
+  return `<article class="quantum-state-card state-evolution" aria-live="polite">
+    <div class="card-heading"><h3>Free phase evolution</h3><span class="state-status">Norm = ${evolved.norm.toFixed(6)}</span></div>
+    <p>${escapeHtml(superposition.description)}</p>
+    <p class="formula">${escapeHtml(T19_FREE_HAMILTONIAN)}; time = ${time.toFixed(2)}</p>
+    <div class="table-scroll"><table class="amplitude-table"><thead><tr><th scope="col">Basis state</th><th scope="col">ω</th><th scope="col">Amplitude</th><th scope="col">Probability</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="caveat"><strong>Interpretation:</strong> the amplitudes acquire free phases and the normalized basis probabilities stay constant. This table is not a spatial probability density and does not evolve the T18 classical embedding.</p>
+  </article>`;
+}
+
 function t19Section(): string {
   return `<section class="learning-extension" id="t19">
     <div class="extension-heading"><p class="eyebrow">T19 · finite state explorer</p><h2>Free quantum-string modes</h2></div>
-    <p>This is a small bookkeeping model for a free bosonic closed string, not a quantum time-evolution engine. It uses flat 26-dimensional spacetime, light-cone oscillator notation, α′ = 1, modes n = 1…4, and occupations 0…2 in each left/right sector.</p>
-    <div class="method-note compact-note"><p><strong>Displayed physical-state rule:</strong> the weighted oscillator levels must match, <em>N<sub>L</sub> = N<sub>R</sub></em>. The selector flags unequal examples instead of silently treating them as valid. The finite truncation is a teaching boundary, not the full Hilbert space.</p></div>
+    <p>This is a finite bookkeeping and phase-evolution model for a free bosonic closed string. It uses flat 26-dimensional spacetime, light-cone oscillator notation, α′ = 1, modes n = 1…4, and occupations 0…2 in each left/right sector.</p>
+    <div class="method-note compact-note"><p><strong>Displayed physical-state rule:</strong> the weighted oscillator levels must match, <em>N<sub>L</sub> = N<sub>R</sub></em>. The selector flags unequal examples instead of silently treating them as valid.</p><p><strong>Free evolution rule:</strong> the bounded superposition uses ${escapeHtml(T19_FREE_HAMILTONIAN)} and exact phase multiplication. ${escapeHtml(T19_CUTOFF_WARNING)}</p></div>
     <label class="state-selector" for="t19-example-select">Choose a bounded example
       <select id="t19-example-select" aria-controls="t19-state-output">
         ${Object.values(T19_EXAMPLES).map(state => `<option value="${state.id}">${escapeHtml(state.label)}</option>`).join('')}
       </select>
     </label>
     <div id="t19-state-output">${t19StateCard('vacuum')}</div>
-    <p class="caveat">A selected oscillator state is not the same object as the classical profile in the Simulator, and it does not predict a measurement distribution by itself. T20 uses these states only as conceptual in/out labels.</p>
+    <div class="state-selector" aria-label="Finite free-state evolution controls">
+      <label for="t19-superposition-select">Superposition</label>
+      <select id="t19-superposition-select" aria-controls="t19-evolution-output">
+        ${Object.values(T19_FREE_SUPERPOSITIONS).map(state => `<option value="${state.id}">${escapeHtml(state.label)}</option>`).join('')}
+      </select>
+      <label for="t19-time-range">Time <output id="t19-time-output" for="t19-time-range">0.00</output></label>
+      <input id="t19-time-range" type="range" min="0" max="12" step="0.01" value="0" aria-label="Free evolution time">
+      <button id="t19-play-pause" type="button" aria-pressed="false">Play phase evolution</button>
+    </div>
+    <div id="t19-evolution-output">${t19EvolutionCard('matchedPair', 0)}</div>
+    <p class="caveat">A selected oscillator state is not the same object as the classical profile in the Simulator. The finite probabilities above are basis-state measurement probabilities within this declared truncation; T20 uses the states only as conceptual in/out labels.</p>
   </section>`;
 }
 
@@ -197,7 +233,7 @@ function implementationPage(): string {
   const entries = glossaryEntries.filter(entry => entry.primaryTab === 'implementation');
   return `<main class="documentation-page">
     <section class="hero-copy"><p class="eyebrow">Method</p><h1>How the simulator works</h1><p class="intro">The app advances a discretised transverse-string model. These notes explain the numerical choices and their limits in plain language.</p></section>
-    <section class="method-note" id="model-boundary"><h2>A teaching model, stated plainly</h2><p>The T17 reference path visualises classical and linearized transverse-string dynamics. It is designed to build intuition about waves, modes, and numerical worldsheets; it does not compute a full interacting quantum string theory. The separate T18 mode adds a bounded classical closed-string target-space embedding with explicit conformal-gauge constraints.</p><p>The periodic option in the reference path is a closed-boundary case for the linear wave equation. T18 is a separate flat-spacetime classical model and does not add quantization, string interactions, scattering amplitudes, or open-string endpoints.</p></section>
+    <section class="method-note" id="model-boundary"><h2>A teaching model, stated plainly</h2><p>The T17 reference path visualises classical and linearized transverse-string dynamics. It is designed to build intuition about waves, modes, and numerical worldsheets; it does not compute a full interacting quantum string theory. The separate T18 mode adds a bounded classical target-space embedding with explicit conformal-gauge constraints.</p><p>T18’s solver contract now distinguishes closed periodic identification from fixed, free, and mixed open endpoint reflections, with endpoint constraint and energy-flux diagnostics. The current simulator UI continues to expose the validated closed periodic T18 path while anti-periodic/twisted semantics and boundary controls remain future release gates. T19’s finite free-state layer is independent of the classical embedding and does not calculate interactions or scattering amplitudes.</p></section>
     <section class="glossary-list">${entries.map(entry => glossaryCard(entry)).join('')}</section>
   </main>`;
 }
@@ -209,4 +245,60 @@ const t19Select = document.getElementById('t19-example-select') as HTMLSelectEle
 const t19Output = document.getElementById('t19-state-output');
 t19Select?.addEventListener('change', () => {
   if (t19Output) t19Output.innerHTML = t19StateCard(t19Select.value);
+});
+
+const t19SuperpositionSelect = document.getElementById('t19-superposition-select') as HTMLSelectElement | null;
+const t19TimeRange = document.getElementById('t19-time-range') as HTMLInputElement | null;
+const t19TimeOutput = document.getElementById('t19-time-output');
+const t19EvolutionOutput = document.getElementById('t19-evolution-output');
+const t19PlayPause = document.getElementById('t19-play-pause') as HTMLButtonElement | null;
+let t19AnimationFrame: number | null = null;
+let t19PreviousFrameTime = 0;
+
+function renderT19Evolution(): void {
+  if (!t19SuperpositionSelect || !t19TimeRange || !t19EvolutionOutput) return;
+  const time = Number(t19TimeRange.value);
+  if (t19TimeOutput) t19TimeOutput.textContent = time.toFixed(2);
+  t19EvolutionOutput.innerHTML = t19EvolutionCard(t19SuperpositionSelect.value, time);
+}
+
+function stopT19Evolution(): void {
+  if (t19AnimationFrame !== null) cancelAnimationFrame(t19AnimationFrame);
+  t19AnimationFrame = null;
+  if (t19PlayPause) {
+    t19PlayPause.textContent = 'Play phase evolution';
+    t19PlayPause.setAttribute('aria-pressed', 'false');
+  }
+}
+
+function animateT19Evolution(frameTime: number): void {
+  if (!t19TimeRange || t19AnimationFrame === null) return;
+  const elapsed = Math.min(0.1, Math.max(0, (frameTime - t19PreviousFrameTime) / 1000));
+  t19PreviousFrameTime = frameTime;
+  const next = Number(t19TimeRange.value) + elapsed;
+  if (next >= Number(t19TimeRange.max)) {
+    t19TimeRange.value = t19TimeRange.max;
+    renderT19Evolution();
+    stopT19Evolution();
+    return;
+  }
+  t19TimeRange.value = next.toFixed(2);
+  renderT19Evolution();
+  t19AnimationFrame = requestAnimationFrame(animateT19Evolution);
+}
+
+t19SuperpositionSelect?.addEventListener('change', renderT19Evolution);
+t19TimeRange?.addEventListener('input', renderT19Evolution);
+t19PlayPause?.addEventListener('click', () => {
+  if (t19AnimationFrame !== null) {
+    stopT19Evolution();
+    return;
+  }
+  if (t19TimeRange && Number(t19TimeRange.value) >= Number(t19TimeRange.max)) t19TimeRange.value = '0';
+  t19PreviousFrameTime = performance.now();
+  if (t19PlayPause) {
+    t19PlayPause.textContent = 'Pause phase evolution';
+    t19PlayPause.setAttribute('aria-pressed', 'true');
+  }
+  t19AnimationFrame = requestAnimationFrame(animateT19Evolution);
 });

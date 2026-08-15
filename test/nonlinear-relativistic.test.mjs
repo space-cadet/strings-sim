@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   NonlinearRelativisticStringSolver,
+  createOpenT18InitialData,
   createConformalLoopInitialData,
   createT18PresetInitialData,
+  getT18BoundaryContract,
   getT18PresetNames,
   measureT18GeometricModeMixing,
   measureT18PresetDiagnostics,
@@ -70,17 +72,60 @@ test('T18 transverse small-amplitude limit tracks the T17 periodic reference', (
   assert.ok(maxDifference < 0.01, `small-amplitude comparison difference ${maxDifference}`);
 });
 
-test('T18 rejects invalid odd grids and non-periodic boundaries', () => {
+test('T18 rejects invalid periodic grids and exposes an explicit boundary contract', () => {
   assert.throws(() => makeSolver(63), /even grid/);
   assert.throws(() => new NonlinearRelativisticStringSolver({
-    N: 64,
+    N: 63,
     dt: 0,
-    dx: 2 / 64,
+    dx: 2 / 63,
+    mode: 'nonlinear',
+    boundary: 'periodic',
+    params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+  }), /even grid/);
+  assert.deepEqual(getT18BoundaryContract('mixed'), {
+    boundary: 'mixed',
+    topology: 'open',
+    leftEndpoint: 'fixed',
+    rightEndpoint: 'free',
+    fieldIdentification: 'reflected',
+  });
+  assert.equal(createConformalLoopInitialData(64).left.x.length, 64);
+});
+
+for (const boundary of ['fixed', 'free', 'mixed']) {
+  test(`T18 ${boundary} endpoints reflect characteristics and preserve constraints`, () => {
+    const solver = new NonlinearRelativisticStringSolver({
+      N: 64,
+      dt: 0,
+      dx: 2 / 63,
+      mode: 'nonlinear',
+      boundary,
+      params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+    }, 0.5);
+    solver.initialize(createOpenT18InitialData(64, boundary));
+    assert.ok(solver.getConstraintReport().residual < 1e-12);
+    solver.stepN(160);
+    const report = solver.getConstraintReport();
+    assert.equal(solver.getBoundary(), boundary);
+    assert.ok(report.leftEndpointResidual < 1e-12, `left endpoint residual ${report.leftEndpointResidual}`);
+    assert.ok(report.rightEndpointResidual < 1e-12, `right endpoint residual ${report.rightEndpointResidual}`);
+    assert.ok(report.maxBoundaryEnergyFlux < 1e-12, `boundary flux ${report.maxBoundaryEnergyFlux}`);
+    assert.ok(report.maxOrthogonalityResidual < 1e-12);
+    assert.ok(report.maxNormalizationResidual < 1e-12);
+  });
+}
+
+test('T18 permits odd open grids while keeping the periodic grid contract even', () => {
+  const solver = new NonlinearRelativisticStringSolver({
+    N: 63,
+    dt: 0,
+    dx: 2 / 62,
     mode: 'nonlinear',
     boundary: 'fixed',
     params: { L: 2, tau: 1, mu: 1, gamma: 0 },
-  }), /closed periodic/);
-  assert.equal(createConformalLoopInitialData(64).left.x.length, 64);
+  }, 0.5);
+  assert.equal(solver.getSpatialCoords()[62], 2);
+  assert.ok(solver.getConstraintReport().residual < 1e-12);
 });
 
 test('T18 presets are varied closed conformal initial states', () => {

@@ -1,14 +1,14 @@
 # Active Context
 
-*Last Updated: 2026-08-16 01:16:13 IST*
+*Last Updated: 2026-08-16 01:51:22 IST*
 
 ## Current Tasks
 
 ### Active
 - **T18: Nonlinear Classical Relativistic String Solver** — 🔄 IN PROGRESS
-  - T17 baseline completed; conformal-gauge closed-string engine, eight varied conformal presets, and numerical validation are implemented
+  - T17 baseline completed; conformal-gauge periodic/open boundary engine, eight varied conformal presets, endpoint diagnostics, and numerical validation are implemented
 - **T19: Free Quantum String Mode Visualizer** — 🔄 IN PROGRESS
-  - Finite four-mode occupation explorer with declared bosonic closed-string convention, level matching, and truncation warnings
+  - Finite four-mode occupation explorer with declared bosonic closed-string convention, level matching, truncation warnings, normalized superpositions, and free phase evolution
 - **T20: Perturbative String Interaction Concept Visualizer** — 🔄 IN PROGRESS
   - Static accessible propagation, pair-of-pants, and handle diagrams; no amplitudes or interaction dynamics
 - **T21: External Field Couplings Across String Models** — ⏸️ PLANNED
@@ -35,7 +35,7 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- T19/T20 physics-content review and user acceptance remain open. T18 boundary extensions, T19 free evolution, and T21 external-field coupling are planned. Publication and live route/asset verification completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
+- T19/T20 physics-content review and user acceptance remain open. T18 periodic/open boundary engine and T19 free evolution are locally implemented; anti-periodic semantics and T21 external-field coupling remain planned. Publication and live route/asset verification completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
@@ -70,7 +70,7 @@
 
 ## System Status
 - Build: ✅ TypeScript compiles, Vite builds successfully
-- Physics: ✅ Classical and linearized relativistic reference solvers; 🔄 T18 constrained conformal-gauge closed-string engine with numerical diagnostics
+- Physics: ✅ Classical and linearized relativistic reference solvers; 🔄 T18 constrained conformal-gauge periodic/open-boundary engine with numerical diagnostics
 - Rendering: ✅ Classical and relativistic worldsheets, bounded responsive plot wrapper, mobile repaint recovery
 - UI: ✅ Responsive instrument layout, persisted settings, separate playback strip, live diagnostic cards
 - Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/; source commit `13d400f`, website commit `2b99e85`, Actions run `31901988509`
@@ -87,11 +87,11 @@
   - Decision: keep, with explicit label
 - Mobile layout: tab-based view switching or stacked scroll?
   - Decision: stacked with collapsible panels (matches mockup)
-- T18 formulation: closed periodic classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$.
+- T18 formulation: classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$; periodic, fixed, free, and mixed engine contracts are validated, while anti-periodic/twisted semantics remain open.
 - T18 local validation/documentation gate and production publication verification are complete for this slice; the broader nonlinear-validation claim remains bounded by the documented observable gate.
-- T18 parameter boundary: length is used at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is forced. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
+- T18 parameter boundary: length and topology are selected at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is enforced only for the periodic contract. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
 - T18e preset audit completed: all eight presets have distinct measured tangent, geometry, and velocity signatures; browser-rendered projections support the revised labels. Energy is retained as a conservation check, not a distinctness signal.
-- T18 boundary extension plan: open fixed/free/mixed endpoints first; validate anti-periodic reference fields before selecting a twisted-sector or doubled-domain interpretation for T18.
-- T19 extension plan: finite free-state phase evolution, superpositions, probabilities, cutoff controls, and normalization/level-matching tests.
+- T18 boundary extension: open fixed/free/mixed endpoint reflection is implemented and tested; validate anti-periodic reference fields before selecting a twisted-sector or doubled-domain interpretation for T18 UI exposure.
+- T19 free evolution: finite free-state phase evolution, superpositions, probabilities, cutoff controls, play/pause, and normalization/level-matching tests are implemented; physics review and user acceptance remain open.
 - T21 external-field plan: a shared field registry with model-specific adapters. Classical and linearized relativistic modes use source terms, T18 requires constrained target-space forcing, T19 requires a finite Hamiltonian drive, and T20 worldsheet backgrounds remain a separate amplitude task.
 - Source commit `13d400f` is pushed; website payload `2b99e85` is pushed and live workflow run `31901988509` succeeded. Four public routes and five current hashed assets returned HTTP 200; live T19/T20 and glossary markers were verified in the docs bundle.

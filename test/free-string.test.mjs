@@ -5,7 +5,11 @@ import {
   T19_MAX_OCCUPATION,
   T19_MODE_COUNT,
   formatOccupations,
+  evolveT19FreeState,
+  freeHamiltonianFrequency,
   getT19State,
+  getT19Superposition,
+  normalizeT19Superposition,
   levelNumber,
   summarizeT19State,
 } from '../.test-dist/content/free-string.js';
@@ -34,4 +38,37 @@ test('T19 flags unequal levels and omits a mass value for invalid examples', () 
   assert.equal(summary.levelMatched, false);
   assert.equal(summary.physicalInScope, false);
   assert.equal(summary.massSquared, null);
+});
+
+test('T19 free evolution uses declared oscillator frequencies and preserves norm', () => {
+  const superposition = getT19Superposition('matchedPair');
+  const normalized = normalizeT19Superposition(superposition);
+  const evolved = evolveT19FreeState(superposition, 0.73);
+
+  assert.equal(freeHamiltonianFrequency(getT19State('massless')), 2);
+  assert.equal(freeHamiltonianFrequency(getT19State('higher')), 6);
+  assert.ok(Math.abs(evolved.norm - 1) < 1e-12, `norm ${evolved.norm}`);
+  assert.equal(evolved.levelMatched, true);
+  assert.ok(evolved.terms.every(term => term.probability >= 0));
+  assert.deepEqual(normalized.components.map(component => component.stateId), ['massless', 'higher']);
+  for (const [index, term] of evolved.terms.entries()) {
+    const initial = normalized.components[index].amplitude;
+    const initialProbability = initial.re ** 2 + initial.im ** 2;
+    assert.ok(Math.abs(term.probability - initialProbability) < 1e-12);
+  }
+});
+
+test('T19 rejects invalid or zero-norm free-state superpositions', () => {
+  assert.throws(() => evolveT19FreeState({
+    id: 'invalid',
+    label: 'invalid',
+    description: 'invalid',
+    components: [{ stateId: 'invalid', amplitude: { re: 1, im: 0 } }],
+  }, 0), /level-matched/);
+  assert.throws(() => normalizeT19Superposition({
+    id: 'zero',
+    label: 'zero',
+    description: 'zero',
+    components: [{ stateId: 'massless', amplitude: { re: 0, im: 0 } }],
+  }), /non-zero norm/);
 });

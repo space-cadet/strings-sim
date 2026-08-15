@@ -78,6 +78,16 @@ h2 { font-size: 1.2rem; line-height: 1.2; margin: 0; }
 .occupation-grid span { color: var(--text-secondary); font-size: 0.88rem; }
 .state-mass { border-top: 1px solid var(--border); padding-top: 0.8rem; }
 .state-mass span { color: var(--text-secondary); font-size: 0.84rem; }
+.state-evolution { margin-top: 1rem; }
+.state-selector button { background: var(--accent); border: 1px solid var(--accent); border-radius: 6px; color: #07111b; cursor: pointer; font-weight: 700; padding: 0.5rem 0.75rem; }
+.state-selector button:hover, .state-selector button:focus-visible { filter: brightness(1.08); }
+.state-selector input[type="range"] { accent-color: var(--accent); flex: 1 1 12rem; min-width: 10rem; }
+.state-selector output { color: var(--accent-soft); font-variant-numeric: tabular-nums; min-width: 3.2rem; }
+.table-scroll { overflow-x: auto; }
+.amplitude-table { border-collapse: collapse; min-width: 34rem; width: 100%; }
+.amplitude-table th, .amplitude-table td { border-bottom: 1px solid var(--border); padding: 0.6rem 0.45rem; text-align: left; }
+.amplitude-table th { color: var(--text-primary); font-size: 0.84rem; }
+.amplitude-table td { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .topology-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .topology-figure { background: linear-gradient(145deg, rgba(21, 29, 44, 0.95), rgba(13, 18, 29, 0.95)); border: 1px solid var(--border); border-radius: 12px; margin: 0; padding: 0.8rem; }
 .topology-figure svg { background: #0a111d; border-radius: 8px; display: block; height: auto; width: 100%; }

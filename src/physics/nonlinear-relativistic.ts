@@ -30,7 +30,18 @@ export interface ConformalConstraintReport {
   maxOrthogonalityResidual: number;
   maxNormalizationResidual: number;
   closureError: number;
+  leftEndpointResidual: number;
+  rightEndpointResidual: number;
+  maxBoundaryEnergyFlux: number;
   residual: number;
+}
+
+export interface T18BoundaryContract {
+  boundary: BoundaryCondition;
+  topology: 'closed' | 'open';
+  leftEndpoint: 'periodic' | 'fixed' | 'free';
+  rightEndpoint: 'periodic' | 'fixed' | 'free';
+  fieldIdentification: 'periodic' | 'reflected';
 }
 
 export interface NonlinearStringState extends StringState {
@@ -220,8 +231,55 @@ export function getT18PresetNames(): string[] {
   return Object.keys(T18_PRESETS);
 }
 
+export function getT18BoundaryContract(boundary: BoundaryCondition): T18BoundaryContract {
+  if (boundary === 'periodic') {
+    return {
+      boundary,
+      topology: 'closed',
+      leftEndpoint: 'periodic',
+      rightEndpoint: 'periodic',
+      fieldIdentification: 'periodic',
+    };
+  }
+  return {
+    boundary,
+    topology: 'open',
+    leftEndpoint: boundary === 'mixed' ? 'fixed' : boundary,
+    rightEndpoint: boundary === 'mixed' ? 'free' : boundary,
+    fieldIdentification: 'reflected',
+  };
+}
+
 export function createT18PresetInitialData(N: number, name: string): NonlinearInitialData {
   return createConformalLoopInitialData(N, getT18PresetDefinition(name).options);
+}
+
+/**
+ * Constraint-compatible open-string reference data. The two unit tangent
+ * fields are mirrored across the transverse axis, so the embedding tangent
+ * and velocity remain orthogonal and have squared magnitudes summing to one.
+ * The endpoint angle selects fixed (theta = 0) or free (theta = pi/2) data.
+ */
+export function createOpenT18InitialData(
+  N: number,
+  boundary: Extract<BoundaryCondition, 'fixed' | 'free' | 'mixed'> = 'fixed',
+): NonlinearInitialData {
+  if (N < 16) throw new Error('An open T18 string requires at least 16 samples.');
+  const contract = getT18BoundaryContract(boundary);
+  const left = { x: new Float64Array(N), y: new Float64Array(N) };
+  const right = { x: new Float64Array(N), y: new Float64Array(N) };
+  const rightEndpointAngle = contract.rightEndpoint === 'free' ? Math.PI / 2 : 0;
+  const leftEndpointAngle = contract.leftEndpoint === 'free' ? Math.PI / 2 : 0;
+  for (let i = 0; i < N; i++) {
+    const fraction = i / (N - 1);
+    const baseAngle = leftEndpointAngle + (rightEndpointAngle - leftEndpointAngle) * fraction;
+    const angle = baseAngle + 0.28 * Math.sin(Math.PI * fraction);
+    left.x[i] = Math.cos(angle);
+    left.y[i] = Math.sin(angle);
+    right.x[i] = Math.cos(angle);
+    right.y[i] = -Math.sin(angle);
+  }
+  return { left, right, center: { x: 0, y: 0 } };
 }
 
 function harmonicAmplitudes(field: TangentField, maxHarmonic: number): Array<{ harmonic: number; amplitude: number }> {
@@ -444,6 +502,9 @@ export class NonlinearRelativisticStringSolver {
   private readonly dt: number;
   private readonly courant: number;
   private readonly tension: number;
+  private readonly boundary: BoundaryCondition;
+  private readonly leftBoundarySign: number;
+  private readonly rightBoundarySign: number;
   private left: TangentField;
   private right: TangentField;
   private center = { x: 0, y: 0 };
@@ -454,20 +515,24 @@ export class NonlinearRelativisticStringSolver {
   private initialEnergy = 0;
 
   constructor(config: SimulationConfig, courant = 0.5) {
-    if (config.boundary !== 'periodic') {
-      throw new Error('T18 currently supports closed periodic strings only.');
-    }
-    if (config.N < 16 || config.N % 2 !== 0) {
-      throw new Error('T18 requires an even grid of at least 16 samples.');
+    if (config.N < 16 || (config.boundary === 'periodic' && config.N % 2 !== 0)) {
+      throw new Error(config.boundary === 'periodic'
+        ? 'T18 periodic strings require an even grid of at least 16 samples.'
+        : 'T18 open strings require at least 16 samples.');
     }
     if (!(courant > 0 && courant <= 1)) throw new Error('The T18 Courant number must be in (0, 1].');
     this.N = config.N;
     this.L = config.params.L;
-    this.ds = this.L / this.N;
+    this.boundary = config.boundary;
+    this.ds = this.boundary === 'periodic' ? this.L / this.N : this.L / (this.N - 1);
     this.courant = courant;
     this.dt = this.courant * this.ds;
     this.tension = 1;
-    const defaultData = createConformalLoopInitialData(this.N);
+    this.leftBoundarySign = this.boundary === 'periodic' || this.boundary === 'fixed' || this.boundary === 'mixed' ? 1 : -1;
+    this.rightBoundarySign = this.boundary === 'periodic' || this.boundary === 'fixed' ? 1 : -1;
+    const defaultData = this.boundary === 'periodic'
+      ? createConformalLoopInitialData(this.N)
+      : createOpenT18InitialData(this.N, this.boundary);
     this.left = defaultData.left;
     this.right = defaultData.right;
     this.state = {
@@ -479,17 +544,29 @@ export class NonlinearRelativisticStringSolver {
       velocityX: new Float64Array(this.N),
       velocityY: new Float64Array(this.N),
       worldsheet: [],
-      constraints: { maxOrthogonalityResidual: Infinity, maxNormalizationResidual: Infinity, closureError: Infinity, residual: Infinity },
+      constraints: {
+        maxOrthogonalityResidual: Infinity,
+        maxNormalizationResidual: Infinity,
+        closureError: Infinity,
+        leftEndpointResidual: Infinity,
+        rightEndpointResidual: Infinity,
+        maxBoundaryEnergyFlux: Infinity,
+        residual: Infinity,
+      },
     };
     this.initialize();
   }
 
-  initialize(data: NonlinearInitialData = createConformalLoopInitialData(this.N)): void {
-    validateField(data.left, this.N, 'Left-moving');
-    validateField(data.right, this.N, 'Right-moving');
-    this.left = cloneField(data.left);
-    this.right = cloneField(data.right);
-    this.center = { ...(data.center ?? { x: 0, y: 0 }) };
+  initialize(data?: NonlinearInitialData): void {
+    const initialData = data ?? (this.boundary === 'periodic'
+      ? createConformalLoopInitialData(this.N)
+      : createOpenT18InitialData(this.N, this.boundary));
+    validateField(initialData.left, this.N, 'Left-moving');
+    validateField(initialData.right, this.N, 'Right-moving');
+    this.validateBoundaryData(initialData);
+    this.left = cloneField(initialData.left);
+    this.right = cloneField(initialData.right);
+    this.center = { ...(initialData.center ?? { x: 0, y: 0 }) };
     this.time = 0;
     this.history.length = 0;
     this.reconstructState();
@@ -499,7 +576,13 @@ export class NonlinearRelativisticStringSolver {
   }
 
   setBoundary(boundary: BoundaryCondition): void {
-    if (boundary !== 'periodic') throw new Error('T18 only supports periodic closed strings.');
+    if (boundary !== this.boundary) {
+      throw new Error('T18 boundary type is selected when the solver is constructed; create a new solver to change topology.');
+    }
+  }
+
+  getBoundary(): BoundaryCondition {
+    return this.boundary;
   }
 
   setParameters(_params: StringParameters): void {
@@ -579,8 +662,9 @@ export class NonlinearRelativisticStringSolver {
   step(): void {
     const previousVelocityX = this.state.velocityX[0];
     const previousVelocityY = this.state.velocityY[0];
-    this.left = this.shiftUnitTangent(this.left, this.courant);
-    this.right = this.shiftUnitTangent(this.right, -this.courant);
+    this.left = this.shiftUnitTangent(this.left, this.courant, 'left');
+    this.right = this.shiftUnitTangent(this.right, -this.courant, 'right');
+    this.enforceOpenEndpointRelations();
     this.time += this.dt;
     this.reconstructState();
     // The sigma=0 point is not a fixed endpoint. Integrate its translational
@@ -598,9 +682,19 @@ export class NonlinearRelativisticStringSolver {
     for (let i = 0; i < count; i++) this.step();
   }
 
-  private shiftUnitTangent(field: TangentField, offset: number): TangentField {
+  private shiftUnitTangent(field: TangentField, offset: number, channel: 'left' | 'right'): TangentField {
     const shifted = { x: new Float64Array(this.N), y: new Float64Array(this.N) };
     for (let i = 0; i < this.N; i++) {
+      if (this.boundary !== 'periodic') {
+        const position = i * this.ds + offset * this.ds;
+        const projected = normalize(
+          this.sampleOpenTangent(channel, position, 'x'),
+          this.sampleOpenTangent(channel, position, 'y'),
+        );
+        shifted.x[i] = projected.x;
+        shifted.y[i] = projected.y;
+        continue;
+      }
       const position = ((i + offset) % this.N + this.N) % this.N;
       const lower = Math.floor(position);
       const fraction = position - lower;
@@ -622,6 +716,44 @@ export class NonlinearRelativisticStringSolver {
       shifted.y[i] = projected.y;
     }
     return shifted;
+  }
+
+  private sampleOpenTangent(channel: 'left' | 'right', coordinate: number, component: 'x' | 'y'): number {
+    let source = channel;
+    let sign = 1;
+    let position = coordinate;
+    for (let reflection = 0; reflection < 8 && (position < 0 || position > this.L); reflection++) {
+      if (position < 0) {
+        position = -position;
+        source = source === 'left' ? 'right' : 'left';
+        sign *= this.leftBoundarySign;
+      } else if (position > this.L) {
+        position = 2 * this.L - position;
+        source = source === 'left' ? 'right' : 'left';
+        sign *= this.rightBoundarySign;
+      }
+    }
+    const coordinateIndex = position / this.ds;
+    const lower = Math.floor(coordinateIndex);
+    const fraction = coordinateIndex - lower;
+    const array = this[source][component];
+    const sample = (index: number): number => array[Math.max(0, Math.min(this.N - 1, index))];
+    const p0 = sample(lower - 1);
+    const p1 = sample(lower);
+    const p2 = sample(lower + 1);
+    const p3 = sample(lower + 2);
+    return sign * (p1 + 0.5 * fraction * (
+      p2 - p0 + fraction * (2 * p0 - 5 * p1 + 4 * p2 - p3 + fraction * (3 * (p1 - p2) + p3 - p0))
+    ));
+  }
+
+  private enforceOpenEndpointRelations(): void {
+    if (this.boundary === 'periodic') return;
+    this.right.x[0] = this.leftBoundarySign * this.left.x[0];
+    this.right.y[0] = this.leftBoundarySign * this.left.y[0];
+    const last = this.N - 1;
+    this.right.x[last] = this.rightBoundarySign * this.left.x[last];
+    this.right.y[last] = this.rightBoundarySign * this.left.y[last];
   }
 
   private reconstructState(): void {
@@ -656,13 +788,67 @@ export class NonlinearRelativisticStringSolver {
     this.state.y.set(embeddingY);
     this.state.v.set(velocityY);
     this.state.t = this.time;
-    const closureError = Math.hypot(sumRPrimeX * this.ds, sumRPrimeY * this.ds);
+    const closureError = this.boundary === 'periodic'
+      ? Math.hypot(sumRPrimeX * this.ds, sumRPrimeY * this.ds)
+      : 0;
+    const leftRPrimeX = (this.left.x[0] + this.right.x[0]) / 2;
+    const leftRPrimeY = (this.left.y[0] + this.right.y[0]) / 2;
+    const leftVelocityX = (this.left.x[0] - this.right.x[0]) / 2;
+    const leftVelocityY = (this.left.y[0] - this.right.y[0]) / 2;
+    const rightIndex = this.N - 1;
+    const rightRPrimeX = (this.left.x[rightIndex] + this.right.x[rightIndex]) / 2;
+    const rightRPrimeY = (this.left.y[rightIndex] + this.right.y[rightIndex]) / 2;
+    const rightVelocityX = (this.left.x[rightIndex] - this.right.x[rightIndex]) / 2;
+    const rightVelocityY = (this.left.y[rightIndex] - this.right.y[rightIndex]) / 2;
+    const endpointResidual = (endpoint: 'left' | 'right', rPrimeX: number, rPrimeY: number, velocityX: number, velocityY: number): number => {
+      if (this.boundary === 'periodic') return 0;
+      const endpointType = endpoint === 'left'
+        ? getT18BoundaryContract(this.boundary).leftEndpoint
+        : getT18BoundaryContract(this.boundary).rightEndpoint;
+      return endpointType === 'fixed'
+        ? Math.hypot(velocityX, velocityY)
+        : Math.hypot(rPrimeX, rPrimeY);
+    };
+    const leftEndpointResidual = endpointResidual('left', leftRPrimeX, leftRPrimeY, leftVelocityX, leftVelocityY);
+    const rightEndpointResidual = endpointResidual('right', rightRPrimeX, rightRPrimeY, rightVelocityX, rightVelocityY);
+    const leftFlux = Math.abs(leftRPrimeX * leftVelocityX + leftRPrimeY * leftVelocityY);
+    const rightFlux = Math.abs(rightRPrimeX * rightVelocityX + rightRPrimeY * rightVelocityY);
+    const maxBoundaryEnergyFlux = this.boundary === 'periodic' ? 0 : Math.max(leftFlux, rightFlux);
     this.state.constraints = {
       maxOrthogonalityResidual,
       maxNormalizationResidual,
       closureError,
-      residual: Math.max(maxOrthogonalityResidual, maxNormalizationResidual, closureError),
+      leftEndpointResidual,
+      rightEndpointResidual,
+      maxBoundaryEnergyFlux,
+      residual: Math.max(
+        maxOrthogonalityResidual,
+        maxNormalizationResidual,
+        closureError,
+        leftEndpointResidual,
+        rightEndpointResidual,
+      ),
     };
+  }
+
+  private validateBoundaryData(data: NonlinearInitialData): void {
+    if (this.boundary === 'periodic') return;
+    const contract = getT18BoundaryContract(this.boundary);
+    const residualAt = (index: number, endpoint: 'left' | 'right'): number => {
+      const rPrimeX = (data.left.x[index] + data.right.x[index]) / 2;
+      const rPrimeY = (data.left.y[index] + data.right.y[index]) / 2;
+      const velocityX = (data.left.x[index] - data.right.x[index]) / 2;
+      const velocityY = (data.left.y[index] - data.right.y[index]) / 2;
+      const endpointType = endpoint === 'left' ? contract.leftEndpoint : contract.rightEndpoint;
+      return endpointType === 'fixed'
+        ? Math.hypot(velocityX, velocityY)
+        : Math.hypot(rPrimeX, rPrimeY);
+    };
+    const leftResidual = residualAt(0, 'left');
+    const rightResidual = residualAt(this.N - 1, 'right');
+    if (Math.max(leftResidual, rightResidual) > UNIT_TOLERANCE) {
+      throw new Error(`T18 ${this.boundary} initial data violate an endpoint condition.`);
+    }
   }
 
   private updateWorldsheet(): void {

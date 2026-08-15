@@ -1,13 +1,13 @@
 # Session Cache
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-16 01:16:13 IST*
+*Last Updated: 2026-08-16 01:51:22 IST*
 
 ## Current Session
 **Started**: 2026-08-16 01:16:13 IST
 **Focus Task**: T18 boundaries, T19 free evolution, and T21 external-field planning
 **Session File**: memory-bank/sessions/2026-08-16-night.md
-**Status**: 🔄 T17 complete; T18 audit/publication complete for this slice with boundary extensions planned; T19/T20 published with review/user acceptance open; T21 external-field architecture planned
+**Status**: 🔄 T17 complete; T18 periodic/open boundary engine slice complete with anti-periodic validation planned; T19 finite free evolution slice complete with review/user acceptance open; T20 published with review/user acceptance open; T21 external-field architecture planned
 **Previous Session**: 2026-08-14 evening — T17 baseline, T18 engine, T19/T20 publication, and T18 preset audit
 
 ## Overview
@@ -51,6 +51,7 @@
 - 2026-08-15 23:35 — T19/T20: Added the finite free-string state explorer, level-matching validation, accessible topology diagrams, shared glossary content, focused tests, and rendered image previews; review/publication remain pending
 - 2026-08-16 00:30 — T18/T19/T20: Source `13d400f` and website payload `2b99e85` pushed; Actions run `31901988509` succeeded; four public routes, five current hashed assets, and live T19/T20/glossary markers verified
 - 2026-08-16 01:16 — T18/T19/T21: Planned open/mixed/periodic/anti-periodic boundary extensions, finite T19 free-state evolution, and model-specific external-field coupling; created T21 task and coupling design record
+- 2026-08-16 01:51 — T18/T19: Implemented and tested T18 periodic/fixed/free/mixed characteristic boundaries with endpoint residual and energy-flux diagnostics. Added T19 normalized matched superpositions, exact finite free phases, basis probabilities, cutoff warning, and accessible play/time controls. Focused tests (28) and production build passed; publication and user acceptance remain separate gates.
 - 2026-08-04 18:43 — T12/T16: linked probe trajectory and LaTex documentation expansion published; source `f470d58`, website `0f4afd2`, workflow `30912639074`, and live routes/assets verified
 - 2026-08-03 01:51 — T16: published source and website payload; workflow and public HTTP verification passed
 - 2026-07-31 18:13 — T10/T11/T13: responsive instrument UI, shared worldsheets, dynamic metrics, source/website publication, and evidence handoff

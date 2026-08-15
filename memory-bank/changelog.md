@@ -8,6 +8,12 @@
 - Planned T19 finite free-state evolution with oscillator phase, superposition, probability, cutoff, normalization, and level-matching controls.
 - Added T21 and its implementation record for model-specific external-field coupling from classical and linearized-relativistic sources through T18 constrained forcing and T19 finite Hamiltonian drives.
 
+### Delivered locally
+
+- Added T18 fixed/free/mixed open characteristic reflection beside the validated periodic closed path, including endpoint-condition and boundary-flux diagnostics.
+- Added T19 finite free-state superpositions, analytic phase evolution, normalized probabilities, cutoff warnings, and accessible time/play controls.
+- Added regression tests for endpoint relations, zero boundary flux, odd open grids, norm preservation, level matching, and invalid finite states. Local tests (28) and production build passed; publication remains separate.
+
 ## 2026-08-04
 
 ### Added

@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: T17 complete; T18 audit/publication complete for this slice with boundary and external-field extensions planned; T19 educational slice published with finite free evolution planned; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
+*Status: T17 complete; T18 periodic/open boundary engine slice and audit/publication complete with anti-periodic semantics still planned; T19 finite free phase-evolution slice complete with review/user acceptance pending; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
 
 ## Purpose
 
@@ -31,15 +31,15 @@ The reproducible reference fixture in `src/physics/t17-baselines.ts` runs the cu
 
 ## T18: Nonlinear Classical Relativistic String
 
-The first implementation uses a narrow conformal-gauge target: a classical closed string in flat 2+1-dimensional Minkowski spacetime, natural units, periodic worldsheet coordinate, and $X^0=\tau$. The solver evolves left- and right-moving unit tangent fields, which preserves the conformal constraints by construction while reconstructing the spatial embedding. It remains a classical flat-spacetime model, not a quantum or interacting solver.
+The implementation uses conformal gauge with $X^0=\tau$ in flat 2+1-dimensional Minkowski spacetime, natural units, and unit tension/density. The validated engine supports the closed periodic loop plus fixed, free, and mixed open endpoint reflections; the simulator UI still exposes only the closed periodic T18 path. The solver evolves left- and right-moving unit tangent fields, which preserves the conformal constraints by construction while reconstructing the spatial embedding. It remains a classical flat-spacetime model, not a quantum or interacting solver.
 
-The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, a documented nonlinear observable, and clear distinction from quantum theory. The first local slice supports the simplest rigorously verified closed periodic case; open endpoints are not presented prematurely.
+The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, a documented nonlinear observable, and clear distinction from quantum theory. The local boundary slice now verifies periodic closure plus fixed/free/mixed endpoint relations, residuals, and energy flux; anti-periodic/twisted sectors remain gated.
 
-The current local implementation exposes a separate T18 mode, eight closed conformal-loop presets, a target-space projection, and a live constraint residual. T18e now compares tangent spectra, embeddings, velocities, geometric invariants, conserved energy, and browser-rendered projections directly; raster checksums are not used as acceptance evidence. T18 documents a radial-profile geometric mode-mixing observable without claiming interaction or quantum transitions. It keeps natural-unit tension and density fixed, omits damping, and forces periodic boundaries; the configured length sets the loop coordinate interval when the solver is constructed.
+The current local implementation exposes a separate T18 mode, eight closed conformal-loop presets, a target-space projection, and a live constraint residual. T18e now compares tangent spectra, embeddings, velocities, geometric invariants, conserved energy, and browser-rendered projections directly; raster checksums are not used as acceptance evidence. T18 documents a radial-profile geometric mode-mixing observable without claiming interaction or quantum transitions. It keeps natural-unit tension and density fixed, omits damping, and selects the grid/topology contract when the solver is constructed.
 
 ## T19: Free Quantum String Modes
 
-This is not a real-time quantum-field solver. The local slice is a finite educational representation of a bosonic closed-string convention in flat 26D using light-cone oscillator occupations for modes 1..4, with occupation values 0..2. It displays level number, left/right sectors, level matching, and a convention-specific mass-squared value only for matched examples. The UI distinguishes an illustrative classical profile from a quantum state and flags invalid selections.
+This is not a general quantum-field solver. The local slice is a finite educational representation of a bosonic closed-string convention in flat 26D using light-cone oscillator occupations for modes 1..4, with occupation values 0..2. It displays level number, left/right sectors, level matching, a convention-specific mass-squared value only for matched examples, and exact phase evolution under the declared finite Hamiltonian $H_{free}=N_L+N_R$. The UI distinguishes amplitudes and basis-state probabilities from an illustrative classical profile and flags invalid selections.
 
 ## T20: Perturbative Interactions
 
@@ -47,9 +47,9 @@ Interactions are first introduced as conceptual worldsheet topology: incoming fr
 
 ## Planned extensions: T18, T19, and T21
 
-T18 will first extend its boundary contract from the validated closed periodic loop to open fixed/free/mixed endpoint evolution. Anti-periodic behavior will be validated in the linear reference path first; T18 will require an explicit twisted-sector or doubled-domain interpretation before it is exposed as a full embedding case.
+T18 now has a tested boundary contract and open fixed/free/mixed endpoint evolution. Anti-periodic behavior will be validated in the linear reference path first; T18 will require an explicit twisted-sector or doubled-domain interpretation before it is exposed as a full embedding case.
 
-T19 will add finite free-state phase evolution, superpositions, probabilities, and visible cutoff controls. It remains a truncated oscillator model with declared normalization and level-matching rules.
+T19 now includes finite free-state phase evolution, superpositions, probabilities, play/pause and time controls, and visible cutoff controls. It remains a truncated oscillator model with declared normalization and level-matching rules.
 
 T21 will add prescribed external fields through model-specific adapters. Classical and linearized-relativistic paths can use source/force terms with work and energy-balance diagnostics. T18 needs a constraint-compatible target-space force density. T19 needs a finite Hamiltonian drive. T20 background coupling remains a separate worldsheet/amplitude problem.
 

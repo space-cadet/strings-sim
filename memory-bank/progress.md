@@ -70,3 +70,9 @@
 - Planned T19 finite free-state phase evolution, superpositions, probabilities, cutoff controls, and normalization/level-matching validation.
 - Created T21 for model-specific external-field couplings across classical, linearized-relativistic, T18, T19, and future T20 work.
 - Recorded the separate source, constrained-force, finite-Hamiltonian, and worldsheet/background semantics in `implementation-details/external-field-coupling.md`.
+
+## 2026-08-16 — T18 open-boundary and T19 free-evolution slice
+
+- Implemented T18 periodic, fixed, free, and mixed boundary contracts with reflected characteristic transport, constraint-compatible endpoint data, endpoint residuals, and boundary energy-flux diagnostics. Periodic closure and the existing T18 audit tests remain green; anti-periodic/twisted semantics and UI exposure remain planned.
+- Implemented T19 normalized finite superpositions, the declared dimensionless free Hamiltonian, exact phase evolution, basis-state probabilities, cutoff warnings, time controls, and play/pause interaction. Updated glossary and implementation documentation to distinguish amplitudes/probabilities from classical profiles and to preserve the finite educational boundary.
+- Added focused regression coverage; 28 tests pass and the production build succeeds. No source or website publication was performed.
