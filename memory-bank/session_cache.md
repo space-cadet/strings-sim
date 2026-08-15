@@ -1,13 +1,13 @@
 # Session Cache
 
 *Created: 2026-07-30 17:10 IST*
-*Last Updated: 2026-08-16 01:51:22 IST*
+*Last Updated: 2026-08-16 03:20:00 IST*
 
 ## Current Session
 **Started**: 2026-08-16 01:16:13 IST
 **Focus Task**: T18 boundaries, T19 free evolution, and T21 external-field planning
 **Session File**: memory-bank/sessions/2026-08-16-night.md
-**Status**: 🔄 T17 complete; T18 periodic/open boundary engine, anti-periodic doubled-domain UI, and boundary-aware preset correction complete locally with browser/publication gates open; T19 finite free evolution slice and phase-card clarification complete locally with review/publication open; T20 published with review/user acceptance open; T21 external-field architecture planned
+**Status**: 🔄 T17 complete; T18 periodic/open boundary engine, anti-periodic doubled-domain UI, boundary-aware presets, and glossary closeout are published and live-verified; T19 finite free evolution and phase-card clarification are published with physics review/user acceptance open; T20 published with review/user acceptance open; T21 external-field architecture planned
 **Previous Session**: 2026-08-14 evening — T17 baseline, T18 engine, T19/T20 publication, and T18 preset audit
 
 ## Overview
@@ -54,6 +54,7 @@
 - 2026-08-16 01:51 — T18/T19: Implemented and tested T18 periodic/fixed/free/mixed characteristic boundaries with endpoint residual and energy-flux diagnostics. Added T19 normalized matched superpositions, exact finite free phases, basis probabilities, cutoff warning, and accessible play/time controls. Focused tests (28) and production build passed; publication and user acceptance remain separate gates.
 - 2026-08-16 02:07 — T18: Added and validated anti-periodic linear reference semantics with a half-integer mode. Chose the doubled-domain interpretation for future T18 embeddings; no anti-periodic UI exposure or publication was performed.
 - 2026-08-16 02:17 — T18: Implemented the doubled-domain anti-periodic embedding path and boundary-selector exposure. The target-space projection uses 2N samples and closes at 2L; 30 tests and the production build pass. Browser acceptance and deployment remain pending.
+- 2026-08-16 03:20 — T16/T18/T19: Applied boundary-aware presets, clarified T19 phase angle/relative phase output, audited all 34 glossary entries and 21 help targets, and corrected stale T18 documentation. Source `a7e5bfd` and website payload `a4a896f` are pushed; 34 tests, production build, four live routes, and final docs assets verified.
 - 2026-08-04 18:43 — T12/T16: linked probe trajectory and LaTex documentation expansion published; source `f470d58`, website `0f4afd2`, workflow `30912639074`, and live routes/assets verified
 - 2026-08-03 01:51 — T16: published source and website payload; workflow and public HTTP verification passed
 - 2026-07-31 18:13 — T10/T11/T13: responsive instrument UI, shared worldsheets, dynamic metrics, source/website publication, and evidence handoff

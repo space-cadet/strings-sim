@@ -88,3 +88,10 @@
 - Implemented the nonlinear anti-periodic T18 path: tangent fields use sign-reversing transport on the base cell, while the target-space projection reconstructs and closes the length-$2L$ doubled domain.
 - Added the anti-periodic boundary selector option, mode-specific UI copy, source imports, and a doubled-domain closure regression. The profile remains the base cell so the UI does not imply that the cell alone is an ordinary closed loop.
 - The focused suite now passes 30 tests and the production build succeeds. Browser acceptance, source/publication handoff, and live route verification remain pending.
+
+## 2026-08-16 — T16/T18/T19 closeout correction and documentation audit
+
+- Made all eight T18 presets topology-aware across periodic, fixed, free, mixed, and anti-periodic-cell boundaries while preserving the endpoint and doubled-domain constraints.
+- Clarified T19 phase evolution with phase angle, complex amplitude, basis probability, relative phase, and plain-language separation from spatial motion.
+- Audited 34 glossary entries, all related links, and 21 contextual-help targets; corrected stale T18 boundary/preset wording.
+- Verified 34 tests, production build, source commit `a7e5bfd`, website payload `a4a896f`, four live routes, and the final documentation bundle.

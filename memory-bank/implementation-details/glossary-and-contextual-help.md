@@ -163,6 +163,12 @@ This pattern keeps the page useful to newcomers while making the computational d
 - Source commit `8a8d154` and website payload commit `f0cbc19` were pushed after the website checkout fast-forwarded to `a151f43`.
 - GitHub Actions run `30765405359` completed successfully. Public HTTP checks returned 200 for Simulator, Learn, Glossary, How it works, and `assets/docs-COqnTtK3.js`.
 
+## Current Closeout Verification — 2026-08-16
+
+- Audited all 34 glossary entries, all `related` references, and 21 contextual-help/deep-link targets; no unresolved references remain.
+- Corrected stale T18 boundary and preset wording so the help system describes periodic, fixed, free, mixed, and anti-periodic doubled-domain behavior.
+- Published source `a7e5bfd` and website payload `a4a896f`; all four public routes and the final documentation bundle returned HTTP 200.
+
 ## Accuracy Rules
 
 - Describe only code and plots that are present in the deployed application.

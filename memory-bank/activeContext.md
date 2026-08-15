@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-08-16 01:51:22 IST*
+*Last Updated: 2026-08-16 03:20:00 IST*
 
 ## Current Tasks
 
@@ -35,7 +35,7 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- T19/T20 physics-content review and user acceptance remain open. T18 periodic/open boundary engine, anti-periodic doubled-domain embedding/UI path, and boundary-aware preset correction are locally implemented; browser acceptance and publication for the correction, plus T21 external-field coupling, remain planned. Previous source/publication live checks completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
+- T19/T20 physics-content review and user acceptance remain open. T18 periodic/open boundary engine, anti-periodic doubled-domain embedding/UI path, boundary-aware presets, and glossary/help closeout are published and live-verified; manual browser acceptance and T21 external-field coupling remain planned. See `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
@@ -73,13 +73,13 @@
 - Physics: ✅ Classical and linearized relativistic reference solvers; 🔄 T18 constrained conformal-gauge periodic/open-boundary engine with numerical diagnostics
 - Rendering: ✅ Classical and relativistic worldsheets, bounded responsive plot wrapper, mobile repaint recovery
 - UI: ✅ Responsive instrument layout, persisted settings, separate playback strip, live diagnostic cards
-- Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/; source commit `13d400f`, website commit `2b99e85`, Actions run `31901988509`
+- Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/; source commit `a7e5bfd`, website commit `a4a896f`, final live routes/assets verified
 
 ## Open Questions
 - The glossary must describe the linearized relativistic teaching model precisely without implying a full quantum, interacting string-theory calculation.
 - Tooltip text should remain short and plain-language; detailed formulae, implementation notes, and caveats belong in the linked documentation section.
 - Tabs are ordinary nested static-page links, not a JavaScript-only control, so each view has a stable bookmarkable URL.
-- T16 foundation was published with source `8a8d154` and website payload `f0cbc19`; do not claim a completed full glossary or mobile verification yet.
+- T16 foundation was published with source `8a8d154` and website payload `f0cbc19`; the completed glossary/help system was later re-verified in source `a7e5bfd` and website payload `a4a896f`.
   - T12 and the expanded T16 material were published with source `f470d58` and website payload `0f4afd2`. Deployment workflow `30912639074` and public routes/assets were verified; T12 user acceptance later passed.
 - Should the probe trajectory show the `|dy/dτ| = 1` diagonal guide?
   - Terra warns it may confuse with null characteristics
@@ -87,11 +87,11 @@
   - Decision: keep, with explicit label
 - Mobile layout: tab-based view switching or stacked scroll?
   - Decision: stacked with collapsible panels (matches mockup)
-- T18 formulation: classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$; periodic, fixed, free, mixed, and anti-periodic doubled-domain semantics are implemented and numerically validated, with browser/publication gates remaining.
+- T18 formulation: classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$; periodic, fixed, free, mixed, and anti-periodic doubled-domain semantics are implemented, numerically validated, published, and live-route verified.
 - T18 local validation/documentation gate and production publication verification are complete for this slice; the broader nonlinear-validation claim remains bounded by the documented observable gate.
 - T18 parameter boundary: length and topology are selected at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is enforced only for the periodic contract. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
 - T18e preset audit completed: all eight presets have distinct measured tangent, geometry, and velocity signatures; browser-rendered projections support the revised labels. Energy is retained as a conservation check, not a distinctness signal.
-- T18 boundary extension: open fixed/free/mixed endpoint reflection is implemented and tested; anti-periodic reference fields are validated and assigned a doubled-domain interpretation, but T18 embedding construction and UI exposure remain future work.
+- T18 boundary extension: open fixed/free/mixed endpoint reflection and anti-periodic doubled-domain embedding/UI are implemented and tested; all eight presets are adapted to the active topology contract.
 - T19 free evolution: finite free-state phase evolution, superpositions, probabilities, cutoff controls, play/pause, and normalization/level-matching tests are implemented; physics review and user acceptance remain open.
 - T21 external-field plan: a shared field registry with model-specific adapters. Classical and linearized relativistic modes use source terms, T18 requires constrained target-space forcing, T19 requires a finite Hamiltonian drive, and T20 worldsheet backgrounds remain a separate amplitude task.
-- Source commit `13d400f` is pushed; website payload `2b99e85` is pushed and live workflow run `31901988509` succeeded. Four public routes and five current hashed assets returned HTTP 200; live T19/T20 and glossary markers were verified in the docs bundle.
+- Source commit `a7e5bfd` is pushed; website payload `a4a896f` is pushed. Four public routes and the final documentation asset returned HTTP 200; live T18 boundary/preset and T19 phase/glossary markers were verified in the deployed bundle.

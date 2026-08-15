@@ -14,6 +14,7 @@
 ### Delivered locally
 
 - Audited all 34 glossary entries, related links, and contextual-help anchors. Corrected stale T18 boundary/preset documentation so periodic, fixed, free, mixed, and anti-periodic-cell behavior matches the live UI.
+- Published the corrected boundary/preset help and glossary bundle as source `a7e5bfd` and website payload `a4a896f`; four live routes and the final documentation asset returned HTTP 200.
 - Added T18 fixed/free/mixed open characteristic reflection beside the validated periodic closed path, including endpoint-condition and boundary-flux diagnostics.
 - Added T19 finite free-state superpositions, analytic phase evolution, normalized probabilities, cutoff warnings, and accessible time/play controls.
 - Added regression tests for endpoint relations, zero boundary flux, odd open grids, norm preservation, level matching, and invalid finite states. Local tests (28) and production build passed; publication remains separate.
