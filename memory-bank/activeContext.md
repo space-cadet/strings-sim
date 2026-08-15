@@ -1,6 +1,6 @@
 # Active Context
 
-*Last Updated: 2026-08-15 23:35:35 IST*
+*Last Updated: 2026-08-16 00:30:21 IST*
 
 ## Current Tasks
 
@@ -33,7 +33,7 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- T19/T20 physics-content review, publication, and user acceptance remain open. See `implementation-details/full-string-development-roadmap.md`.
+- T19/T20 physics-content review and user acceptance remain open. Publication and live route/asset verification completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
@@ -71,7 +71,7 @@
 - Physics: ✅ Classical and linearized relativistic reference solvers; 🔄 T18 constrained conformal-gauge closed-string engine with numerical diagnostics
 - Rendering: ✅ Classical and relativistic worldsheets, bounded responsive plot wrapper, mobile repaint recovery
 - UI: ✅ Responsive instrument layout, persisted settings, separate playback strip, live diagnostic cards
-- Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/; website commit `c4a6a46`, Actions run `31842567883`
+- Deployment: ✅ Live at quantumofgravity.com/projects/strings-sim/; source commit `13d400f`, website commit `2b99e85`, Actions run `31901988509`
 
 ## Open Questions
 - The glossary must describe the linearized relativistic teaching model precisely without implying a full quantum, interacting string-theory calculation.
@@ -86,7 +86,7 @@
 - Mobile layout: tab-based view switching or stacked scroll?
   - Decision: stacked with collapsible panels (matches mockup)
 - T18 formulation: closed periodic classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$.
-- T18 local validation/documentation gate is complete; production publication remains separate.
+- T18 local validation/documentation gate and production publication verification are complete for this slice; the broader nonlinear-validation claim remains bounded by the documented observable gate.
 - T18 parameter boundary: length is used at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is forced. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
 - T18e preset audit completed: all eight presets have distinct measured tangent, geometry, and velocity signatures; browser-rendered projections support the revised labels. Energy is retained as a conservation check, not a distinctness signal.
-- Source commit `0785465` is pushed; website payload remains published as `c4a6a46`.
+- Source commit `13d400f` is pushed; website payload `2b99e85` is pushed and live workflow run `31901988509` succeeded. Four public routes and five current hashed assets returned HTTP 200; live T19/T20 and glossary markers were verified in the docs bundle.

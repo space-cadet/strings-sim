@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: T17 complete; T18 local validation/documentation complete with publication pending; T19/T20 local educational slices implemented with review/publication pending.*
+*Status: T17 complete; T18 audit/publication complete for this slice with the broader nonlinear-validation claim bounded; T19/T20 educational slices published with physics-content review and user acceptance pending.*
 
 ## Purpose
 
