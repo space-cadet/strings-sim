@@ -52,6 +52,8 @@ export interface T19Superposition {
 export interface T19EvolvedTerm {
   stateId: string;
   frequency: number;
+  /** Argument of the complex coefficient, in radians. */
+  phase: number;
   amplitude: T19ComplexAmplitude;
   probability: number;
 }
@@ -218,6 +220,7 @@ export function evolveT19FreeState(superposition: T19Superposition, time: number
     return {
       stateId: component.stateId,
       frequency,
+      phase: Math.atan2(im, re),
       amplitude: { re, im },
       probability: re ** 2 + im ** 2,
     };

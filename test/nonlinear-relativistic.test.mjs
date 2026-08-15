@@ -7,6 +7,7 @@ import {
   createConformalLoopInitialData,
   createT18PresetInitialData,
   getT18BoundaryContract,
+  getT18PresetDefinition,
   getT18PresetNames,
   measureT18GeometricModeMixing,
   measureT18PresetDiagnostics,
@@ -115,6 +116,47 @@ for (const boundary of ['fixed', 'free', 'mixed']) {
     assert.ok(report.maxNormalizationResidual < 1e-12);
   });
 }
+
+for (const boundary of ['fixed', 'free', 'mixed']) {
+  test(`T18 ${boundary} applies distinct preset shapes within the endpoint contract`, () => {
+    const names = getT18PresetNames();
+    const signatures = names.map((name) => {
+      const solver = new NonlinearRelativisticStringSolver({
+        N: 64,
+        dt: 0,
+        dx: 2 / 63,
+        mode: 'nonlinear',
+        boundary,
+        params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+      }, 0.5);
+      solver.initialize(createOpenT18InitialData(64, boundary, getT18PresetDefinition(name).options));
+      const state = solver.getState();
+      assert.ok(state.constraints.residual < 1e-12, `${name} residual ${state.constraints.residual}`);
+      return Array.from(state.embeddingY);
+    });
+    const distinct = signatures.slice(1).filter((signature) => signature.some((value, index) => Math.abs(value - signatures[0][index]) > 1e-3));
+    assert.ok(distinct.length >= names.length - 2, `only ${distinct.length} ${boundary} presets differ from the first`);
+  });
+}
+
+test('T18 anti-periodic presets shape distinct doubled-domain cells', () => {
+  const names = getT18PresetNames();
+  const signatures = names.map((name) => {
+    const solver = new NonlinearRelativisticStringSolver({
+      N: 64,
+      dt: 0,
+      dx: 2 / 64,
+      mode: 'nonlinear',
+      boundary: 'anti-periodic',
+      params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+    }, 0.5);
+    solver.initialize(createAntiPeriodicT18InitialData(64, getT18PresetDefinition(name).options));
+    assert.ok(solver.getConstraintReport().residual < 1e-12, `${name} anti-periodic residual`);
+    return Array.from(solver.getEmbedding().y);
+  });
+  const distinct = signatures.slice(1).filter((signature) => signature.some((value, index) => Math.abs(value - signatures[0][index]) > 1e-3));
+  assert.ok(distinct.length >= names.length - 2, `only ${distinct.length} anti-periodic presets differ from the first`);
+});
 
 test('T18 permits odd open grids while keeping the periodic grid contract even', () => {
   const solver = new NonlinearRelativisticStringSolver({

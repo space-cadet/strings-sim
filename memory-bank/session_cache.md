@@ -7,7 +7,7 @@
 **Started**: 2026-08-16 01:16:13 IST
 **Focus Task**: T18 boundaries, T19 free evolution, and T21 external-field planning
 **Session File**: memory-bank/sessions/2026-08-16-night.md
-**Status**: 🔄 T17 complete; T18 periodic/open boundary engine and anti-periodic doubled-domain UI path complete locally with browser/publication gates open; T19 finite free evolution slice complete with review/user acceptance open; T20 published with review/user acceptance open; T21 external-field architecture planned
+**Status**: 🔄 T17 complete; T18 periodic/open boundary engine, anti-periodic doubled-domain UI, and boundary-aware preset correction complete locally with browser/publication gates open; T19 finite free evolution slice and phase-card clarification complete locally with review/publication open; T20 published with review/user acceptance open; T21 external-field architecture planned
 **Previous Session**: 2026-08-14 evening — T17 baseline, T18 engine, T19/T20 publication, and T18 preset audit
 
 ## Overview

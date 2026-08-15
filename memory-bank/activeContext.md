@@ -35,7 +35,7 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- T19/T20 physics-content review and user acceptance remain open. T18 periodic/open boundary engine and anti-periodic doubled-domain embedding/UI path are locally implemented; browser acceptance, publication, and T21 external-field coupling remain planned. Publication and live route/asset verification completed 2026-08-16 for the previous slice; see `implementation-details/full-string-development-roadmap.md`.
+- T19/T20 physics-content review and user acceptance remain open. T18 periodic/open boundary engine, anti-periodic doubled-domain embedding/UI path, and boundary-aware preset correction are locally implemented; browser acceptance and publication for the correction, plus T21 external-field coupling, remain planned. Previous source/publication live checks completed 2026-08-16; see `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 

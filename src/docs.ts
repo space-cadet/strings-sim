@@ -99,16 +99,29 @@ function t19StateCard(id: string): string {
 function t19EvolutionCard(id: string, time: number): string {
   const superposition = getT19Superposition(id);
   const evolved = evolveT19FreeState(superposition, time);
+  const relativeFrequency = evolved.terms.length >= 2
+    ? evolved.terms[1].frequency - evolved.terms[0].frequency
+    : null;
+  const relativePhase = evolved.terms.length >= 2
+    ? Math.atan2(
+      Math.sin(evolved.terms[1].phase - evolved.terms[0].phase),
+      Math.cos(evolved.terms[1].phase - evolved.terms[0].phase),
+    )
+    : null;
   const rows = evolved.terms.map(term => {
     const state = getT19State(term.stateId);
-    return `<tr><th scope="row">${escapeHtml(state.label)}</th><td>${term.frequency}</td><td>${term.amplitude.re.toFixed(3)} ${term.amplitude.im >= 0 ? '+' : '−'} ${Math.abs(term.amplitude.im).toFixed(3)}i</td><td>${term.probability.toFixed(3)}</td></tr>`;
+    return `<tr><th scope="row">${escapeHtml(state.label)}</th><td>${term.frequency}</td><td>${term.phase.toFixed(3)} rad</td><td>${term.amplitude.re.toFixed(3)} ${term.amplitude.im >= 0 ? '+' : '−'} ${Math.abs(term.amplitude.im).toFixed(3)}i</td><td>${term.probability.toFixed(3)}</td></tr>`;
   }).join('');
+  const relativePhaseSummary = relativeFrequency === null || relativePhase === null
+    ? ''
+    : `<p class="phase-summary"><strong>Relative phase:</strong> Δω = ${relativeFrequency}; Δφ = ${relativePhase.toFixed(3)} rad. This is the changing relationship between the two basis-state coefficients.</p>`;
   return `<article class="quantum-state-card state-evolution" aria-live="polite">
     <div class="card-heading"><h3>Free phase evolution</h3><span class="state-status">Norm = ${evolved.norm.toFixed(6)}</span></div>
     <p>${escapeHtml(superposition.description)}</p>
     <p class="formula">${escapeHtml(T19_FREE_HAMILTONIAN)}; time = ${time.toFixed(2)}</p>
-    <div class="table-scroll"><table class="amplitude-table"><thead><tr><th scope="col">Basis state</th><th scope="col">ω</th><th scope="col">Amplitude</th><th scope="col">Probability</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="caveat"><strong>Interpretation:</strong> the amplitudes acquire free phases and the normalized basis probabilities stay constant. This table is not a spatial probability density and does not evolve the T18 classical embedding.</p>
+    ${relativePhaseSummary}
+    <div class="table-scroll"><table class="amplitude-table"><thead><tr><th scope="col">Basis state</th><th scope="col">ω</th><th scope="col">Phase φ</th><th scope="col">Amplitude c(t)</th><th scope="col">Probability |c|²</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="caveat"><strong>What this card shows:</strong> each complex coefficient rotates as c(t) = c(0)e<sup>−iωt</sup>. The phase and complex amplitude change; the basis probability and total norm do not. This is not a spatial probability density, a wave moving on the canvas, or an evolution of the T18 classical embedding.</p>
   </article>`;
 }
 
@@ -123,6 +136,7 @@ function t19Section(): string {
       </select>
     </label>
     <div id="t19-state-output">${t19StateCard('vacuum')}</div>
+    <p class="phase-explainer"><strong>What to watch:</strong> choose a superposition, then move time or press play. The table below shows the complex coefficient of each basis state rotating at its own frequency. Different frequencies change the relative phase between states; the listed basis probabilities remain fixed.</p>
     <div class="state-selector" aria-label="Finite free-state evolution controls">
       <label for="t19-superposition-select">Superposition</label>
       <select id="t19-superposition-select" aria-controls="t19-evolution-output">

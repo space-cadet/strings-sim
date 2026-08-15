@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: T17 complete; T18 periodic/open boundary engine and anti-periodic doubled-domain UI path complete locally with browser/publication gates pending; T19 finite free phase-evolution slice complete with review/user acceptance pending; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
+*Status: T17 complete; T18 periodic/open boundary engine, anti-periodic doubled-domain UI, and boundary-aware preset correction complete locally with browser/publication gates pending; T19 finite free phase-evolution slice and phase-card clarification complete locally with review/publication pending; T20 remains a bounded topology visualizer; T21 records cross-model external-field coupling.*
 
 ## Purpose
 

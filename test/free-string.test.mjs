@@ -50,6 +50,7 @@ test('T19 free evolution uses declared oscillator frequencies and preserves norm
   assert.ok(Math.abs(evolved.norm - 1) < 1e-12, `norm ${evolved.norm}`);
   assert.equal(evolved.levelMatched, true);
   assert.ok(evolved.terms.every(term => term.probability >= 0));
+  assert.ok(evolved.terms.every(term => Number.isFinite(term.phase)));
   assert.deepEqual(normalized.components.map(component => component.stateId), ['massless', 'higher']);
   for (const [index, term] of evolved.terms.entries()) {
     const initial = normalized.components[index].amplitude;

@@ -272,6 +272,7 @@ export function createT18PresetInitialData(N: number, name: string): NonlinearIn
 export function createOpenT18InitialData(
   N: number,
   boundary: Extract<BoundaryCondition, 'fixed' | 'free' | 'mixed'> = 'fixed',
+  options: LoopTangentOptions = {},
 ): NonlinearInitialData {
   if (N < 16) throw new Error('An open T18 string requires at least 16 samples.');
   const contract = getT18BoundaryContract(boundary);
@@ -279,14 +280,25 @@ export function createOpenT18InitialData(
   const right = { x: new Float64Array(N), y: new Float64Array(N) };
   const rightEndpointAngle = contract.rightEndpoint === 'free' ? Math.PI / 2 : 0;
   const leftEndpointAngle = contract.leftEndpoint === 'free' ? Math.PI / 2 : 0;
+  const perturbation = (
+    fraction: number,
+    harmonics: TangentHarmonic[] | undefined,
+    fallback: number,
+    phase: number,
+  ): number => fallback + (harmonics ?? []).reduce(
+    (sum, term) => sum + term.amplitude * Math.sin(term.harmonic * Math.PI * fraction + (term.phase ?? phase)),
+    0,
+  );
   for (let i = 0; i < N; i++) {
     const fraction = i / (N - 1);
     const baseAngle = leftEndpointAngle + (rightEndpointAngle - leftEndpointAngle) * fraction;
-    const angle = baseAngle + 0.28 * Math.sin(Math.PI * fraction);
-    left.x[i] = Math.cos(angle);
-    left.y[i] = Math.sin(angle);
-    right.x[i] = Math.cos(angle);
-    right.y[i] = -Math.sin(angle);
+    const envelope = Math.sin(Math.PI * fraction);
+    const leftAngle = baseAngle + envelope * perturbation(fraction, options.leftHarmonics, 0.28, options.leftPhase ?? 0);
+    const rightAngle = -baseAngle + envelope * perturbation(fraction, options.rightHarmonics, -0.28, options.rightPhase ?? 0);
+    left.x[i] = Math.cos(leftAngle);
+    left.y[i] = Math.sin(leftAngle);
+    right.x[i] = Math.cos(rightAngle);
+    right.y[i] = Math.sin(rightAngle);
   }
   return { left, right, center: { x: 0, y: 0 } };
 }
@@ -296,14 +308,14 @@ export function createOpenT18InitialData(
  * tangent fields with a sign flip across the cell boundary, so the second
  * cell retraces the first with reversed tangent and closes at length 2L.
  */
-export function createAntiPeriodicT18InitialData(N: number): NonlinearInitialData {
+export function createAntiPeriodicT18InitialData(N: number, options: LoopTangentOptions = {}): NonlinearInitialData {
   if (N < 16) throw new Error('An anti-periodic T18 cell requires at least 16 samples.');
   const left = { x: new Float64Array(N), y: new Float64Array(N) };
   const right = { x: new Float64Array(N), y: new Float64Array(N) };
   for (let i = 0; i < N; i++) {
     const theta = 2 * Math.PI * i / N;
-    const leftAngle = 0.18 + 0.38 * Math.sin(theta);
-    const rightAngle = -0.42 + 0.24 * Math.sin(theta + Math.PI / 4);
+    const leftAngle = tangentAngle(theta, options.leftPhase ?? 0.18, 0.38, options.leftHarmonics);
+    const rightAngle = tangentAngle(theta, options.rightPhase ?? -0.42, 0.24, options.rightHarmonics);
     left.x[i] = Math.cos(leftAngle);
     left.y[i] = Math.sin(leftAngle);
     right.x[i] = Math.cos(rightAngle);

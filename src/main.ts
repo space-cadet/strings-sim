@@ -6,7 +6,13 @@
 import { SimulationConfig, StringParameters, BoundaryCondition, PhysicsMode, stableTimeStep } from './physics/core';
 import { ClassicalStringSolver } from './physics/classical';
 import { RelativisticStringSolver } from './physics/relativistic';
-import { NonlinearRelativisticStringSolver, createAntiPeriodicT18InitialData, createT18PresetInitialData, getT18PresetDefinition } from './physics/nonlinear-relativistic';
+import {
+  NonlinearRelativisticStringSolver,
+  createAntiPeriodicT18InitialData,
+  createOpenT18InitialData,
+  createT18PresetInitialData,
+  getT18PresetDefinition,
+} from './physics/nonlinear-relativistic';
 import { StringRenderer } from './visualization/renderer';
 import { WorldsheetRenderer } from './visualization/worldsheet';
 import { ProbeTrajectoryRenderer } from './visualization/probe-trajectory';
@@ -203,9 +209,13 @@ class StringSimulator {
 
   private initializePreset(preset: (typeof presets)[string], presetName = this.presetSelect?.value ?? 'pluck'): void {
     if (this.solver instanceof NonlinearRelativisticStringSolver) {
-      this.solver.initialize(this.config.boundary === 'anti-periodic'
-        ? createAntiPeriodicT18InitialData(this.config.N)
-        : createT18PresetInitialData(this.config.N, presetName));
+      const options = getT18PresetDefinition(presetName).options;
+      const initialData = this.config.boundary === 'anti-periodic'
+        ? createAntiPeriodicT18InitialData(this.config.N, options)
+        : this.config.boundary === 'periodic'
+          ? createT18PresetInitialData(this.config.N, presetName)
+          : createOpenT18InitialData(this.config.N, this.config.boundary, options);
+      this.solver.initialize(initialData);
       return;
     }
     const speed = this.solver.getMetrics().waveSpeed;
@@ -485,10 +495,10 @@ class StringSimulator {
       const referencePreset = presets[option.value];
       if (!referencePreset) return;
       const t18Preset = getT18PresetDefinition(option.value);
-      option.textContent = isNonlinear ? t18Preset.label : referencePreset.label;
+        option.textContent = isNonlinear ? t18Preset.label : referencePreset.label;
       option.title = isNonlinear
         ? this.config.boundary === 'anti-periodic'
-          ? 'The anti-periodic doubled-domain mode uses a shared reference cell for every preset.'
+          ? 'The selected T18 preset supplies the anti-periodic reference cell; the target projection closes after two cells.'
           : t18Preset.description
         : referencePreset.label;
     });
@@ -497,7 +507,7 @@ class StringSimulator {
       description.hidden = !isNonlinear;
       description.textContent = isNonlinear
         ? this.config.boundary === 'anti-periodic'
-          ? 'Anti-periodic reference cell: the target-space projection shows the validated length-2L doubled-domain closure.'
+          ? 'Anti-periodic reference cell: the selected preset shapes the length-2L doubled-domain closure.'
           : getT18PresetDefinition(this.presetSelect.value).description
         : '';
     }

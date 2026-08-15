@@ -9,6 +9,7 @@
 - Added T21 and its implementation record for model-specific external-field coupling from classical and linearized-relativistic sources through T18 constrained forcing and T19 finite Hamiltonian drives.
 - Added a T17 anti-periodic linear reference fixture and half-integer-mode regression. Documented T18’s doubled-domain interpretation and kept anti-periodic embedding/UI exposure gated on a future length-$2L$ construction.
 - Added the T18 nonlinear anti-periodic doubled-domain path, boundary selector exposure, mode-specific copy, and 2N-sample target-space closure regression. Local tests (30) and build pass; browser acceptance and deployment remain separate.
+- Corrected T18 preset application across periodic, fixed, free, mixed, and anti-periodic boundaries with boundary-compatible, distinct initial data. Clarified T19 phase evolution with phase-angle and relative-phase output; local tests (34) and build pass, with publication still separate.
 
 ### Delivered locally
 
