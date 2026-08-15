@@ -67,6 +67,32 @@ export interface T18PresetDefinition {
   options: LoopTangentOptions;
 }
 
+export interface T18PresetDiagnostics {
+  name: string;
+  label: string;
+  leftHarmonics: Array<{ harmonic: number; amplitude: number }>;
+  rightHarmonics: Array<{ harmonic: number; amplitude: number }>;
+  projectedArea: number;
+  radiusRms: number;
+  boundingWidth: number;
+  boundingHeight: number;
+  velocityRms: number;
+  maxSpeed: number;
+  energy: number;
+  constraintResidual: number;
+}
+
+export interface T18GeometricModeMixingReport {
+  preset: string;
+  sampleSteps: number;
+  initialProjectedArea: number;
+  evolvedProjectedArea: number;
+  initialRadialHarmonics: number[];
+  evolvedRadialHarmonics: number[];
+  initialHigherHarmonicFraction: number;
+  evolvedHigherHarmonicFraction: number;
+}
+
 /**
  * Closed-string presets for T18. Each tangent angle is built from the odd
  * base winding plus even harmonics, so f(sigma + L/2) = -f(sigma) and the
@@ -93,7 +119,7 @@ export const T18_PRESETS: Readonly<Record<string, T18PresetDefinition>> = {
   },
   thirdHarmonic: {
     label: 'Three-lobed loop',
-    description: 'A higher even tangent harmonic creates three prominent target-space lobes.',
+    description: 'A higher even tangent harmonic creates a three-lobed target-space projection.',
     options: {
       leftHarmonics: [{ harmonic: 6, amplitude: 0.42 }],
       rightHarmonics: [{ harmonic: 6, amplitude: 0.30 }],
@@ -116,8 +142,8 @@ export const T18_PRESETS: Readonly<Record<string, T18PresetDefinition>> = {
     },
   },
   gaussian: {
-    label: 'Localized kink pair',
-    description: 'Several harmonics align to make two localized high-curvature regions.',
+    label: 'High-curvature pair',
+    description: 'Several aligned harmonics create two concentrated high-curvature regions.',
     options: {
       leftHarmonics: [
         { harmonic: 2, amplitude: 0.12 },
@@ -137,8 +163,8 @@ export const T18_PRESETS: Readonly<Record<string, T18PresetDefinition>> = {
     },
   },
   travelingPulse: {
-    label: 'Chiral travelling loop',
-    description: 'The left and right tangent sectors carry deliberately different shapes.',
+    label: 'Asymmetric travelling loop',
+    description: 'Unequal left/right tangent sectors give the loop a strong travelling component.',
     options: {
       leftHarmonics: [
         { harmonic: 2, amplitude: 0.38 },
@@ -196,6 +222,151 @@ export function getT18PresetNames(): string[] {
 
 export function createT18PresetInitialData(N: number, name: string): NonlinearInitialData {
   return createConformalLoopInitialData(N, getT18PresetDefinition(name).options);
+}
+
+function harmonicAmplitudes(field: TangentField, maxHarmonic: number): Array<{ harmonic: number; amplitude: number }> {
+  const amplitudes: Array<{ harmonic: number; amplitude: number }> = [];
+  const N = field.x.length;
+  for (let harmonic = 2; harmonic <= maxHarmonic; harmonic += 2) {
+    let cosine = 0;
+    let sine = 0;
+    for (let i = 0; i < N; i++) {
+      const theta = 2 * Math.PI * i / N;
+      const tangentAngle = Math.atan2(field.y[i], field.x[i]);
+      const baseAngle = theta;
+      const residual = Math.atan2(Math.sin(tangentAngle - baseAngle), Math.cos(tangentAngle - baseAngle));
+      cosine += residual * Math.cos(harmonic * theta);
+      sine += residual * Math.sin(harmonic * theta);
+    }
+    amplitudes.push({ harmonic, amplitude: 2 * Math.hypot(cosine, sine) / N });
+  }
+  return amplitudes;
+}
+
+function radialHarmonics(x: Float64Array, y: Float64Array, maxHarmonic: number): number[] {
+  const N = x.length;
+  const radius = new Float64Array(N);
+  for (let i = 0; i < N; i++) radius[i] = Math.hypot(x[i], y[i]);
+  const result: number[] = [];
+  for (let harmonic = 1; harmonic <= maxHarmonic; harmonic++) {
+    let cosine = 0;
+    let sine = 0;
+    for (let i = 0; i < N; i++) {
+      const theta = 2 * Math.PI * harmonic * i / N;
+      cosine += radius[i] * Math.cos(theta);
+      sine += radius[i] * Math.sin(theta);
+    }
+    result.push(Math.hypot(cosine, sine) / N);
+  }
+  return result;
+}
+
+function higherHarmonicFraction(harmonics: number[]): number {
+  const total = harmonics.reduce((sum, value) => sum + value ** 2, 0);
+  const higher = harmonics.slice(2).reduce((sum, value) => sum + value ** 2, 0);
+  return total === 0 ? 0 : higher / total;
+}
+
+function projectedArea(x: Float64Array, y: Float64Array): number {
+  let twiceArea = 0;
+  for (let i = 0; i < x.length; i++) {
+    const next = (i + 1) % x.length;
+    twiceArea += x[i] * y[next] - x[next] * y[i];
+  }
+  return twiceArea / 2;
+}
+
+/**
+ * Measure the physical/geometric information used by the T18 preset audit.
+ * Energy is included as a conservation sanity check; it is deliberately not
+ * treated as a distinctness signal because unit tangent data normalise it.
+ */
+export function measureT18PresetDiagnostics(N = 128): T18PresetDiagnostics[] {
+  return getT18PresetNames().map(name => {
+    const definition = getT18PresetDefinition(name);
+    const data = createT18PresetInitialData(N, name);
+    const solver = new NonlinearRelativisticStringSolver({
+      N,
+      dt: 0,
+      dx: 2 / N,
+      mode: 'nonlinear',
+      boundary: 'periodic',
+      params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+    });
+    solver.initialize(data);
+    const state = solver.getState();
+    const embedding = solver.getEmbedding();
+    let radiusSquared = 0;
+    let velocitySquared = 0;
+    let maxSpeed = 0;
+    let xMin = Infinity;
+    let xMax = -Infinity;
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    for (let i = 0; i < N; i++) {
+      radiusSquared += embedding.x[i] ** 2 + embedding.y[i] ** 2;
+      const speed = Math.hypot(state.velocityX[i], state.velocityY[i]);
+      velocitySquared += speed ** 2;
+      maxSpeed = Math.max(maxSpeed, speed);
+      xMin = Math.min(xMin, embedding.x[i]);
+      xMax = Math.max(xMax, embedding.x[i]);
+      yMin = Math.min(yMin, embedding.y[i]);
+      yMax = Math.max(yMax, embedding.y[i]);
+    }
+    return {
+      name,
+      label: definition.label,
+      leftHarmonics: harmonicAmplitudes(data.left, 10),
+      rightHarmonics: harmonicAmplitudes(data.right, 10),
+      projectedArea: projectedArea(embedding.x, embedding.y),
+      radiusRms: Math.sqrt(radiusSquared / N),
+      boundingWidth: xMax - xMin,
+      boundingHeight: yMax - yMin,
+      velocityRms: Math.sqrt(velocitySquared / N),
+      maxSpeed,
+      energy: solver.getMetrics().totalEnergy,
+      constraintResidual: solver.getConstraintReport().residual,
+    };
+  });
+}
+
+/**
+ * A bounded nonlinear observable for T18: the radial profile is a nonlinear
+ * function of the reconstructed embedding. Its higher-harmonic fraction can
+ * change during characteristic transport even though the left/right tangent
+ * fields themselves remain separately transported. This is geometric mode
+ * mixing, not a string interaction or quantum transition.
+ */
+export function measureT18GeometricModeMixing(
+  name = 'twoMode',
+  N = 128,
+  sampleSteps = 32,
+): T18GeometricModeMixingReport {
+  const solver = new NonlinearRelativisticStringSolver({
+    N,
+    dt: 0,
+    dx: 2 / N,
+    mode: 'nonlinear',
+    boundary: 'periodic',
+    params: { L: 2, tau: 1, mu: 1, gamma: 0 },
+  });
+  solver.initialize(createT18PresetInitialData(N, name));
+  const initial = solver.getEmbedding();
+  const initialRadialHarmonics = radialHarmonics(initial.x, initial.y, 8);
+  const initialProjectedArea = projectedArea(initial.x, initial.y);
+  solver.stepN(sampleSteps);
+  const evolved = solver.getEmbedding();
+  const evolvedRadialHarmonics = radialHarmonics(evolved.x, evolved.y, 8);
+  return {
+    preset: name,
+    sampleSteps,
+    initialProjectedArea,
+    evolvedProjectedArea: projectedArea(evolved.x, evolved.y),
+    initialRadialHarmonics,
+    evolvedRadialHarmonics,
+    initialHigherHarmonicFraction: higherHarmonicFraction(initialRadialHarmonics),
+    evolvedHigherHarmonicFraction: higherHarmonicFraction(evolvedRadialHarmonics),
+  };
 }
 
 const UNIT_TOLERANCE = 1e-10;

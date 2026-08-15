@@ -5,6 +5,8 @@ import {
   createConformalLoopInitialData,
   createT18PresetInitialData,
   getT18PresetNames,
+  measureT18GeometricModeMixing,
+  measureT18PresetDiagnostics,
 } from '../.test-dist/physics/nonlinear-relativistic.js';
 import { evolveT17PeriodicReference } from '../.test-dist/physics/t17-baselines.js';
 
@@ -106,4 +108,44 @@ test('T18 presets are varied closed conformal initial states', () => {
   }
 
   assert.ok(distinctFromReference >= names.length - 2, `only ${distinctFromReference} presets differ from the reference shape`);
+});
+
+test('T18 preset audit finds distinct tangent, geometry, and velocity signatures', () => {
+  const diagnostics = measureT18PresetDiagnostics(128);
+  assert.equal(diagnostics.length, 8);
+  assert.ok(diagnostics.every(item => item.constraintResidual < 1e-12));
+
+  const feature = (item) => [
+    ...item.leftHarmonics.map(harmonic => harmonic.amplitude),
+    ...item.rightHarmonics.map(harmonic => harmonic.amplitude),
+    item.projectedArea,
+    item.radiusRms,
+    item.boundingWidth,
+    item.boundingHeight,
+    item.velocityRms,
+    item.maxSpeed,
+  ];
+  let minimumDistance = Infinity;
+  for (let i = 0; i < diagnostics.length; i++) {
+    for (let j = i + 1; j < diagnostics.length; j++) {
+      const a = feature(diagnostics[i]);
+      const b = feature(diagnostics[j]);
+      const distance = Math.hypot(...a.map((value, index) => value - b[index]));
+      minimumDistance = Math.min(minimumDistance, distance);
+    }
+  }
+  assert.ok(minimumDistance > 0.2, `minimum preset feature distance ${minimumDistance}`);
+
+  const sine = diagnostics.find(item => item.name === 'sine');
+  const travelling = diagnostics.find(item => item.name === 'travelingPulse');
+  assert.ok(sine && sine.velocityRms < 1e-12, 'standing loop should have zero initial velocity');
+  assert.ok(travelling && travelling.maxSpeed > 0.8, 'travelling loop should carry a substantial initial velocity');
+});
+
+test('T18 geometric observable records bounded mode mixing without claiming interaction', () => {
+  const report = measureT18GeometricModeMixing('twoMode', 128, 32);
+  assert.equal(report.sampleSteps, 32);
+  assert.ok(report.initialRadialHarmonics.length === 8);
+  assert.ok(Math.abs(report.evolvedProjectedArea - report.initialProjectedArea) > 1e-4);
+  assert.ok(Math.abs(report.evolvedHigherHarmonicFraction - report.initialHigherHarmonicFraction) > 1e-4);
 });

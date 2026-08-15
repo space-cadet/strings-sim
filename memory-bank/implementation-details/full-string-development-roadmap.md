@@ -1,7 +1,7 @@
 # Full String Development Roadmap
 
 *Created: 2026-08-14 19:28:22 IST*
-*Status: T17 complete; T18 constrained engine and local UI integration in progress; no quantum feature is released.*
+*Status: T17 complete; T18 local validation/documentation complete with publication pending; T19/T20 local educational slices implemented with review/publication pending.*
 
 ## Purpose
 
@@ -34,15 +34,15 @@ The first implementation uses a narrow conformal-gauge target: a classical close
 
 The release gates are: constraint residuals, conserved quantities, grid/timestep convergence, small-amplitude agreement with T17, a documented nonlinear observable, and clear distinction from quantum theory. The first local slice supports the simplest rigorously verified closed periodic case; open endpoints are not presented prematurely.
 
-The current local implementation exposes a separate T18 mode, eight proposed closed conformal-loop presets, a target-space projection, and a live constraint residual. The preset family has passed constraint and implementation checks, but user acceptance of physical/geometric distinctness remains open: raster checksums are not enough, so T18e must compare tangent data, embeddings, velocities, and invariants directly. T18 does not yet claim final nonlinear mode-coupling evidence. It keeps natural-unit tension and density fixed, omits damping, and forces periodic boundaries; the configured length sets the loop coordinate interval when the solver is constructed.
+The current local implementation exposes a separate T18 mode, eight closed conformal-loop presets, a target-space projection, and a live constraint residual. T18e now compares tangent spectra, embeddings, velocities, geometric invariants, conserved energy, and browser-rendered projections directly; raster checksums are not used as acceptance evidence. T18 documents a radial-profile geometric mode-mixing observable without claiming interaction or quantum transitions. It keeps natural-unit tension and density fixed, omits damping, and forces periodic boundaries; the configured length sets the loop coordinate interval when the solver is constructed.
 
 ## T19: Free Quantum String Modes
 
-This is not a real-time quantum-field solver. It is a finite educational representation of a chosen free-string convention: oscillator occupations, level number, left/right-moving sectors where relevant, level matching, and physical-state restrictions. The UI must say which convention and truncation it uses, reject or flag invalid selections, and distinguish an illustrative classical profile from a quantum state.
+This is not a real-time quantum-field solver. The local slice is a finite educational representation of a bosonic closed-string convention in flat 26D using light-cone oscillator occupations for modes 1..4, with occupation values 0..2. It displays level number, left/right sectors, level matching, and a convention-specific mass-squared value only for matched examples. The UI distinguishes an illustrative classical profile from a quantum state and flags invalid selections.
 
 ## T20: Perturbative Interactions
 
-Interactions are first introduced as conceptual worldsheet topology: incoming free strings, a joining/splitting geometry, and outgoing free strings. The diagrams explain the perturbative picture but do not calculate amplitudes, sums over moduli, loops, or non-perturbative dynamics. Static accessible diagrams are the default initial implementation.
+Interactions are first introduced as conceptual worldsheet topology: incoming free strings, a joining/splitting geometry, and outgoing free strings. The local slice includes static accessible diagrams for propagation, pair-of-pants splitting/joining, and a genus-one handle. The diagrams explain the perturbative picture but do not calculate amplitudes, sums over moduli, loops, or non-perturbative dynamics.
 
 ## Shared Standards
 

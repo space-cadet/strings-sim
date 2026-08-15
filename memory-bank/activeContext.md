@@ -1,12 +1,16 @@
 # Active Context
 
-*Last Updated: 2026-08-15 03:10:45 IST*
+*Last Updated: 2026-08-15 23:35:35 IST*
 
 ## Current Tasks
 
 ### Active
 - **T18: Nonlinear Classical Relativistic String Solver** — 🔄 IN PROGRESS
   - T17 baseline completed; conformal-gauge closed-string engine, eight varied conformal presets, and numerical validation are implemented
+- **T19: Free Quantum String Mode Visualizer** — 🔄 IN PROGRESS
+  - Finite four-mode occupation explorer with declared bosonic closed-string convention, level matching, and truncation warnings
+- **T20: Perturbative String Interaction Concept Visualizer** — 🔄 IN PROGRESS
+  - Static accessible propagation, pair-of-pants, and handle diagrams; no amplitudes or interaction dynamics
 - **T16: Mathematical Glossary and Contextual Help System** — ✅ COMPLETED (2026-08-15)
   - Shared registry, local KaTeX, seven Learn experiments, contextual help for implemented controls and diagnostics, and T18 model-boundary entries are live-verified
   - Linked static tabs: Simulator, Learn, Glossary, and How it works
@@ -29,9 +33,7 @@
   - Implementation: GPT-5.6 Terra (Codex); inputs: Terra review
 
 ### Paused / Deferred
-- **T19–T20: String-Theory Expansion Roadmap** — ⏸️ PLANNED
-  - T19 is a finite free-quantum mode visualizer; T20 is a conceptual perturbative-interaction visualizer.
-  - No T18 solver, quantum-state, or interaction feature has started. See `implementation-details/full-string-development-roadmap.md`.
+- T19/T20 physics-content review, publication, and user acceptance remain open. See `implementation-details/full-string-development-roadmap.md`.
 - Worldsheet scrubbing — deferred until 2D views are stable
 - 3D embedded worldsheet view — deferred indefinitely
 
@@ -84,7 +86,7 @@
 - Mobile layout: tab-based view switching or stacked scroll?
   - Decision: stacked with collapsible panels (matches mockup)
 - T18 formulation: closed periodic classical string in flat 2+1-dimensional Minkowski spacetime, conformal gauge, natural units, and $X^0=\tau$.
-- T18 remaining gate: document a defensible nonlinear geometric observable/mode-mixing example without implying quantum interactions; production publication remains separate.
+- T18 local validation/documentation gate is complete; production publication remains separate.
 - T18 parameter boundary: length is used at solver construction; tension and density stay at 1, damping stays at 0, and periodic closure is forced. Nonlinear preset selection now uses dedicated even-harmonic tangent data rather than reference-profile functions.
-- T18e next-session gate: audit whether the eight presets are physically/geometrically distinct; do not treat raster checksum differences as sufficient evidence.
+- T18e preset audit completed: all eight presets have distinct measured tangent, geometry, and velocity signatures; browser-rendered projections support the revised labels. Energy is retained as a conservation check, not a distinctness signal.
 - Source commit `0785465` is pushed; website payload remains published as `c4a6a46`.
